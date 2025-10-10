@@ -1,6 +1,6 @@
-import type { Parser, ParserSuccess } from './types.ts';
+import type { Parse, ParserSuccess } from './types.ts';
 
-export function sequence(type = 'sequence', ...seq: Parser[]): Parser {
+export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
   return (text: string) => {
     const results: ParserSuccess[] = [];
     let offset = 0;

@@ -1,6 +1,6 @@
-import type { Parser } from './types.ts';
+import type { Parse } from './types.ts';
 
-export function optional(subparser: Parser, type = 'optional'): Parser {
+export function optional(subparser: Parse, type = 'optional'): Parse {
   return (text) => {
     const result = subparser(text);
     if ('error' in result) {

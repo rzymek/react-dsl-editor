@@ -1,6 +1,6 @@
-import type { Parser, ParserError } from './types.ts';
+import type { Parse, ParserError } from './types.ts';
 
-export function alternative(type = 'alternative', ...seq: Parser[]): Parser {
+export function alternative(type = 'alternative', ...seq: Parse[]): Parse {
   return (text: string) => {
     const results: ParserError[] = [];
     for (const parser of seq) {

@@ -1,6 +1,6 @@
-import type { Parser } from './types.ts';
+import type { Parse } from './types.ts';
 
-export function term(str: string): Parser {
+export function term(str: string): Parse {
   return (text) => {
     if (text.startsWith(str)) {
       return {
