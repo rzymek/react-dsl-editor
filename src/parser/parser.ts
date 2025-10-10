@@ -2,7 +2,7 @@ import { pattern } from './pattern.ts';
 import { term } from './term.ts';
 import { seq } from './seq.ts';
 import { rational } from './rational.ts';
-import { trimEmptyNode } from './trimEmptyNode.ts';
+import { trimEmptyNode } from './ast/trimEmptyNode.ts';
 
 const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
 

@@ -1,3 +1,5 @@
+import type { Parser } from './types.ts';
+
 export function pattern(regex: string, type = 'pattern'): Parser {
   return (text) => {
     const rexp = new RegExp(`^${regex}`);

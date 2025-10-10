@@ -1,4 +1,4 @@
-import type { ParserSuccess } from './types.ts';
+import type { ParserSuccess } from '../types.ts';
 
 export function filter(fn: (cst: ParserSuccess) => boolean, cst: ParserSuccess): ParserSuccess {
   const {children} = cst;
