@@ -4,6 +4,7 @@ import { rational } from '../parser/rational.ts';
 import { term } from '../parser/term.ts';
 
 const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
+const keyword = term.bind(null,'keyword');
 
 const expr = seq('expression',
   rational,
@@ -11,7 +12,7 @@ const expr = seq('expression',
   rational,
 );
 const func = seq('func',
-  term('fun'), identifier, term('{'),
+  keyword('fun'), identifier, term('{'),
   expr,
   term('}'));
 

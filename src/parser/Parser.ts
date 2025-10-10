@@ -1,4 +1,4 @@
-import type { Parse } from './types.ts';
+import { isParserError, type Parse } from './types.ts';
 import { trimEmptyNode } from './ast/trimEmptyNode.ts';
 import { ParsingError } from './ParsingError.ts';
 
@@ -11,11 +11,14 @@ export class Parser {
 
   public parse(input: string) {
     const result = this.parser(input);
-    if ('error' in result) {
+    if (isParserError(result)) {
       console.log(result);
       throw new ParsingError(result.error);
     }
-    return [trimEmptyNode]
-      .reduce((ast, fn) => fn(ast), result);
+    const normalized = [
+      trimEmptyNode,
+      // <T>(it:T)=>it,
+    ].reduce((ast, fn) => fn(ast), result);
+    return normalized;
   }
 }

@@ -1,6 +1,9 @@
-import type { ParserSuccess } from '../types.ts';
+import { isParserSuccess, type ParserSuccess, type RecoverableError } from '../types.ts';
 
-export function filter(fn: (cst: ParserSuccess) => boolean, cst: ParserSuccess): ParserSuccess {
+export function filter<T extends ParserSuccess|RecoverableError>(fn: (cst: ParserSuccess|RecoverableError) => boolean, cst: T): T {
+  if(!isParserSuccess(cst)) {
+    return cst;
+  }
   const {children} = cst;
   if (!children) {
     return cst;

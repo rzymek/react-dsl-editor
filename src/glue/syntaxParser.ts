@@ -1,24 +1,24 @@
-import type { ParserSuccess } from '../parser/types.ts';
+import { isParserSuccess, type ParserSuccess, type RecoverableError } from '../parser/types.ts';
 import type { SyntaxElement } from '../editor/CustomSyntaxHighlighter.tsx';
 
 
-function _syntaxParser(ast: ParserSuccess, offset: number, result: SyntaxElement[] = []): SyntaxElement[] {
-  if (ast.children) {
+function _syntaxParser(ast: ParserSuccess | RecoverableError, offset: number, result: SyntaxElement[] = []): SyntaxElement[] {
+  if (isParserSuccess(ast) && ast.children) {
     for (const child of ast.children) {
       _syntaxParser(child, offset, result);
-      offset += child.text.length;
+      offset += isParserSuccess(child) ? child.text.length : 0;
     }
-  }else{
+  } else {
     result.push({
       name: ast.type,
-      text: ast.text,
+      text: isParserSuccess(ast) ? ast.text : '',
       startOffset: offset,
-      endOffset: offset + ast.text.length,
+      endOffset: offset + (isParserSuccess(ast) ? ast.text.length : 0),
     });
   }
   return result;
 }
 
-export function syntaxParser(ast: ParserSuccess): SyntaxElement[] {
+export function syntaxParser(ast: ParserSuccess|RecoverableError): SyntaxElement[] {
   return _syntaxParser(ast, 0);
 }

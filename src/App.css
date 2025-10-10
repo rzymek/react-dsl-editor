@@ -1,4 +1,5 @@
 .term { color: #0000ff;}
+.keyword { color: #666666;}
 .identifier { color: #ff0000;}
 .rational { color: #00ff00;}
 .optionalWhitespace { text-decoration: underline;}
