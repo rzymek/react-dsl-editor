@@ -9,9 +9,9 @@ export function EditableSyntaxHighlighter(props: {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [syntax, setSyntax] = useState<SyntaxElement[]>([]);
 
-  function updateSuggestionsForCursorAt(cursorStart: number): void {
+  function updateSuggestionsForCursorAt(cursorStart: number, _syntax = syntax): void {
     console.log(`updateSuggestionsForCursorAt(${cursorStart})`);
-    const element = syntax
+    const element = _syntax
       .find(it => it.startOffset <= cursorStart && cursorStart <= it.endOffset);
     const foo: string[] = [];
     if (element) {
@@ -21,7 +21,7 @@ export function EditableSyntaxHighlighter(props: {
         cursorStart - element.startOffset,
       ));
     }
-    const nextElement = syntax.find(it => cursorStart == it.startOffset && cursorStart == it.endOffset);
+    const nextElement = _syntax.find(it => cursorStart == it.startOffset && cursorStart == it.endOffset);
     if (nextElement) {
       foo.push(...props.suggestions(
         nextElement.name,
@@ -62,12 +62,13 @@ export function EditableSyntaxHighlighter(props: {
           const code = e.currentTarget.value;
           setCode(code);
           try {
-            setSyntax(props.syntaxParser(code));
+            const syntax: SyntaxElement[] = props.syntaxParser(code);
+            updateSuggestionsForCursorAt(e.currentTarget.selectionStart, syntax);
+            setSyntax(syntax);
           } catch (e) {
             setSyntax([]);
             console.warn(e);
           }
-          updateSuggestionsForCursorAt(e.currentTarget.selectionStart);
         }}
       />
       <CustomSyntaxHighlighter
