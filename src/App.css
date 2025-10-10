@@ -2,3 +2,4 @@
 .identifier { color: #ff0000;}
 .rational { color: #00ff00;}
 .optionalWhitespace { text-decoration: underline;}
+.error { text-decoration: line-through;}

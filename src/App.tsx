@@ -11,7 +11,17 @@ function suggestion(_: string):string[] {
 
 const parser = new Parser(funcParser)
 function syntaxer(text: string): SyntaxElement[] {
-  return syntaxParser(parser.parse(text));
+  const syntaxElements = syntaxParser(parser.parse(text));
+  if(syntaxElements[syntaxElements.length-1]?.endOffset !== text.length) {
+    const startOffset: number = syntaxElements[syntaxElements.length-1]?.endOffset ?? 0;
+    syntaxElements.push({
+      name: 'error',
+      startOffset,
+      endOffset: text.length,
+      text: text.substring(startOffset),
+    })
+  }
+  return syntaxElements;
 }
 
 function App() {

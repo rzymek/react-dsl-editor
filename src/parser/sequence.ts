@@ -7,10 +7,7 @@ export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
     for (const parser of seq) {
       const result = parser(text.substring(offset));
       if ('error' in result) {
-        return {
-          ...result,
-          soFar: results,
-        };
+        continue;
       }
       offset += result.text.length;
       results.push(result);
