@@ -10,10 +10,6 @@ export class Parser {
 
   public parse(input: string): ParserResult {
     const result = this.parser(input);
-    // if (isParserError(result)) {
-    //   console.log(result);
-    //   throw new ParsingError(`Expected '${result.error.expected}' but got '${result.error.got}'`);
-    // }
     const normalized = [
       trimEmptyNode,
       // <T>(it:T)=>it,

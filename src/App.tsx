@@ -5,8 +5,10 @@ import { funcParser } from './example/funcParser.ts';
 import { syntaxParser } from './glue/syntaxParser.ts';
 import './App.css';
 import { useState } from 'react';
+import { last } from './lib/last.ts';
 
 function suggestions(type: string) {
+  console.log('suggestions', type);
   if (type == 'keyword') {
     return ['fun'];
   } else if (type === 'identifier') {
@@ -22,8 +24,9 @@ const parser = new Parser(funcParser);
 
 function syntaxer(text: string): SyntaxElement[] {
   const syntaxElements = syntaxParser(parser.parse(text));
-  if (syntaxElements[syntaxElements.length - 1]?.endOffset !== text.length) {
-    const startOffset: number = syntaxElements[syntaxElements.length - 1]?.endOffset ?? 0;
+  const syntaxEndOffset = last(syntaxElements)?.endOffset ?? 0;
+  if (syntaxEndOffset < text.length) {
+    const startOffset = syntaxEndOffset;
     syntaxElements.push({
       name: 'error',
       text: text.substring(startOffset),

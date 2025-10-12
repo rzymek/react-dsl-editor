@@ -1,14 +1,13 @@
 export interface SyntaxElement {
-  endOffset: number,
-  startOffset: number,
   name: string,
   text: string,
-  expected?: string|undefined,
+  expected?: string | undefined,
+  startOffset: number,
+  endOffset: number,
 }
 
-export function CustomSyntaxHighlighter({syntax = [], code = ''}: {
+export function CustomSyntaxHighlighter({syntax = []}: {
   syntax: SyntaxElement[];
-  code: string
 }) {
   return (
     <pre style={{
@@ -23,7 +22,7 @@ export function CustomSyntaxHighlighter({syntax = [], code = ''}: {
     }}>
       {syntax.flatMap((element, idx) =>
         <span key={`token_${idx}`} className={[element.name].join(' ')}>
-            {code.slice(element.startOffset, element.endOffset)}
+            {element.text}
           </span>,
       )}
     </pre>

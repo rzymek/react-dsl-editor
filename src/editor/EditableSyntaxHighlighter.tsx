@@ -18,11 +18,10 @@ export function EditableSyntaxHighlighter(props: {
   function updateSuggestionsForCursorAt(cursorStart: number, _syntax = syntax): void {
     const suggestion = _.pipe(
       _syntax,
-      _.filter(it => it.startOffset <= cursorStart && cursorStart <= it.startOffset + Math.max(it.text.length,it.expected?.length??0)), // syntax elements within cursor position
+      _.filter(it => it.startOffset <= cursorStart && cursorStart <= Math.max(it.endOffset, it.startOffset + (it.expected??'').length)), // syntax elements within cursor position
       _.map(syntax => {
-        const clientSuggestions: string[] | undefined = props.suggestions(syntax.name);
-        console.log({clientSuggestions}, `for ${syntax.name}`);
-        return (clientSuggestions ?? [syntax.expected!].filter(it=>it)) // get suggestion for type
+          const suggestions = syntax.expected ? [syntax.expected] : props.suggestions(syntax.name) ?? [];
+          return suggestions // get suggestion for type
             .filter(suggestion =>
               suggestion.startsWith(syntax.text.substring(0, cursorStart - syntax.startOffset)) ||
               (syntax.expected && suggestion.startsWith(syntax.expected.substring(0, cursorStart - syntax.startOffset + 1))),
@@ -34,7 +33,7 @@ export function EditableSyntaxHighlighter(props: {
       _.take(1),
       _.flat(),
     );
-    setSuggestions(suggestion ?? []);
+    setSuggestions(suggestion);
   }
 
   useEffect(() => {
@@ -81,10 +80,7 @@ export function EditableSyntaxHighlighter(props: {
           updateSuggestions(code, e);
         }}
       />
-      <CustomSyntaxHighlighter
-        syntax={syntax}
-        code={code}
-      />
+      <CustomSyntaxHighlighter syntax={syntax}/>
     </div>
     <div style={{padding: 8}}>
       {uniq(suggestions).map((suggestion, idx) =>
