@@ -2,5 +2,13 @@
 .keyword { color: #666666;}
 .identifier { color: #ff0000;}
 .rational { color: #00ff00;}
-.optionalWhitespace { text-decoration: underline;}
+/*.optionalWhitespace { text-decoration: underline;}*/
 .error { text-decoration: line-through;}
+
+
+.day { color: #ff0000;}
+.month { color: #00ff00;}
+.year { color: #0000ff;}
+.project { color: #888800;}
+.subproject { color: #444400;}
+.hour { color: #808080;}

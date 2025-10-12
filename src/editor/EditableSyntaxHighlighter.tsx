@@ -66,7 +66,7 @@ export function EditableSyntaxHighlighter(
   }, [code, onParsed, updateSuggestionsForSyntax]);
 
   return <div style={{display: 'grid', gridTemplateRows: '1fr auto'}}>
-    <div style={{position: 'relative'}}>
+    <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
         spellCheck={false}

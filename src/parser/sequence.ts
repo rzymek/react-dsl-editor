@@ -1,18 +1,6 @@
 import { isEmpty } from 'remeda';
 import { isParserSuccess, type Parse, type ParserError, type ParserResult } from './types.ts';
-
-function appendOffset(error: ParserError, offset: number): {
-  type: string;
-  error: { offset: number; expected: string | RegExp; got: string }
-} {
-  return {
-    ...error,
-    error: {
-      ...error.error,
-      offset: error.error.offset + offset,
-    },
-  };
-}
+import { appendOffset } from './appendOffset.ts';
 
 export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
   return (text: string) => {
