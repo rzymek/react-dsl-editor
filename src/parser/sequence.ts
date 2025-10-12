@@ -12,10 +12,7 @@ export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
       } else {
         hasError = true;
       }
-      results.push({
-        ...result,
-        offset
-      } as any);
+      results.push(result);
     }
     return {
       type,

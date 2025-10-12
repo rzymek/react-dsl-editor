@@ -24,9 +24,9 @@ function funcParser() {
 
 function parseTestName(): SyntaxElement[] {
   const parser = new Parser(funcParser());
-  const currentTestName = expect.getState().currentTestName?.replace(/^.*[>] /g, '')!;
+  const currentTestName = expect.getState().currentTestName!.replace(/^.*[>] /g, '');
   const ast = parser.parse(currentTestName);
-  return syntaxParser(ast);
+  return syntaxParser(ast, currentTestName);
 }
 
 describe('syntaxParser', () => {
