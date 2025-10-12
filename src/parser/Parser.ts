@@ -1,6 +1,5 @@
-import { isParserError, type Parse } from './types.ts';
+import { type Parse, type ParserResult } from './types.ts';
 import { trimEmptyNode } from './ast/trimEmptyNode.ts';
-import { ParsingError } from './ParsingError.ts';
 
 export class Parser {
   private readonly parser: Parse;
@@ -9,12 +8,12 @@ export class Parser {
     this.parser = parser;
   }
 
-  public parse(input: string) {
+  public parse(input: string): ParserResult {
     const result = this.parser(input);
-    if (isParserError(result)) {
-      console.log(result);
-      throw new ParsingError(result.error);
-    }
+    // if (isParserError(result)) {
+    //   console.log(result);
+    //   throw new ParsingError(`Expected '${result.error.expected}' but got '${result.error.got}'`);
+    // }
     const normalized = [
       trimEmptyNode,
       // <T>(it:T)=>it,

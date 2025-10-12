@@ -12,7 +12,10 @@ export function pattern(regex: string, type = 'pattern'): Parse {
     } else {
       return {
         type,
-        error: `expected '${regex}', got '${text}'`,
+        error: {
+          expected: new RegExp(regex),
+          got: text,
+        }
       };
     }
   };

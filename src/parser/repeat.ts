@@ -1,21 +1,21 @@
 import { isParserSuccess, type Parse, type ParserResult } from './types.ts';
 
-export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
+export function repeat(type = 'repeat', parser: Parse, min = 1, max = Infinity): Parse {
   return (text: string) => {
     const results: ParserResult[] = [];
     let offset = 0;
     let hasError = false;
-    for (const parser of seq) {
+    for (let i = 0; i <= max; i++) {
       const result = parser(text.substring(offset));
       if (isParserSuccess(result)) {
         offset += result.text.length;
       } else {
+        if (i >= min) {
+          break;
+        }
         hasError = true;
       }
-      results.push({
-        ...result,
-        offset
-      } as any);
+      results.push(result);
     }
     return {
       type,
@@ -25,4 +25,3 @@ export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
     };
   };
 }
-

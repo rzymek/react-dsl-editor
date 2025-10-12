@@ -1,6 +1,6 @@
-import { isParserSuccess, type ParserSuccess, type RecoverableError } from '../types.ts';
+import { isParserSuccess, type ParserResult } from '../types.ts';
 
-export function filter<T extends ParserSuccess|RecoverableError>(fn: (cst: ParserSuccess|RecoverableError) => boolean, cst: T): T {
+export function filter(fn: (cst: ParserResult) => boolean, cst: ParserResult): ParserResult {
   if(!isParserSuccess(cst)) {
     return cst;
   }

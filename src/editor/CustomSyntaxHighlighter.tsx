@@ -1,8 +1,9 @@
 export interface SyntaxElement {
-  endOffset: number;
-  startOffset: number;
-  name: string;
+  endOffset: number,
+  startOffset: number,
+  name: string,
   text: string,
+  expected?: string|undefined,
 }
 
 export function CustomSyntaxHighlighter({syntax = [], code = ''}: {

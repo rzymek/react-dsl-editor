@@ -1,3 +1,4 @@
-import { pattern } from './pattern.ts';
+import { repeat } from './repeat.ts';
+import { term } from './term.ts';
 
-export const ws = pattern(`\\s+`, 'whitespace');
+export const ws = repeat('ws', term('space',' '))

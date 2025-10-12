@@ -1,43 +1,61 @@
 import { useEffect, useState } from 'react';
 import { CustomSyntaxHighlighter, type SyntaxElement } from './CustomSyntaxHighlighter.tsx';
+import * as _ from 'remeda';
+
+function uniq<T>(arr: T[]): T[] {
+  return Array.from(new Set(arr));
+}
 
 export function EditableSyntaxHighlighter(props: {
-  suggestions: (type: string, text: string, offset: number) => string[],
+  suggestions: (type: string) => string[] | undefined,
   syntaxParser: (text: string) => SyntaxElement[],
+  onChange?: (text: string) => void,
 }) {
   const [code, setCode] = useState('fun foo{10  +2}');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [syntax, setSyntax] = useState<SyntaxElement[]>([]);
 
   function updateSuggestionsForCursorAt(cursorStart: number, _syntax = syntax): void {
-    console.log(`updateSuggestionsForCursorAt(${cursorStart})`);
-    const element = _syntax
-      .find(it => it.startOffset <= cursorStart && cursorStart <= it.endOffset);
-    const foo: string[] = [];
-    if (element) {
-      foo.push(...props.suggestions(
-        element.name,
-        element.text,
-        cursorStart - element.startOffset,
-      ));
-    }
-    const nextElement = _syntax.find(it => cursorStart == it.startOffset && cursorStart == it.endOffset);
-    if (nextElement) {
-      foo.push(...props.suggestions(
-        nextElement.name,
-        nextElement.text,
-        cursorStart - nextElement.startOffset,
-      ));
-    }
-    setSuggestions(foo);
+    const suggestion = _.pipe(
+      _syntax,
+      _.filter(it => it.startOffset <= cursorStart && cursorStart <= it.startOffset + Math.max(it.text.length,it.expected?.length??0)), // syntax elements within cursor position
+      _.map(syntax => {
+        const clientSuggestions: string[] | undefined = props.suggestions(syntax.name);
+        console.log({clientSuggestions}, `for ${syntax.name}`);
+        return (clientSuggestions ?? [syntax.expected!].filter(it=>it)) // get suggestion for type
+            .filter(suggestion =>
+              suggestion.startsWith(syntax.text.substring(0, cursorStart - syntax.startOffset)) ||
+              (syntax.expected && suggestion.startsWith(syntax.expected.substring(0, cursorStart - syntax.startOffset + 1))),
+            ) // filter by prefix
+            .filter(suggestion => suggestion.length !== cursorStart - syntax.startOffset);
+        }, // reject fully written suggestions
+      ),
+      _.filter(suggestions => suggestions.length > 0), // find the first syntax element with suggestions
+      _.take(1),
+      _.flat(),
+    );
+    setSuggestions(suggestion ?? []);
   }
 
   useEffect(() => {
     setSyntax(props.syntaxParser(code));
   }, []);
 
-  return <div>
-    <div style={{position: 'relative', width: 800, height: 600, border: '1px solid red'}}>
+  function updateSuggestions(code: string, e: React.ChangeEvent<HTMLTextAreaElement>): void {
+    setCode(code);
+    props.onChange?.(code);
+    try {
+      const syntax: SyntaxElement[] = props.syntaxParser(code);
+      updateSuggestionsForCursorAt(e.currentTarget.selectionStart, syntax);
+      setSyntax(syntax);
+    } catch (e) {
+      setSyntax([]);
+      console.warn(e);
+    }
+  }
+
+  return <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
+    <div style={{position: 'relative'}}>
       <textarea
         style={{
           position: 'absolute',
@@ -60,15 +78,7 @@ export function EditableSyntaxHighlighter(props: {
         }}
         onChange={(e) => {
           const code = e.currentTarget.value;
-          setCode(code);
-          try {
-            const syntax: SyntaxElement[] = props.syntaxParser(code);
-            updateSuggestionsForCursorAt(e.currentTarget.selectionStart, syntax);
-            setSyntax(syntax);
-          } catch (e) {
-            setSyntax([]);
-            console.warn(e);
-          }
+          updateSuggestions(code, e);
         }}
       />
       <CustomSyntaxHighlighter
@@ -76,9 +86,19 @@ export function EditableSyntaxHighlighter(props: {
         code={code}
       />
     </div>
-    <pre>{JSON.stringify({
-      suggestions,
-      syntax,
-    }, null, 2)}</pre>
+    <div style={{padding: 8}}>
+      {uniq(suggestions).map((suggestion, idx) =>
+        <button key={idx} onClick={() => {
+          const currentTarget = document.querySelector('textarea')!;
+          currentTarget.selectionStart = currentTarget.selectionEnd = currentTarget.value.length;
+          updateSuggestions(code + suggestion, {currentTarget} as any);
+        }}>&nbsp;{suggestion}&nbsp;</button>)}
+      <pre>{JSON.stringify({
+        cursor: document.querySelector('textarea')?.selectionStart,
+        suggestions,
+
+        syntax,
+      }, null, 2)}</pre>
+    </div>
   </div>;
 }

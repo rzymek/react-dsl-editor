@@ -4,9 +4,18 @@ import { Parser } from './parser/Parser.ts';
 import { funcParser } from './example/funcParser.ts';
 import { syntaxParser } from './glue/syntaxParser.ts';
 import './App.css';
+import { useState } from 'react';
 
-function suggestion(type: string, text: string, offset: number): string[] {
-  return [type, text, '' + offset];
+function suggestions(type: string) {
+  if (type == 'keyword') {
+    return ['fun'];
+  } else if (type === 'identifier') {
+    return ['foo', 'bar', 'baz'];
+  } else if (type === 'space') {
+    return [' '];
+  } else if (type === 'rational') {
+    return ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
+  }
 }
 
 const parser = new Parser(funcParser);
@@ -17,17 +26,19 @@ function syntaxer(text: string): SyntaxElement[] {
     const startOffset: number = syntaxElements[syntaxElements.length - 1]?.endOffset ?? 0;
     syntaxElements.push({
       name: 'error',
+      text: text.substring(startOffset),
       startOffset,
       endOffset: text.length,
-      text: text.substring(startOffset),
     });
   }
   return syntaxElements;
 }
 
 function App() {
+  const [code, setCode] = useState('');
   return <div>
-    <EditableSyntaxHighlighter suggestions={suggestion} syntaxParser={syntaxer}/>
+    <EditableSyntaxHighlighter suggestions={suggestions} syntaxParser={syntaxer} onChange={setCode}/>
+    <pre>{JSON.stringify(parser.parse(code), null, 2)}</pre>
   </div>;
 }
 
