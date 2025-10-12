@@ -1,23 +1,42 @@
-import { isParserSuccess, type Parse, type ParserResult } from './types.ts';
+import { isEmpty } from 'remeda';
+import { isParserSuccess, type Parse, type ParserError, type ParserResult } from './types.ts';
+
+function appendOffset(error: ParserError, offset: number): {
+  type: string;
+  error: { offset: number; expected: string | RegExp; got: string }
+} {
+  return {
+    ...error,
+    error: {
+      ...error.error,
+      offset: error.error.offset + offset,
+    },
+  };
+}
 
 export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
   return (text: string) => {
     const results: ParserResult[] = [];
     let offset = 0;
-    let hasError = false;
+    const recoverableErrors: ParserError[] = [];
     for (const parser of seq) {
       const result = parser(text.substring(offset));
       if (isParserSuccess(result)) {
         offset += result.text.length;
+        if (!isEmpty(result.recoverableErrors ?? [])) {
+          result.recoverableErrors!.forEach(error => {
+            recoverableErrors.push(appendOffset(error, offset))
+          })
+        }
       } else {
-        hasError = true;
+        recoverableErrors.push(appendOffset(result,offset));
       }
       results.push(result);
     }
     return {
       type,
       text: text.substring(0, offset),
-      hasError,
+      recoverableErrors,
       children: results,
     };
   };

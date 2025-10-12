@@ -2,9 +2,9 @@ import { EditableSyntaxHighlighter } from './editor/EditableSyntaxHighlighter.ts
 import { funcParser } from './example/funcParser.ts';
 import './App.css';
 import { useState } from 'react';
+import type { ParserResult } from './parser/types.ts';
 
 function suggestions(type: string) {
-  console.log('suggestions', type);
   if (type == 'keyword') {
     return ['fun'];
   } else if (type === 'identifier') {
@@ -17,9 +17,18 @@ function suggestions(type: string) {
 }
 
 function App() {
-  const [code, setCode] = useState('fun foo{ 12  +3}');
-  return <div style={{minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr'}}>
-    <EditableSyntaxHighlighter suggestions={suggestions} code={code} onChange={setCode} grammar={funcParser}/>
+  const [code, setCode] = useState(`
+    fun foo{ 12  +3}
+  `.trim());
+  const [output, setOutput] = useState<ParserResult>();
+  return <div style={{minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr 1fr'}}>
+    <EditableSyntaxHighlighter
+      code={code}
+      onChange={setCode}
+      grammar={funcParser}
+      suggestions={suggestions}
+      onParsed={setOutput}/>
+    <pre>{JSON.stringify(output, null, 2)}</pre>
   </div>;
 }
 

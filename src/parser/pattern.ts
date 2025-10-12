@@ -15,6 +15,7 @@ export function pattern(regex: string, type = 'pattern'): Parse {
         error: {
           expected: new RegExp(regex),
           got: text,
+          offset: 0,
         }
       };
     }

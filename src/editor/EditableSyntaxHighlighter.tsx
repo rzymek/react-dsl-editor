@@ -1,17 +1,24 @@
-import { useCallback, useEffect, useMemo, useRef, useState, type ChangeEvent } from 'react';
+import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { CustomSyntaxHighlighter, type SyntaxElement } from './CustomSyntaxHighlighter.tsx';
 import * as _ from 'remeda';
 import { Parser } from '../parser/Parser.ts';
-import type { Parse } from '../parser/types.ts';
+import { type Parse, type ParserResult } from '../parser/types.ts';
 import { syntaxParser } from '../glue/syntaxParser.ts';
 
-export function EditableSyntaxHighlighter(props: {
-  suggestions: (type: string) => string[] | undefined,
-  code: string,
-  onChange: (text: string) => void,
-  grammar: Parse,
-}) {
-  const {code, suggestions: clientSuggestions, onChange} = props;
+export function EditableSyntaxHighlighter(
+  {
+    code,
+    onChange,
+    onParsed,
+    grammar,
+    suggestions: clientSuggestions,
+  }: {
+    code: string,
+    onChange: (text: string) => void,
+    onParsed?: (ast: ParserResult) => void,
+    grammar: Parse,
+    suggestions?: (type: string) => string[] | undefined,
+  }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [syntax, setSyntax] = useState<SyntaxElement[]>([]);
   const parser = useRef<Parser>(null);
@@ -23,7 +30,7 @@ export function EditableSyntaxHighlighter(props: {
       _syntax,
       _.filter(it => it.startOffset <= cursorStart && cursorStart <= Math.max(it.endOffset, it.startOffset + (it.expected ?? '').length)), // syntax elements within cursor position
       _.map(syntax => {
-          const suggestions = syntax.expected ? [syntax.expected] : clientSuggestions(syntax.name) ?? [];
+          const suggestions = syntax.expected ? [syntax.expected] : clientSuggestions?.(syntax.name) ?? [];
           return suggestions // get suggestion for type
             .filter(suggestion =>
               suggestion.startsWith(syntax.text.substring(0, cursorStart - syntax.startOffset)) ||
@@ -44,23 +51,25 @@ export function EditableSyntaxHighlighter(props: {
   }, [syntax, updateSuggestionsForSyntax]);
 
   useEffect(() => {
-    parser.current = new Parser(props.grammar);
-  }, [props.grammar]);
+    parser.current = new Parser(grammar);
+  }, [grammar]);
 
   useEffect(() => {
     if (!parser.current) {
       return;
     }
     const ast = parser.current.parse(code);
+    onParsed?.(ast);
     const syntax = syntaxParser(ast, code);
     updateSuggestionsForSyntax(syntax);
     setSyntax(syntax);
-  }, [code, updateSuggestionsForSyntax]);
+  }, [code, onParsed, updateSuggestionsForSyntax]);
 
   return <div style={{display: 'grid', gridTemplateRows: '1fr auto'}}>
     <div style={{position: 'relative'}}>
       <textarea
         ref={textarea}
+        spellCheck={false}
         style={{
           position: 'absolute',
           inset: 0,
@@ -80,14 +89,14 @@ export function EditableSyntaxHighlighter(props: {
       />
       <CustomSyntaxHighlighter syntax={syntax}/>
     </div>
-    <div style={{display: 'flex', gap: 4, padding: '4px 0', overflowY:'auto'}}>
+    <div style={{display: 'flex', gap: 4, padding: '4px 0', overflowY: 'auto'}}>
       {_.pipe(
         suggestions,
         _.unique(),
         _.map((suggestion, idx) =>
-          <button key={idx} onClick={() => {
-            props.onChange(code + suggestion);
-          }}>&nbsp;{suggestion}&nbsp;</button>),
+          <button key={idx} onClick={() => onChange(code + suggestion)}>
+            &nbsp;{suggestion}&nbsp;
+          </button>),
       )}
       {/*<pre>{JSON.stringify({cursor: textarea.current?.selectionStart, suggestions, syntax}, null, 2)}</pre>*/}
     </div>

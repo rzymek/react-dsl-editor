@@ -9,14 +9,16 @@ export function term(typeOrStr: string, strOrUndefined?: string): Parse {
     if (text.startsWith(str)) {
       return {
         type,
-        strict: true,
         text: str,
       };
     } else {
       return {
         type,
-        strict: true,
-        error: {expected: str, got: text},
+        error: {
+          expected: str,
+          got: text,
+          offset: 0,
+        },
       };
     }
   };

@@ -1,5 +1,19 @@
-export type ParserSuccess = { type: string, text: string, children?: ParserResult[], hasError?: boolean, strict?: true };
-export type ParserError = { type: string, error: { expected: string|RegExp, got: string } };
+export interface ParserError {
+  type: string,
+  error: {
+    offset: number;
+    expected: string | RegExp,
+    got: string
+  }
+}
+
+export interface ParserSuccess {
+  type: string,
+  text: string,
+  children?: ParserResult[],
+  recoverableErrors?: ParserError[],
+}
+
 export type ParserResult = ParserSuccess | ParserError;
 export type Parse = (text: string) => ParserResult;
 
