@@ -1,6 +1,6 @@
 import { isParserError, isParserSuccess, type ParserResult } from '../parser/types.ts';
 import type { SyntaxElement } from '../editor/CustomSyntaxHighlighter.tsx';
-import { last } from '../lib/last.ts';
+import { last } from 'remeda';
 
 function _syntaxParser(ast: ParserResult, offset: number, result: SyntaxElement[] = []): SyntaxElement[] {
   if (isParserSuccess(ast) && ast.children) {
