@@ -1,18 +1,19 @@
-import type { Parse, ParserError } from './types.ts';
+import { isParserSuccess, type Parse, type ParserError } from './types.ts';
 
 export function alternative(type = 'alternative', ...seq: Parse[]): Parse {
   return (text: string) => {
-    const results: ParserError[] = [];
+    const errors: ParserError[] = [];
     for (const parser of seq) {
       const result = parser(text);
-      if (!('error' in result)) {
+      if (isParserSuccess(result)) {
         return result;
       }
-      results.push(result);
+      errors.push(result);
     }
     return {
       type,
-      error: results[0].error,
+      text: '',
+      recoverableErrors: errors,
     };
   };
 }

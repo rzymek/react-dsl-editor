@@ -6,10 +6,11 @@ import { rational } from '../parser/rational.ts';
 import { term } from '../parser/term.ts';
 import { Parser } from '../parser/Parser.ts';
 import type { SyntaxElement } from '../editor/CustomSyntaxHighlighter.tsx';
+import { last } from 'remeda';
 
 function funcParser() {
   const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
-  const keyword = term.bind(null,'keyword');
+  const keyword = term.bind(null, 'keyword');
   const expr = seq('expression',
     rational,
     term('+'),
@@ -22,11 +23,19 @@ function funcParser() {
   return func;
 }
 
+function testName(): string {
+  return expect.getState().currentTestName!.replace(/^.*[>] /g, '');
+}
+
 function parseTestName(): SyntaxElement[] {
   const parser = new Parser(funcParser());
-  const currentTestName = expect.getState().currentTestName!.replace(/^.*[>] /g, '');
-  const ast = parser.parse(currentTestName);
-  return syntaxParser(ast, currentTestName);
+  const input = testName();
+  const ast = parser.parse(input);
+  return syntaxParser(ast, input);
+}
+
+function expectSyntaxTextToEqual(syntax: SyntaxElement[], expected: string): void {
+  expect(syntax.reduce((acc, it) => acc + it.text, '')).toEqual(expected);
 }
 
 describe('syntaxParser', () => {
@@ -45,11 +54,30 @@ describe('syntaxParser', () => {
     expect(syntax.map(it => it.name)).toEqual([
       'keyword', 'optionalWhitespace', 'identifier', 'term', 'rational', 'optionalWhitespace', 'term', 'rational', 'term',
     ]);
+    expectSyntaxTextToEqual(syntax, testName());
   });
+
   it('fun foo{', () => {
     const syntax = parseTestName();
     expect(syntax.map(it => it.name)).toEqual([
       'keyword', 'optionalWhitespace', 'identifier', 'term', 'rational', 'term', 'rational', 'term',
     ]);
+    expectSyntaxTextToEqual(syntax, testName());
+  });
+
+  it('fun foo{12 xx 34}', () => {
+    const syntax = parseTestName();
+    expectSyntaxTextToEqual(syntax, testName());
+  });
+  it('fun x yy', () => {
+    const syntax = parseTestName();
+    const input: string = testName();
+    expectSyntaxTextToEqual(syntax, input);
+    expect(last(syntax)).toEqual({
+      name: "error",
+      text: "yy",
+      startOffset: 6,
+      endOffset: 8,
+    });
   });
 });

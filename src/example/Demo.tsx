@@ -1,8 +1,8 @@
-import { EditableSyntaxHighlighter } from './editor/EditableSyntaxHighlighter.tsx';
-import { funcParser } from './example/funcParser.ts';
-import './App.css';
+import { EditableSyntaxHighlighter } from '../editor/EditableSyntaxHighlighter.tsx';
+import { funcParser } from './funcParser.ts';
+import './Demo.css';
 import { useState } from 'react';
-import type { ParserResult } from './parser/types.ts';
+import type { ParserResult } from '../parser/types.ts';
 
 function suggestions(type: string) {
   if (type == 'keyword') {
@@ -16,7 +16,7 @@ function suggestions(type: string) {
   }
 }
 
-function App() {
+function Demo() {
   const [code, setCode] = useState(`
     fun foo{ 12  +3}
   `.trim());
@@ -32,4 +32,4 @@ function App() {
   </div>;
 }
 
-export default App;
+export default Demo;
