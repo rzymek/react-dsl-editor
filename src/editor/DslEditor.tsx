@@ -2,7 +2,7 @@ import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } f
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter.tsx';
 import { Parser } from '../parser/Parser.ts';
 import { type Parse, type ParserResult } from '../parser/types.ts';
-import { textSyntax } from '../glue/textSyntax.ts';
+import { textSyntax } from '../syntax/textSyntax.ts';
 import { getSuggestions } from './getSuggestions.ts';
 import { SuggestionsView } from './SuggestionsView.tsx';
 

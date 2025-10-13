@@ -2,7 +2,7 @@ import { getSuggestions } from './getSuggestions';
 import { describe, it, expect, vi } from 'vitest';
 import { Parser } from '../parser/Parser.ts';
 import { funcParser } from '../example/funcParser.ts';
-import { textSyntax } from '../glue/textSyntax.ts';
+import { textSyntax } from '../syntax/textSyntax.ts';
 import type { NodeTypes } from '../parser/types.ts';
 
 const parser = new Parser(funcParser);
