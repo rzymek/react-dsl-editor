@@ -1,4 +1,4 @@
-import type { SyntaxElement } from './CustomSyntaxHighlighter.tsx';
+import type { SyntaxElement } from './SyntaxHighlighter.tsx';
 import * as _ from 'remeda';
 
 export function getSuggestions<T>(syntax: SyntaxElement<T>[], cursorStart: number, clientSuggestions?: (type: ('error' | T)) => (string[] | undefined)) {

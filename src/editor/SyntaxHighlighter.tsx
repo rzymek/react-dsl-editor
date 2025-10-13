@@ -6,7 +6,7 @@ export interface SyntaxElement<T> {
   endOffset: number,
 }
 
-export function CustomSyntaxHighlighter<T>({syntax = []}: {
+export function SyntaxHighlighter<T>({syntax = []}: {
   syntax: SyntaxElement<T>[];
 }) {
   return (

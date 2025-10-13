@@ -1,4 +1,4 @@
-import { EditableSyntaxHighlighter } from '../editor/EditableSyntaxHighlighter.tsx';
+import { DslEditor } from '../editor/DslEditor.tsx';
 import './Demo.css';
 import { useState } from 'react';
 import type { NodeTypes, ParserResult } from '../parser/types.ts';
@@ -52,7 +52,7 @@ function Demo() {
   `.trim());
   const [output, setOutput] = useState<ParserResult<string>>();
   return <div style={{minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr 1fr', height: '75vh'}}>
-    <EditableSyntaxHighlighter
+    <DslEditor
       code={code}
       onChange={setCode}
       grammar={grammar}

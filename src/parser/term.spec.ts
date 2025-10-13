@@ -20,7 +20,8 @@ describe('term', () => {
     const other = 'def';
     const parser = term(terminal);
     expect(parser(other)).toEqual({
-      type: 'term', 'error': {
+      type: 'term',
+      error: {
         expected: 'abc',
         got: 'def',
         offset: 0,

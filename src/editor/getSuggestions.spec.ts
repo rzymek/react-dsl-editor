@@ -2,13 +2,13 @@ import { getSuggestions } from './getSuggestions';
 import { describe, it, expect, vi } from 'vitest';
 import { Parser } from '../parser/Parser.ts';
 import { funcParser } from '../example/funcParser.ts';
-import { syntaxParser } from '../glue/syntaxParser.ts';
+import { textSyntax } from '../glue/textSyntax.ts';
 import type { NodeTypes } from '../parser/types.ts';
 
 const parser = new Parser(funcParser);
 
 function funcSyntax(code: string) {
-  return syntaxParser(parser.parse(code), code);
+  return textSyntax(parser.parse(code), code);
 }
 
 describe('getSuggestions', () => {

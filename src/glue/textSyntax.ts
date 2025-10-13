@@ -1,11 +1,11 @@
 import { isParserError, isParserSuccess, type ParserResult } from '../parser/types.ts';
-import type { SyntaxElement } from '../editor/CustomSyntaxHighlighter.tsx';
+import type { SyntaxElement } from '../editor/SyntaxHighlighter.tsx';
 import { last } from 'remeda';
 
-function _syntaxParser<T extends string>(ast: ParserResult<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
+function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
   if (isParserSuccess(ast) && ast.children) {
     for (const child of ast.children) {
-      _syntaxParser(child, offset, result);
+      syntaxForParserResult(child, offset, result);
       offset += isParserSuccess(child) ? child.text.length : 0;
     }
   } else {
@@ -21,8 +21,8 @@ function _syntaxParser<T extends string>(ast: ParserResult<T>, offset: number, r
   return result;
 }
 
-export function syntaxParser<T extends string>(ast: ParserResult<T>, text: string): SyntaxElement<T>[] {
-  const syntaxElements = _syntaxParser<T>(ast, 0);
+export function textSyntax<T extends string>(ast: ParserResult<T>, text: string): SyntaxElement<T>[] {
+  const syntaxElements = syntaxForParserResult<T>(ast, 0);
   const syntaxEndOffset = last(syntaxElements)?.endOffset ?? 0;
   if (syntaxEndOffset < text.length) {
     const startOffset = syntaxEndOffset;

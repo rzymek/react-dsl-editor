@@ -1,11 +1,11 @@
 import { describe, expect, it } from 'vitest';
-import { syntaxParser } from './syntaxParser.ts';
+import { textSyntax } from './textSyntax.ts';
 import { pattern } from '../parser/pattern.ts';
 import { seq } from '../parser/seq.ts';
 import { rational } from '../parser/rational.ts';
 import { term } from '../parser/term.ts';
 import { Parser } from '../parser/Parser.ts';
-import type { SyntaxElement } from '../editor/CustomSyntaxHighlighter.tsx';
+import type { SyntaxElement } from '../editor/SyntaxHighlighter.tsx';
 import { last } from 'remeda';
 
 function funcParser() {
@@ -31,7 +31,7 @@ function parseTestName() {
   const parser = new Parser(funcParser());
   const input = testName();
   const ast = parser.parse(input);
-  return syntaxParser(ast, input);
+  return textSyntax(ast, input);
 }
 
 function expectSyntaxTextToEqual(syntax: SyntaxElement<string>[], expected: string): void {

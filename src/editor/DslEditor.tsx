@@ -1,12 +1,12 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { CustomSyntaxHighlighter, type SyntaxElement } from './CustomSyntaxHighlighter.tsx';
-import * as _ from 'remeda';
+import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter.tsx';
 import { Parser } from '../parser/Parser.ts';
 import { type Parse, type ParserResult } from '../parser/types.ts';
-import { syntaxParser } from '../glue/syntaxParser.ts';
+import { textSyntax } from '../glue/textSyntax.ts';
 import { getSuggestions } from './getSuggestions.ts';
+import { SuggestionsView } from './SuggestionsView.tsx';
 
-export function EditableSyntaxHighlighter<T extends string>(
+export function DslEditor<T extends string>(
   {
     code,
     onChange,
@@ -18,7 +18,7 @@ export function EditableSyntaxHighlighter<T extends string>(
     onChange: (text: string) => void,
     onParsed?: (ast: ParserResult<T>) => void,
     grammar: Parse<T>,
-    suggestions?: (type: T|'error') => string[] | undefined,
+    suggestions?: (type: T | 'error') => string[] | undefined,
   }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [syntax, setSyntax] = useState<SyntaxElement<T>[]>([]);
@@ -45,7 +45,7 @@ export function EditableSyntaxHighlighter<T extends string>(
     }
     const ast = parser.current.parse(code);
     onParsed?.(ast);
-    const syntax = syntaxParser(ast, code);
+    const syntax = textSyntax(ast, code);
     updateSuggestionsForSyntax(syntax);
     setSyntax(syntax);
   }, [code, onParsed, updateSuggestionsForSyntax]);
@@ -72,18 +72,8 @@ export function EditableSyntaxHighlighter<T extends string>(
         onSelect={updateSuggestions}
         onChange={useCallback((e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value), [onChange])}
       />
-      <CustomSyntaxHighlighter syntax={syntax}/>
+      <SyntaxHighlighter syntax={syntax}/>
     </div>
-    <div style={{display: 'flex', gap: 4, padding: '4px 0', overflowY: 'auto'}}>
-      {_.pipe(
-        suggestions,
-        _.unique(),
-        _.map((suggestion, idx) =>
-          <button key={idx} onClick={() => onChange(code + suggestion)}>
-            &nbsp;{suggestion}&nbsp;
-          </button>),
-      )}
-      {/*<pre>{JSON.stringify({cursor: textarea.current?.selectionStart, suggestions, syntax}, null, 2)}</pre>*/}
-    </div>
+    <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
   </div>;
 }
