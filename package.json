@@ -2,6 +2,9 @@
   "name": "@rzymek/react-dsl-editor",
   "private": false,
   "version": "0.1.0",
+  "publishConfig": {
+    "access": "public"
+  },
   "type": "module",
   "main": "./dist/react-dsl-editor.umd.js",
   "module": "./dist/react-dsl-editor.es.js",
