@@ -4,6 +4,7 @@ import * as _ from 'remeda';
 import { Parser } from '../parser/Parser.ts';
 import { type Parse, type ParserResult } from '../parser/types.ts';
 import { syntaxParser } from '../glue/syntaxParser.ts';
+import { getSuggestions } from './getSuggestions.ts';
 
 export function EditableSyntaxHighlighter<T extends string>(
   {
@@ -26,23 +27,7 @@ export function EditableSyntaxHighlighter<T extends string>(
 
   const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
-    const suggestion = _.pipe(
-      _syntax,
-      _.filter(it => it.startOffset <= cursorStart && cursorStart <= Math.max(it.endOffset, it.startOffset + (it.expected ?? '').length)), // syntax elements within cursor position
-      _.map(syntax => {
-          const suggestions = syntax.expected ? [syntax.expected] : clientSuggestions?.(syntax.name) ?? [];
-          return suggestions // get suggestion for type
-            .filter(suggestion =>
-              suggestion.startsWith(syntax.text.substring(0, cursorStart - syntax.startOffset)) ||
-              (syntax.expected && suggestion.startsWith(syntax.expected.substring(0, cursorStart - syntax.startOffset + 1))),
-            ) // filter by prefix
-            .filter(suggestion => suggestion.length !== cursorStart - syntax.startOffset);
-        }, // reject fully written suggestions
-      ),
-      _.filter(suggestions => suggestions.length > 0), // find the first syntax element with suggestions
-      _.take(1),
-      _.flat(),
-    );
+    const suggestion = getSuggestions(_syntax, cursorStart, clientSuggestions);
     setSuggestions(suggestion);
   }, [clientSuggestions]);
 
