@@ -2,11 +2,11 @@ import { isParserError, isParserSuccess, type Parse, type ParserError, type Pars
 import { appendOffset } from './appendOffset.ts';
 import { isEmpty } from 'remeda';
 
-export function repeat(type = 'repeat', parser: Parse, min = 1, max = Infinity): Parse {
-  return (text: string): ParserResult => {
-    const results: ParserResult[] = [];
+export function repeat<T extends string>(type:T = 'repeat' as T, parser: Parse<T>, min = 1, max = Infinity): Parse<T> {
+  return (text: string): ParserResult<T> => {
+    const results: ParserResult<T>[] = [];
     let offset = 0;
-    const recoverableErrors: ParserError[] = [];
+    const recoverableErrors: ParserError<T>[] = [];
     for (let i = 0; i < max && recoverableErrors.length === 0; i++) {
       const result = parser(text.substring(offset));
       if (isParserSuccess(result) && isEmpty(result.recoverableErrors ?? [])) {

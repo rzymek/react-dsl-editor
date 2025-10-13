@@ -2,11 +2,11 @@ import { isEmpty } from 'remeda';
 import { isParserSuccess, type Parse, type ParserError, type ParserResult } from './types.ts';
 import { appendOffset } from './appendOffset.ts';
 
-export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
-  return (text: string) => {
-    const results: ParserResult[] = [];
+export function sequence<T extends string>(type:T = 'sequence' as T, ...seq: Parse<T>[]): Parse<T> {
+  return (text: string):ParserResult<T> => {
+    const results: ParserResult<T>[] = [];
     let offset = 0;
-    const recoverableErrors: ParserError[] = [];
+    const recoverableErrors: ParserError<T>[] = [];
     for (const parser of seq) {
       const result = parser(text.substring(offset));
       if (isParserSuccess(result)) {
@@ -26,7 +26,7 @@ export function sequence(type = 'sequence', ...seq: Parse[]): Parse {
       text: text.substring(0, offset),
       recoverableErrors,
       children: results,
-    };
+    } as ParserResult<T>;
   };
 }
 

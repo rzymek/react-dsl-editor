@@ -1,9 +1,6 @@
 import type { ParserError } from './types.ts';
 
-export function appendOffset(error: ParserError, offset: number): {
-  type: string;
-  error: { offset: number; expected: string | RegExp; got: string }
-} {
+export function appendOffset<T extends string>(error: ParserError<T>, offset: number): ParserError<T> {
   return {
     ...error,
     error: {

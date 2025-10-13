@@ -10,7 +10,7 @@ import { last } from 'remeda';
 
 function funcParser() {
   const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
-  const keyword = term.bind(null, 'keyword');
+  const keyword = (text: string) => term('keyword', text);
   const expr = seq('expression',
     rational,
     term('+'),
@@ -27,14 +27,14 @@ function testName(): string {
   return expect.getState().currentTestName!.replace(/^.*[>] /g, '');
 }
 
-function parseTestName(): SyntaxElement[] {
+function parseTestName() {
   const parser = new Parser(funcParser());
   const input = testName();
   const ast = parser.parse(input);
   return syntaxParser(ast, input);
 }
 
-function expectSyntaxTextToEqual(syntax: SyntaxElement[], expected: string): void {
+function expectSyntaxTextToEqual(syntax: SyntaxElement<string>[], expected: string): void {
   expect(syntax.reduce((acc, it) => acc + it.text, '')).toEqual(expected);
 }
 
@@ -74,8 +74,8 @@ describe('syntaxParser', () => {
     const input: string = testName();
     expectSyntaxTextToEqual(syntax, input);
     expect(last(syntax)).toEqual({
-      name: "error",
-      text: "yy",
+      name: 'error',
+      text: 'yy',
       startOffset: 6,
       endOffset: 8,
     });

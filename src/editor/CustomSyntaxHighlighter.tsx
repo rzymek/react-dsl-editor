@@ -1,13 +1,13 @@
-export interface SyntaxElement {
-  name: string,
+export interface SyntaxElement<T> {
+  name: T|'error',
   text: string,
   expected?: string | undefined,
   startOffset: number,
   endOffset: number,
 }
 
-export function CustomSyntaxHighlighter({syntax = []}: {
-  syntax: SyntaxElement[];
+export function CustomSyntaxHighlighter<T>({syntax = []}: {
+  syntax: SyntaxElement<T>[];
 }) {
   return (
     <pre style={{

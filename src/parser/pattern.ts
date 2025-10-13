@@ -1,14 +1,16 @@
-import type { Parse } from './types.ts';
+import type { Parse, ParserResult } from './types.ts';
 
-export function pattern(regex: string, type = 'pattern'): Parse {
-  return (text) => {
+export function pattern(regex: string): Parse<'pattern'>;
+export function pattern<T extends string>(regex: string, type:T): Parse<T>;
+export function pattern<T extends string>(regex: string, type: T = 'pattern' as T): Parse<T> {
+  return (text): ParserResult<T> => {
     const rexp = new RegExp(`^${regex}`);
     const match = rexp.exec(text);
     if (match) {
       return {
         type,
         text: match[0],
-      };
+      } as ParserResult<T>;
     } else {
       return {
         type,
@@ -16,8 +18,8 @@ export function pattern(regex: string, type = 'pattern'): Parse {
           expected: new RegExp(regex),
           got: text,
           offset: 0,
-        }
-      };
+        },
+      } as ParserResult<T>;
     }
   };
 }

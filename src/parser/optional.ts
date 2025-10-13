@@ -1,11 +1,11 @@
-import { isParserError, type Parse } from './types.ts';
+import { isParserError, type Parse, type ParserSuccess } from './types.ts';
 
-export function optional(subparser: Parse, type = 'optional'): Parse {
-  return (text) => {
+export function optional<T extends string>(subparser: Parse<T>): Parse<T> {
+  return (text):ParserSuccess<T> => {
     const result = subparser(text);
     if (isParserError(result)) {
       return {
-        type,
+        type: result.type,
         text: '',
       };
     } else {

@@ -5,7 +5,7 @@ import { Parser } from '../parser/Parser.ts';
 import { type Parse, type ParserResult } from '../parser/types.ts';
 import { syntaxParser } from '../glue/syntaxParser.ts';
 
-export function EditableSyntaxHighlighter(
+export function EditableSyntaxHighlighter<T extends string>(
   {
     code,
     onChange,
@@ -15,16 +15,16 @@ export function EditableSyntaxHighlighter(
   }: {
     code: string,
     onChange: (text: string) => void,
-    onParsed?: (ast: ParserResult) => void,
-    grammar: Parse,
-    suggestions?: (type: string) => string[] | undefined,
+    onParsed?: (ast: ParserResult<T>) => void,
+    grammar: Parse<T>,
+    suggestions?: (type: T|'error') => string[] | undefined,
   }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
-  const [syntax, setSyntax] = useState<SyntaxElement[]>([]);
-  const parser = useRef<Parser>(null);
+  const [syntax, setSyntax] = useState<SyntaxElement<T>[]>([]);
+  const parser = useRef<Parser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
 
-  const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement[]) => {
+  const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
     const suggestion = _.pipe(
       _syntax,

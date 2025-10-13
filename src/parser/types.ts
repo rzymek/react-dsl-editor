@@ -1,5 +1,5 @@
-export interface ParserError {
-  type: string,
+export interface ParserError<T extends string> {
+  type: T,
   error: {
     offset: number;
     expected: string | RegExp,
@@ -7,20 +7,23 @@ export interface ParserError {
   }
 }
 
-export interface ParserSuccess {
-  type: string,
+export interface ParserSuccess<T extends string> {
+  type: T,
   text: string,
-  children?: ParserResult[],
-  recoverableErrors?: ParserError[],
+  children?: ParserResult<T>[],
+  recoverableErrors?: ParserError<T>[],
 }
 
-export type ParserResult = ParserSuccess | ParserError;
-export type Parse = (text: string) => ParserResult;
+export type ParserResult<T extends string> = ParserSuccess<T> | ParserError<T>;
+export type Parse<T extends string> = (text: string) => ParserResult<T>;
 
-export function isParserError(result: ParserResult): result is ParserError {
+type _NodeTypes<T> = T extends Parse<infer U> ? U : never;
+export type NodeTypes<T> = _NodeTypes<T>|'error';
+
+export function isParserError<T extends string>(result: ParserResult<T>): result is ParserError<T> {
   return 'error' in result && result.error !== undefined;
 }
 
-export function isParserSuccess(result: ParserResult): result is ParserSuccess {
+export function isParserSuccess<T extends string>(result: ParserResult<T>): result is ParserSuccess<T> {
   return 'text' in result && result.text !== undefined;
 }

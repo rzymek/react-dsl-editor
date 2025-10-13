@@ -1,7 +1,10 @@
 import { filter } from './filter.ts';
-import { isParserError } from '../types.ts';
+import { isParserError, type ParserResult } from '../types.ts';
 
-export const trimEmptyNode =
-  filter.bind(null, node =>
-    isParserError(node) || node.text !== '' || !!node.children,
+
+export function trimEmptyNode<T extends string>(it:ParserResult<T>) {
+  return filter(
+    node => isParserError(node) || node.text !== '' || !!node.children,
+    it
   );
+}
