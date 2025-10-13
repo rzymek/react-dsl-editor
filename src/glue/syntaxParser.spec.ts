@@ -80,4 +80,9 @@ describe('syntaxParser', () => {
       endOffset: 8,
     });
   });
+  it('fun x', () => {
+    const syntax = parseTestName();
+    const input: string = testName();
+    expectSyntaxTextToEqual(syntax, input);
+  });
 });

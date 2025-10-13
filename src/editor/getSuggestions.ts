@@ -9,8 +9,7 @@ export function getSuggestions<T>(syntax: SyntaxElement<T>[], cursorStart: numbe
         const suggestions = syntax.expected ? [syntax.expected] : clientSuggestions?.(syntax.name) ?? [];
         return suggestions // get suggestion for type
           .filter(suggestion =>
-            suggestion.startsWith(syntax.text.substring(0, cursorStart - syntax.startOffset)) ||
-            (syntax.expected && suggestion.startsWith(syntax.expected.substring(0, cursorStart - syntax.startOffset + 1))),
+            suggestion.startsWith(syntax.text.substring(0, cursorStart - syntax.startOffset)),
           ) // filter by prefix
           .filter(suggestion => suggestion.length !== cursorStart - syntax.startOffset);
       }, // reject fully written suggestions

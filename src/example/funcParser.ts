@@ -7,7 +7,7 @@ import { ws } from '../parser/ws.ts';
 import { optionalWhitespace } from '../parser/optionalWhitespace.ts';
 
 const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
-const keyword = term.bind(null, 'keyword');
+const keyword = (text: string) => term('keyword', text);
 
 const expr = seq('expression',
   rational,
