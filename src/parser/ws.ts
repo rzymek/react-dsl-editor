@@ -1,4 +1,4 @@
-import { repeat } from './repeat.ts';
-import { term } from './term.ts';
+import { repeat } from './repeat';
+import { term } from './term';
 
 export const ws = repeat('ws', term('space',' '))

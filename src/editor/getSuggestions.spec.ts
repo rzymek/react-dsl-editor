@@ -1,9 +1,9 @@
 import { getSuggestions } from './getSuggestions';
 import { describe, it, expect, vi } from 'vitest';
-import { Parser } from '../parser/Parser.ts';
-import { funcParser } from '../example/funcParser.ts';
-import { textSyntax } from '../syntax/textSyntax.ts';
-import type { NodeTypes } from '../parser/types.ts';
+import { Parser } from '../parser/Parser';
+import { funcParser } from '../example/funcParser';
+import { textSyntax } from '../syntax/textSyntax';
+import type { NodeTypes } from '../parser/types';
 
 const parser = new Parser(funcParser);
 

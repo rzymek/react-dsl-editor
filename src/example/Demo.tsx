@@ -1,13 +1,13 @@
-import { DslEditor } from '../editor/DslEditor.tsx';
+import { DslEditor } from '../editor/DslEditor';
 import './Demo.css';
 import { useState } from 'react';
-import type { NodeTypes, ParserResult } from '../parser/types.ts';
-import { sequence } from '../parser/sequence.ts';
-import { pattern } from '../parser/pattern.ts';
-import { term } from '../parser/term.ts';
-import { ws } from '../parser/ws.ts';
-import { repeat } from '../parser/repeat.ts';
-import { optional } from '../parser/optional.ts';
+import type { NodeTypes, ParserResult } from '../parser/types';
+import { sequence } from '../parser/sequence';
+import { pattern } from '../parser/pattern';
+import { term } from '../parser/term';
+import { ws } from '../parser/ws';
+import { repeat } from '../parser/repeat';
+import { optional } from '../parser/optional';
 import { range } from 'remeda';
 
 

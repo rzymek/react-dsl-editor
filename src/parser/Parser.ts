@@ -1,5 +1,5 @@
-import { type Parse, type ParserResult } from './types.ts';
-import { trimEmptyNode } from './ast/trimEmptyNode.ts';
+import { type Parse, type ParserResult } from './types';
+import { trimEmptyNode } from './ast/trimEmptyNode';
 
 export class Parser<T extends string> {
   private readonly parser: Parse<T>;

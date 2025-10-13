@@ -1,4 +1,4 @@
-import type { Parse, ParserResult } from './types.ts';
+import type { Parse, ParserResult } from './types';
 
 export function term(str: string): Parse<'term'>;
 export function term<T extends string>(type: T, str: string): Parse<T>;

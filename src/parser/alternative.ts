@@ -1,4 +1,4 @@
-import { isParserSuccess, type Parse, type ParserError } from './types.ts';
+import { isParserSuccess, type Parse, type ParserError } from './types';
 
 export function alternative<T extends string>(type:T = 'alternative' as T, ...seq: Parse<T>[]): Parse<T> {
   return (text: string) => {

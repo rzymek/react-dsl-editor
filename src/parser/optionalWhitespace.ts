@@ -1,3 +1,3 @@
-import { pattern } from './pattern.ts';
+import { pattern } from './pattern';
 
 export const optionalWhitespace = pattern(`\\s*`, 'optionalWhitespace');

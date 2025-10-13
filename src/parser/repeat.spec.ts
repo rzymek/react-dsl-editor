@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { repeat } from './repeat.ts';
-import { term } from './term.ts';
-import { isParserSuccess } from './types.ts';
-import { sequence } from './sequence.ts';
+import { repeat } from './repeat';
+import { term } from './term';
+import { isParserSuccess } from './types';
+import { sequence } from './sequence';
 
 describe('repeat', () => {
   it('defaults', () => {

@@ -1,6 +1,6 @@
 import { isEmpty } from 'remeda';
-import { isParserSuccess, type Parse, type ParserError, type ParserResult } from './types.ts';
-import { appendOffset } from './appendOffset.ts';
+import { isParserSuccess, type Parse, type ParserError, type ParserResult } from './types';
+import { appendOffset } from './appendOffset';
 
 export function sequence<T extends string>(type:T = 'sequence' as T, ...seq: Parse<T>[]): Parse<T> {
   return (text: string):ParserResult<T> => {

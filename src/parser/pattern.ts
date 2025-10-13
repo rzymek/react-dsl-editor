@@ -1,4 +1,4 @@
-import type { Parse, ParserResult } from './types.ts';
+import type { Parse, ParserResult } from './types';
 
 export function pattern(regex: string): Parse<'pattern'>;
 export function pattern<T extends string>(regex: string, type:T): Parse<T>;

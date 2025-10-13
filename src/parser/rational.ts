@@ -1,3 +1,3 @@
-import { pattern } from './pattern.ts';
+import { pattern } from './pattern';
 
 export const rational = pattern(`\\d+\\.?\\d*`, 'rational');

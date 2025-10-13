@@ -1,4 +1,4 @@
-import { isParserSuccess, type ParserResult } from '../types.ts';
+import { isParserSuccess, type ParserResult } from '../types';
 
 export function filter<T extends string>(fn: (cst: ParserResult<T>) => boolean, cst: ParserResult<T>): ParserResult<T> {
   if (!isParserSuccess(cst)) {

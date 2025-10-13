@@ -1,10 +1,10 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter.tsx';
-import { Parser } from '../parser/Parser.ts';
-import { type Parse, type ParserResult } from '../parser/types.ts';
-import { textSyntax } from '../syntax/textSyntax.ts';
-import { getSuggestions } from './getSuggestions.ts';
-import { SuggestionsView } from './SuggestionsView.tsx';
+import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
+import { Parser } from '../parser/Parser';
+import { type Parse, type ParserResult } from '../parser/types';
+import { textSyntax } from '../syntax/textSyntax';
+import { getSuggestions } from './getSuggestions';
+import { SuggestionsView } from './SuggestionsView';
 
 export function DslEditor<T extends string>(
   {

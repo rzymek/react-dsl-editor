@@ -1,5 +1,5 @@
-import { isParserError, isParserSuccess, type Parse, type ParserError, type ParserResult } from './types.ts';
-import { appendOffset } from './appendOffset.ts';
+import { isParserError, isParserSuccess, type Parse, type ParserError, type ParserResult } from './types';
+import { appendOffset } from './appendOffset';
 import { isEmpty } from 'remeda';
 
 export function repeat<T extends string>(type:T = 'repeat' as T, parser: Parse<T>, min = 1, max = Infinity): Parse<T> {

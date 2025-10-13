@@ -1,5 +1,5 @@
-import { filter } from './filter.ts';
-import { isParserError, type ParserResult } from '../types.ts';
+import { filter } from './filter';
+import { isParserError, type ParserResult } from '../types';
 
 
 export function trimEmptyNode<T extends string>(it:ParserResult<T>) {

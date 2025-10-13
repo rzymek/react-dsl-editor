@@ -3,6 +3,9 @@
 Lightweight React textarea for Domain Specific Language (DSL) editing.
 
 ## Usage
+```bash
+pnpm install @rzymek/react-dsl-editor
+```
 
 ```typescript jsx
 // Define your grammar using the provided parser combinator library:

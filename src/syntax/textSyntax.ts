@@ -1,5 +1,5 @@
-import { isParserError, isParserSuccess, type ParserResult } from '../parser/types.ts';
-import type { SyntaxElement } from '../editor/SyntaxHighlighter.tsx';
+import { isParserError, isParserSuccess, type ParserResult } from '../parser/types';
+import type { SyntaxElement } from '../editor/SyntaxHighlighter';
 import { last } from 'remeda';
 
 function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
