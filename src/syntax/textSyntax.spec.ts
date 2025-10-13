@@ -1,10 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import { textSyntax } from './textSyntax';
-import { pattern } from '../parser/pattern';
-import { seq } from '../parser/seq';
-import { rational } from '../parser/rational';
-import { term } from '../parser/term';
-import { Parser } from '../parser/Parser';
+import { pattern, seq, rational, term, Parser } from '../parser';
 import type { SyntaxElement } from '../editor/SyntaxHighlighter';
 import { last } from 'remeda';
 
@@ -48,7 +44,7 @@ describe('syntaxParser', () => {
     expect(syntax.map(it => it.startOffset)).toEqual([
       0, 3, 4, 7, 8, 10, 12, 13, 14,
     ]);
-    expect(syntax.map(it => it.endOffset)).toMatchInlineSnapshot([
+    expect(syntax.map(it => it.endOffset)).toEqual([
       3, 4, 7, 8, 10, 12, 13, 14, 15,
     ]);
     expect(syntax.map(it => it.name)).toEqual([
