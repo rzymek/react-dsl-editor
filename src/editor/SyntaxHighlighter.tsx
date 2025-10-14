@@ -1,5 +1,5 @@
 export interface SyntaxElement<T> {
-  name: T|'error',
+  name: T | 'error',
   text: string,
   expected?: string | undefined,
   startOffset: number,
@@ -20,7 +20,7 @@ export function SyntaxHighlighter<T>({syntax = []}: {
       fontFamily: 'monospace',
       whiteSpace: 'pre',
     }}>
-      {syntax.flatMap((element, idx) =>
+      {syntax.map((element, idx) =>
         <span key={`token_${idx}`} className={[element.name].join(' ')}>
             {element.text}
           </span>,

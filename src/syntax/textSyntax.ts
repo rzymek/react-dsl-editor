@@ -1,6 +1,6 @@
 import { isParserError, isParserSuccess, type ParserResult } from '../parser/types';
 import type { SyntaxElement } from '../editor/SyntaxHighlighter';
-import { last } from 'remeda';
+import * as _ from 'remeda';
 
 function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
   if (isParserSuccess(ast) && ast.children) {
@@ -21,9 +21,26 @@ function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: n
   return result;
 }
 
+function removeOverlap<T>(syntax: SyntaxElement<T>[]) {
+  return syntax.flatMap((element, index, arr) => {
+    const prev = arr[index - 1];
+    const prevEnd = prev?.endOffset ?? 0;
+    if (element.startOffset < prevEnd) {
+      return [];
+    }
+    return [element];
+  });
+}
+
 export function textSyntax<T extends string>(ast: ParserResult<T>, text: string): SyntaxElement<T>[] {
   const syntaxElements = syntaxForParserResult<T>(ast, 0);
-  const syntaxEndOffset = last(syntaxElements)?.endOffset ?? 0;
+  const syntaxEndOffset = _.pipe(
+    syntaxElements,
+    _.map(it => it.endOffset),
+    _.sortBy(it => it),
+    _.last(),
+    it => it ?? 0,
+  );
   if (syntaxEndOffset < text.length) {
     const startOffset = syntaxEndOffset;
     syntaxElements.push({
@@ -33,5 +50,5 @@ export function textSyntax<T extends string>(ast: ParserResult<T>, text: string)
       endOffset: text.length,
     });
   }
-  return syntaxElements;
+  return removeOverlap(syntaxElements);
 }

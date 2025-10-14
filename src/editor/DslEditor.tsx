@@ -1,7 +1,6 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
-import { Parser } from '../parser/Parser';
-import { type Parse, type ParserResult } from '../parser/types';
+import { Parser, type Parse, type ParserResult } from '../parser';
 import { textSyntax } from '../syntax/textSyntax';
 import { getSuggestions } from './getSuggestions';
 import { SuggestionsView } from './SuggestionsView';
