@@ -6,6 +6,7 @@ import { unique } from 'remeda';
 import { textSyntax } from '../syntax/textSyntax';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
+import { SuggestionsView } from './SuggestionsView';
 
 function SuggestionsMenu({
                            suggestions,
@@ -191,6 +192,7 @@ export function DslEditor<T extends string>(
           />
       }
     </div>
+    <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
   </div>;
 }
 

@@ -1,5 +1,3 @@
-import * as _ from 'remeda';
-
 export function SuggestionsView({suggestions, onSelect}: {
   suggestions: string[],
   onSelect: (suggestion: string) => void
@@ -9,6 +7,5 @@ export function SuggestionsView({suggestions, onSelect}: {
       <button key={idx} onClick={() => onSelect(suggestion)}>
         &nbsp;{suggestion}&nbsp;
       </button>)}
-    {/*<pre>{JSON.stringify({cursor: textarea.current?.selectionStart, suggestions, syntax}, null, 2)}</pre>*/}
   </div>;
 }
