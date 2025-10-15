@@ -1,16 +1,25 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
-import { Parser, type Parse, type ParserResult } from '../parser';
+import { type Parse, Parser, type ParserResult } from '../parser';
 import { getSuggestions } from './getSuggestions';
 import { unique } from 'remeda';
 import { textSyntax } from '../syntax/textSyntax';
+import { textStyle } from './textStyle';
+import { CursorPosition, CursorPositionHandle } from './CursorPosition';
 
 function SuggestionsMenu({
                            suggestions,
                            onSelect,
-                           style
-                         }: { suggestions: string[], onSelect: (suggestion: string) => void, style: React.CSSProperties }) {
-  const [selectedIndex, setSelectedIndex] = useState(0);
+                           style,
+                           selectedIndex,
+                           onHover,
+                         }: {
+  suggestions: string[],
+  onSelect: (suggestion: string) => void,
+  style: React.CSSProperties,
+  selectedIndex: number,
+  onHover: (index: number) => void,
+}) {
   return <div style={{
     position: 'absolute',
     ...style,
@@ -26,11 +35,11 @@ function SuggestionsMenu({
     {suggestions.map((suggestion, idx) =>
       <div key={idx}
            onClick={() => onSelect(suggestion)}
-           onMouseOver={() => setSelectedIndex(idx)}
+           onMouseOver={() => onHover(idx)}
            style={{
              cursor: 'pointer',
              padding: '4px 8px',
-             backgroundColor: selectedIndex === idx ? '#094771' : 'transparent'
+             backgroundColor: selectedIndex === idx ? '#094771' : 'transparent',
            }}>
         {suggestion}
       </div>)}
@@ -58,10 +67,12 @@ export function DslEditor<T extends string>(
   const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({
     top: 0,
     left: 0,
-    visible: false
+    visible: false,
   });
+  const [suggestionIndex, setSuggestionIndex] = useState(0);
   const parser = useRef<Parser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
+  const cursor = useRef<CursorPositionHandle>(null);
 
   const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
@@ -89,57 +100,15 @@ export function DslEditor<T extends string>(
   }, [code, onParsed, updateSuggestionsForSyntax]);
 
   const getCursorCoordinates = useCallback(() => {
-    if (!textarea.current) return { top: 0, left: 0 };
-
-    const ta = textarea.current;
-    const parent = ta.parentElement;
-    if (!parent) return { top: 0, left: 0 };
-
-    const pre = document.createElement('pre');
-    const style = window.getComputedStyle(ta);
-    pre.style.font = style.font;
-    pre.style.whiteSpace = wrap ? 'pre-wrap' : 'pre';
-    pre.style.wordWrap = 'break-word';
-    pre.style.padding = style.padding;
-    pre.style.position = 'absolute';
-    pre.style.visibility = 'hidden';
-    pre.style.top = style.top;
-    pre.style.left = style.left;
-    pre.style.width = ta.clientWidth + 'px';
-
-    const text = ta.value.substring(0, ta.selectionStart);
-    pre.textContent = text;
-
-    const span = document.createElement('span');
-    span.textContent = '.'; // Placeholder
-    pre.appendChild(span);
-
-    parent.appendChild(pre);
-
-    const { offsetTop, offsetLeft } = span;
-    const { scrollTop, scrollLeft } = ta;
-
-    parent.removeChild(pre);
-
-    const lineHeight = parseInt(style.lineHeight) || (parseInt(style.fontSize) * 1.2);
-
-    return { top: offsetTop - scrollTop + lineHeight, left: offsetLeft - scrollLeft };
-  }, [wrap]);
-
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === ' ' && e.ctrlKey) {
-      e.preventDefault();
-      const { top, left } = getCursorCoordinates();
-      setSuggestionMenu({ visible: true, top, left });
-      updateSuggestions();
-    } else if (e.key === 'Escape') {
-      setSuggestionMenu(s => ({ ...s, visible: false }));
+    if (!cursor.current) {
+      return {top: 0, left: 0};
     }
-  }, [getCursorCoordinates, updateSuggestions]);
+    return cursor.current.getCursorPosition();
+  }, []);
 
   const handleSuggestionSelect = useCallback((suggestion: string) => {
     if (!textarea.current) return;
-    const { selectionStart, selectionEnd } = textarea.current;
+    const {selectionStart, selectionEnd} = textarea.current;
     const newCode = code.substring(0, selectionStart) + suggestion + code.substring(selectionEnd);
     onChange(newCode);
     setTimeout(() => {
@@ -148,8 +117,34 @@ export function DslEditor<T extends string>(
         textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart + suggestion.length;
       }
     }, 0);
-    setSuggestionMenu(s => ({ ...s, visible: false }));
+    setSuggestionMenu(s => ({...s, visible: false}));
   }, [code, onChange]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (suggestionMenu.visible) {
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        setSuggestionIndex(prevIndex => (prevIndex + 1) % suggestions.length);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        setSuggestionIndex(prevIndex => (prevIndex - 1 + suggestions.length) % suggestions.length);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (suggestions[suggestionIndex]) {
+          handleSuggestionSelect(suggestions[suggestionIndex]);
+        }
+      } else if (e.key === 'Escape') {
+        setSuggestionMenu(s => ({...s, visible: false}));
+      }
+    } else {
+      if (e.key === ' ' && e.ctrlKey) {
+        e.preventDefault();
+        const {top, left} = getCursorCoordinates();
+        setSuggestionIndex(0);
+        setSuggestionMenu({visible: true, top, left});
+      }
+    }
+  }, [getCursorCoordinates, suggestionMenu.visible, suggestions, suggestionIndex, handleSuggestionSelect]);
 
   const highlighterRef = useRef<HTMLPreElement>(null);
   const handleScroll = useCallback(() => {
@@ -161,27 +156,22 @@ export function DslEditor<T extends string>(
 
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
-    setSuggestionMenu(s => ({ ...s, visible: false }));
+    setSuggestionMenu(s => ({...s, visible: false}));
   }, [onChange]);
 
-  return <div style={{ display: 'grid', flex: 1, width: '100%', height: '100%' }}>
-    <div style={{ position: 'relative', border: '1px solid black', overflow: 'hidden' }}>
+  return <div style={{display: 'grid', flex: 1, width: '100%', height: '100%'}}>
+    <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
         spellCheck={false}
         wrap={wrap ? 'soft' : 'off'}
         style={{
-          position: 'absolute',
-          inset: 0,
-          fontSize: '1em',
-          fontFamily: 'monospace',
+          ...textStyle,
           color: 'transparent',
           background: 'transparent',
           caretColor: 'black',
           border: 'none',
           resize: 'none',
-          overflow: 'auto',
-          padding: 3,
         }}
         value={code}
         onSelect={updateSuggestions}
@@ -190,13 +180,18 @@ export function DslEditor<T extends string>(
         onKeyDown={handleKeyDown}
       />
       <SyntaxHighlighter syntax={syntax} ref={highlighterRef} wrap={wrap}/>
+      <CursorPosition ref={cursor} text={code} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.length > 0 &&
-        <SuggestionsMenu
-          suggestions={suggestions}
-          onSelect={handleSuggestionSelect}
-          style={{ top: suggestionMenu.top, left: suggestionMenu.left }}
-        />
+          <SuggestionsMenu
+              suggestions={suggestions}
+              onSelect={handleSuggestionSelect}
+              style={{top: suggestionMenu.top, left: suggestionMenu.left}}
+              selectedIndex={suggestionIndex}
+              onHover={setSuggestionIndex}
+          />
       }
     </div>
   </div>;
 }
+
+

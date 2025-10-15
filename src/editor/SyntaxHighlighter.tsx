@@ -1,4 +1,5 @@
 import { Ref } from 'react';
+import { ReadOnlyTextarea } from './ReadOnlyTextarea';
 
 export interface SyntaxElement<T> {
   name: T | 'error',
@@ -13,23 +14,12 @@ export function SyntaxHighlighter<T>({syntax = [], ref, wrap}: {
   ref?: Ref<HTMLPreElement>,
   wrap: boolean
 }) {
-  return (
-    <pre ref={ref} style={{
-      pointerEvents: 'none',
-      margin: 0,
-      padding: 3,
-      inset: 0,
-      position: 'absolute',
-      fontSize: '1em',
-      fontFamily: 'monospace',
-      overflow: 'auto',
-      whiteSpace: wrap ? 'pre-wrap' : 'pre'
-    }}>
-      {syntax.map((element, idx) =>
-        <span key={`token_${idx}`} className={[element.name].join(' ')}>
-            {element.text}
-          </span>,
-      )}
-    </pre>
-  );
+  return <ReadOnlyTextarea ref={ref} wrap={wrap}>
+    {syntax.map((element, idx) =>
+      <span key={`token_${idx}`} className={[element.name].join(' ')}>
+        {element.text}
+      </span>,
+    )}
+  </ReadOnlyTextarea>;
 }
+
