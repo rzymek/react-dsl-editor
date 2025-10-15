@@ -2,11 +2,12 @@ import { DslEditor } from '../editor/DslEditor';
 import './Demo.css';
 import type { ParserResult } from '../parser';
 import { useState } from 'react';
-import { timesheet } from './timesheet';
+//import { timesheet } from './timesheet';
+import { funcDemo } from './funcDemo';
 
-const {grammar, suggest} = timesheet();
+// const {grammar, suggest} = timesheet();
 
-// const {grammar, suggest} = funcDemo();
+const {grammar, suggest} = funcDemo();
 
 function Demo() {
   const [code, setCode] = useState(`  
