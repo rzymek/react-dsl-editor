@@ -1,18 +1,40 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
 import { Parser, type Parse, type ParserResult } from '../parser';
-import { textSyntax } from '../syntax/textSyntax';
 import { getSuggestions } from './getSuggestions';
-import { SuggestionsView } from './SuggestionsView';
 import { unique } from 'remeda';
+import { textSyntax } from '../syntax/textSyntax';
 
-function SuggestionsMenu({suggestions,onSelect}: { suggestions: string[], onSelect: (suggestion:string) => void }) {
-  return <div style={{position: 'absolute', top: 10, left: 10, border: '1px solid black', minWidth: 200}}>
+function SuggestionsMenu({
+                           suggestions,
+                           onSelect,
+                           style
+                         }: { suggestions: string[], onSelect: (suggestion: string) => void, style: React.CSSProperties }) {
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  return <div style={{
+    position: 'absolute',
+    ...style,
+    background: '#252526',
+    border: '1px solid #454545',
+    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
+    color: '#cccccc',
+    fontFamily: 'monospace',
+    fontSize: '0.9em',
+    minWidth: 200,
+    zIndex: 100,
+  }}>
     {suggestions.map((suggestion, idx) =>
-      <div key={idx} onClick={() => onSelect(suggestion)} style={{cursor: 'pointer'}}>
-        &nbsp;{suggestion}&nbsp;
+      <div key={idx}
+           onClick={() => onSelect(suggestion)}
+           onMouseOver={() => setSelectedIndex(idx)}
+           style={{
+             cursor: 'pointer',
+             padding: '4px 8px',
+             backgroundColor: selectedIndex === idx ? '#094771' : 'transparent'
+           }}>
+        {suggestion}
       </div>)}
-  </div>
+  </div>;
 }
 
 export function DslEditor<T extends string>(
@@ -33,6 +55,11 @@ export function DslEditor<T extends string>(
   }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [syntax, setSyntax] = useState<SyntaxElement<T>[]>([]);
+  const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({
+    top: 0,
+    left: 0,
+    visible: false
+  });
   const parser = useRef<Parser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
 
@@ -61,6 +88,69 @@ export function DslEditor<T extends string>(
     setSyntax(syntax);
   }, [code, onParsed, updateSuggestionsForSyntax]);
 
+  const getCursorCoordinates = useCallback(() => {
+    if (!textarea.current) return { top: 0, left: 0 };
+
+    const ta = textarea.current;
+    const parent = ta.parentElement;
+    if (!parent) return { top: 0, left: 0 };
+
+    const pre = document.createElement('pre');
+    const style = window.getComputedStyle(ta);
+    pre.style.font = style.font;
+    pre.style.whiteSpace = wrap ? 'pre-wrap' : 'pre';
+    pre.style.wordWrap = 'break-word';
+    pre.style.padding = style.padding;
+    pre.style.position = 'absolute';
+    pre.style.visibility = 'hidden';
+    pre.style.top = style.top;
+    pre.style.left = style.left;
+    pre.style.width = ta.clientWidth + 'px';
+
+    const text = ta.value.substring(0, ta.selectionStart);
+    pre.textContent = text;
+
+    const span = document.createElement('span');
+    span.textContent = '.'; // Placeholder
+    pre.appendChild(span);
+
+    parent.appendChild(pre);
+
+    const { offsetTop, offsetLeft } = span;
+    const { scrollTop, scrollLeft } = ta;
+
+    parent.removeChild(pre);
+
+    const lineHeight = parseInt(style.lineHeight) || (parseInt(style.fontSize) * 1.2);
+
+    return { top: offsetTop - scrollTop + lineHeight, left: offsetLeft - scrollLeft };
+  }, [wrap]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === ' ' && e.ctrlKey) {
+      e.preventDefault();
+      const { top, left } = getCursorCoordinates();
+      setSuggestionMenu({ visible: true, top, left });
+      updateSuggestions();
+    } else if (e.key === 'Escape') {
+      setSuggestionMenu(s => ({ ...s, visible: false }));
+    }
+  }, [getCursorCoordinates, updateSuggestions]);
+
+  const handleSuggestionSelect = useCallback((suggestion: string) => {
+    if (!textarea.current) return;
+    const { selectionStart, selectionEnd } = textarea.current;
+    const newCode = code.substring(0, selectionStart) + suggestion + code.substring(selectionEnd);
+    onChange(newCode);
+    setTimeout(() => {
+      if (textarea.current) {
+        textarea.current.focus();
+        textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart + suggestion.length;
+      }
+    }, 0);
+    setSuggestionMenu(s => ({ ...s, visible: false }));
+  }, [code, onChange]);
+
   const highlighterRef = useRef<HTMLPreElement>(null);
   const handleScroll = useCallback(() => {
     if (textarea.current && highlighterRef.current) {
@@ -69,8 +159,13 @@ export function DslEditor<T extends string>(
     }
   }, []);
 
-  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}}>
-    <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
+  const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
+    onChange(e.target.value);
+    setSuggestionMenu(s => ({ ...s, visible: false }));
+  }, [onChange]);
+
+  return <div style={{ display: 'grid', flex: 1, width: '100%', height: '100%' }}>
+    <div style={{ position: 'relative', border: '1px solid black', overflow: 'hidden' }}>
       <textarea
         ref={textarea}
         spellCheck={false}
@@ -90,12 +185,18 @@ export function DslEditor<T extends string>(
         }}
         value={code}
         onSelect={updateSuggestions}
-        onChange={useCallback((e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value), [onChange])}
+        onChange={handleChange}
         onScroll={handleScroll}
+        onKeyDown={handleKeyDown}
       />
       <SyntaxHighlighter syntax={syntax} ref={highlighterRef} wrap={wrap}/>
-      <SuggestionsMenu suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
+      {suggestionMenu.visible && suggestions.length > 0 &&
+        <SuggestionsMenu
+          suggestions={suggestions}
+          onSelect={handleSuggestionSelect}
+          style={{ top: suggestionMenu.top, left: suggestionMenu.left }}
+        />
+      }
     </div>
-    <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
   </div>;
 }
