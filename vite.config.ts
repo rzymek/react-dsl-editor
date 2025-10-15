@@ -18,17 +18,11 @@ export default defineConfig({
       entry: [
         resolve(__dirname, 'src/index.ts'),
       ],
-      name: 'ReactDslEditor',
       fileName: 'react-dsl-editor',
+      formats: ['es'],
     },
     rolldownOptions: {
-      external: ['react', 'react-dom'],
-      output: {
-        globals: {
-          react: 'React',
-          'react-dom': 'ReactDOM',
-        },
-      },
+      external: ['react', 'react-dom', 'react/jsx-runtime'],
     },
   },
 });

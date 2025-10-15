@@ -6,7 +6,6 @@
     "access": "public"
   },
   "type": "module",
-  "main": "./dist/react-dsl-editor.umd.js",
   "module": "./dist/react-dsl-editor.js",
   "types": "./dist/index.d.ts",
   "files": [
@@ -15,8 +14,7 @@
   "exports": {
     ".": {
       "types": "./dist/index.d.ts",
-      "import": "./dist/react-dsl-editor.es.js",
-      "require": "./dist/react-dsl-editor.umd.js"
+      "import": "./dist/react-dsl-editor.js"
     }
   },
   "scripts": {
