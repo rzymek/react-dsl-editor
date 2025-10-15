@@ -1,13 +1,13 @@
 {
   "name": "@rzymek/react-dsl-editor",
   "private": false,
-  "version": "0.1.3",
+  "version": "0.1.4",
   "publishConfig": {
     "access": "public"
   },
   "type": "module",
   "main": "./dist/react-dsl-editor.umd.js",
-  "module": "./dist/react-dsl-editor.es.js",
+  "module": "./dist/react-dsl-editor.js",
   "types": "./dist/index.d.ts",
   "files": [
     "dist"
