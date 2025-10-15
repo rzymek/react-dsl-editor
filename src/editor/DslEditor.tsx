@@ -4,6 +4,16 @@ import { Parser, type Parse, type ParserResult } from '../parser';
 import { textSyntax } from '../syntax/textSyntax';
 import { getSuggestions } from './getSuggestions';
 import { SuggestionsView } from './SuggestionsView';
+import { unique } from 'remeda';
+
+function SuggestionsMenu({suggestions,onSelect}: { suggestions: string[], onSelect: (suggestion:string) => void }) {
+  return <div style={{position: 'absolute', top: 10, left: 10, border: '1px solid black', minWidth: 200}}>
+    {suggestions.map((suggestion, idx) =>
+      <div key={idx} onClick={() => onSelect(suggestion)} style={{cursor: 'pointer'}}>
+        &nbsp;{suggestion}&nbsp;
+      </div>)}
+  </div>
+}
 
 export function DslEditor<T extends string>(
   {
@@ -29,7 +39,7 @@ export function DslEditor<T extends string>(
   const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
     const suggestion = getSuggestions(_syntax, cursorStart, clientSuggestions);
-    setSuggestions(suggestion);
+    setSuggestions(unique(suggestion));
   }, [clientSuggestions]);
 
   const updateSuggestions = useMemo(() => function updateSuggestions() {
@@ -59,7 +69,7 @@ export function DslEditor<T extends string>(
     }
   }, []);
 
-  return <div style={{display: 'grid', gridTemplateRows: '1fr auto'}}>
+  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}}>
     <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
@@ -84,6 +94,7 @@ export function DslEditor<T extends string>(
         onScroll={handleScroll}
       />
       <SyntaxHighlighter syntax={syntax} ref={highlighterRef} wrap={wrap}/>
+      <SuggestionsMenu suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
     </div>
     <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
   </div>;
