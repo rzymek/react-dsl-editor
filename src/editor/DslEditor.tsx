@@ -11,12 +11,14 @@ export function DslEditor<T extends string>(
     onChange,
     onParsed,
     grammar,
+    wrap = false,
     suggestions: clientSuggestions,
   }: {
     code: string,
     onChange: (text: string) => void,
     onParsed?: (ast: ParserResult<T>) => void,
     grammar: Parse<T>,
+    wrap?: boolean,
     suggestions?: (type: T | 'error') => string[] | undefined,
   }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -49,11 +51,20 @@ export function DslEditor<T extends string>(
     setSyntax(syntax);
   }, [code, onParsed, updateSuggestionsForSyntax]);
 
+  const highlighterRef = useRef<HTMLPreElement>(null);
+  const handleScroll = useCallback(() => {
+    if (textarea.current && highlighterRef.current) {
+      highlighterRef.current.scrollTop = textarea.current.scrollTop;
+      highlighterRef.current.scrollLeft = textarea.current.scrollLeft;
+    }
+  }, []);
+
   return <div style={{display: 'grid', gridTemplateRows: '1fr auto'}}>
     <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
         spellCheck={false}
+        wrap={wrap ? 'soft' : 'off'}
         style={{
           position: 'absolute',
           inset: 0,
@@ -70,8 +81,9 @@ export function DslEditor<T extends string>(
         value={code}
         onSelect={updateSuggestions}
         onChange={useCallback((e: ChangeEvent<HTMLTextAreaElement>) => onChange(e.target.value), [onChange])}
+        onScroll={handleScroll}
       />
-      <SyntaxHighlighter syntax={syntax}/>
+      <SyntaxHighlighter syntax={syntax} ref={highlighterRef} wrap={wrap}/>
     </div>
     <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
   </div>;

@@ -1,3 +1,5 @@
+import { Ref } from 'react';
+
 export interface SyntaxElement<T> {
   name: T | 'error',
   text: string,
@@ -6,19 +8,22 @@ export interface SyntaxElement<T> {
   endOffset: number,
 }
 
-export function SyntaxHighlighter<T>({syntax = []}: {
-  syntax: SyntaxElement<T>[];
+export function SyntaxHighlighter<T>({syntax = [], ref, wrap}: {
+  syntax: SyntaxElement<T>[],
+  ref?: Ref<HTMLPreElement>,
+  wrap: boolean
 }) {
   return (
-    <pre style={{
-      pointerEvents: 'none', // Let textarea capture input
+    <pre ref={ref} style={{
+      pointerEvents: 'none',
       margin: 0,
       padding: 3,
       inset: 0,
       position: 'absolute',
       fontSize: '1em',
       fontFamily: 'monospace',
-      whiteSpace: 'pre',
+      overflow: 'auto',
+      whiteSpace: wrap ? 'pre-wrap' : 'pre'
     }}>
       {syntax.map((element, idx) =>
         <span key={`token_${idx}`} className={[element.name].join(' ')}>
