@@ -2,7 +2,7 @@
   "name": "@rzymek/react-dsl-editor",
   "private": false,
   "license": "MIT",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "publishConfig": {
     "access": "public"
   },
