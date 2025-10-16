@@ -7,6 +7,8 @@ import { textSyntax } from '../syntax/textSyntax';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
 import { SuggestionsView } from './SuggestionsView';
+import { shortcutName } from './shortcutName';
+import { useSyncScroll } from './useSyncScroll';
 
 function SuggestionsMenu({
                            suggestions,
@@ -71,9 +73,11 @@ export function DslEditor<T extends string>(
     visible: false,
   });
   const [suggestionIndex, setSuggestionIndex] = useState(0);
+
   const parser = useRef<Parser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const cursor = useRef<CursorPositionHandle>(null);
+  const highlighter = useRef<HTMLPreElement>(null);
 
   const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
@@ -81,8 +85,8 @@ export function DslEditor<T extends string>(
     setSuggestions(unique(suggestion));
   }, [clientSuggestions]);
 
-  const updateSuggestions = useMemo(() => function updateSuggestions() {
-    return updateSuggestionsForSyntax(syntax);
+  const updateSuggestions = useCallback(() => {
+    updateSuggestionsForSyntax(syntax);
   }, [syntax, updateSuggestionsForSyntax]);
 
   useEffect(() => {
@@ -100,12 +104,8 @@ export function DslEditor<T extends string>(
     setSyntax(syntax);
   }, [code, onParsed, updateSuggestionsForSyntax]);
 
-  const getCursorCoordinates = useCallback(() => {
-    if (!cursor.current) {
-      return {top: 0, left: 0};
-    }
-    return cursor.current.getCursorPosition();
-  }, []);
+  const getCursorCoordinates = useCallback(() =>
+    cursor.current?.getCursorPosition?.() ?? {top: 0, left: 0}, []);
 
   const handleSuggestionSelect = useCallback((suggestion: string) => {
     if (!textarea.current) return;
@@ -121,46 +121,44 @@ export function DslEditor<T extends string>(
     setSuggestionMenu(s => ({...s, visible: false}));
   }, [code, onChange]);
 
-  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (suggestionMenu.visible) {
-      if (e.key === 'ArrowDown') {
-        e.preventDefault();
-        setSuggestionIndex(prevIndex => (prevIndex + 1) % suggestions.length);
-      } else if (e.key === 'ArrowUp') {
-        e.preventDefault();
-        setSuggestionIndex(prevIndex => (prevIndex - 1 + suggestions.length) % suggestions.length);
-      } else if (e.key === 'Enter') {
-        e.preventDefault();
-        if (suggestions[suggestionIndex]) {
-          handleSuggestionSelect(suggestions[suggestionIndex]);
-        }
-      } else if (e.key === 'Escape') {
-        setSuggestionMenu(s => ({...s, visible: false}));
-      }
-    } else {
-      if (e.key === ' ' && e.ctrlKey) {
-        e.preventDefault();
-        const {top, left} = getCursorCoordinates();
-        setSuggestionIndex(0);
-        setSuggestionMenu({visible: true, top, left});
-      }
-    }
-  }, [getCursorCoordinates, suggestionMenu.visible, suggestions, suggestionIndex, handleSuggestionSelect]);
+  const suggestionMenuKeys = useMemo(() => ({
+    ArrowDown() {
+      setSuggestionIndex(prevIndex => (prevIndex + 1) % suggestions.length);
+    },
+    ArrowUp() {
+      setSuggestionIndex(prevIndex => (prevIndex - 1 + suggestions.length) % suggestions.length);
+    },
+    Enter() {
+      if (suggestions[suggestionIndex]) handleSuggestionSelect(suggestions[suggestionIndex]);
+    },
+    Escape() {
+      setSuggestionMenu(s => ({...s, visible: false}));
+    },
+  }), [handleSuggestionSelect, suggestionIndex, suggestions]);
 
-  const highlighterRef = useRef<HTMLPreElement>(null);
-  const handleScroll = useCallback(() => {
-    if (textarea.current && highlighterRef.current) {
-      highlighterRef.current.scrollTop = textarea.current.scrollTop;
-      highlighterRef.current.scrollLeft = textarea.current.scrollLeft;
+  const textAreaKeys = useMemo(() => ({
+    CtrlSpace() {
+      const {top, left} = getCursorCoordinates();
+      setSuggestionIndex(0);
+      setSuggestionMenu({visible: true, top, left});
+    },
+  }), [getCursorCoordinates]);
+
+  const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    const keymap: Record<string, () => void> = suggestionMenu.visible ? suggestionMenuKeys : textAreaKeys;
+    const fn = keymap[shortcutName(e)];
+    if (fn) {
+      e.preventDefault();
+      fn();
     }
-  }, []);
+  }, [suggestionMenu.visible, suggestionMenuKeys, textAreaKeys]);
 
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
     setSuggestionMenu(s => ({...s, visible: false}));
   }, [onChange]);
 
-  return <div style={{display: 'grid', flex: 1, width: '100%', height: '100%'}}>
+  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}}>
     <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
@@ -177,11 +175,11 @@ export function DslEditor<T extends string>(
         value={code}
         onSelect={updateSuggestions}
         onChange={handleChange}
-        onScroll={handleScroll}
+        onScroll={useSyncScroll(highlighter)}
         onKeyDown={handleKeyDown}
       />
-      <SyntaxHighlighter syntax={syntax} ref={highlighterRef} wrap={wrap}/>
-      <CursorPosition ref={cursor} text={code} wrap={wrap}/>
+      <SyntaxHighlighter syntax={syntax} ref={highlighter} wrap={wrap}/>
+      <CursorPosition ref={cursor} text={code.substring(0, textarea.current?.selectionStart ?? 0)} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.length > 0 &&
           <SuggestionsMenu
               suggestions={suggestions}
@@ -195,5 +193,4 @@ export function DslEditor<T extends string>(
     <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
   </div>;
 }
-
 
