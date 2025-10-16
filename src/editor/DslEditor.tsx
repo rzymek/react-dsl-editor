@@ -57,12 +57,14 @@ export function DslEditor<T extends string>(
     grammar,
     wrap = false,
     suggestions: clientSuggestions,
+    className = DslEditor.name
   }: {
     code: string,
     onChange: (text: string) => void,
     onParsed?: (ast: ParserResult<T>) => void,
     grammar: Parse<T>,
     wrap?: boolean,
+    className?:string,
     suggestions?: (type: T | 'error') => string[] | undefined,
   }) {
   const [suggestions, setSuggestions] = useState<string[]>([]);
@@ -158,7 +160,7 @@ export function DslEditor<T extends string>(
     setSuggestionMenu(s => ({...s, visible: false}));
   }, [onChange]);
 
-  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}}>
+  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}} className={className}>
     <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
