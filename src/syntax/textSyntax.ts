@@ -1,22 +1,31 @@
-import { isParserError, isParserSuccess, type ParserResult } from '../parser/types';
+import { isParserSuccess, type ParserResult } from '../parser';
 import type { SyntaxElement } from '../editor/SyntaxHighlighter';
 import * as _ from 'remeda';
 
 function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
-  if (isParserSuccess(ast) && ast.children) {
+  if (ast.children) {
     for (const child of ast.children) {
       syntaxForParserResult(child, offset, result);
       offset += isParserSuccess(child) ? child.text.length : 0;
     }
   } else {
-    const text: string = isParserSuccess(ast) ? ast.text : '';
-    result.push({
-      name: ast.type,
-      text,
-      expected: (isParserError(ast) && typeof (ast.error.expected) === 'string') ? ast.error.expected : undefined,
-      startOffset: offset,
-      endOffset: offset + text.length,
-    });
+    if (isParserSuccess(ast)) {
+      result.push({
+        name: ast.type,
+        text: ast.text,
+        startOffset: offset,
+        endOffset: offset + ast.text.length,
+      });
+    } else if (ast.children === undefined) {
+      result.push(...ast.errors
+        .map(error => ({
+          name: ast.type,
+          text: '',
+          expected: typeof error.expected === 'string' ? error.expected : '',
+          startOffset: offset,
+          endOffset: offset + ast.text.length,
+        })));
+    }
   }
   return result;
 }

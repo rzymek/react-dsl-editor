@@ -11,7 +11,7 @@ describe('repeat', () => {
     expect(isParserSuccess(ast)).toBe(true);
     if (isParserSuccess(ast)) {
       expect(ast.text).toEqual('....');
-      expect(ast.recoverableErrors).toEqual([]);
+      expect(ast.errors).toEqual([]);
     }
   });
   it('max', () => {
@@ -20,41 +20,29 @@ describe('repeat', () => {
     expect(isParserSuccess(ast)).toBe(true);
     if (isParserSuccess(ast)) {
       expect(ast.text).toEqual('..');
-      expect(ast.recoverableErrors).toEqual([]);
+      expect(ast.errors).toEqual([]);
     }
   });
 
   it('min', () => {
     const parser = repeat('repeat', term('.'), 3);
     const ast = parser('..xx');
-    expect(isParserSuccess(ast)).toBe(true);
-    if (isParserSuccess(ast)) {
-      expect(ast.text).toEqual('..');
-      expect(ast.recoverableErrors).toEqual([{
-        type: 'term',
-        error: {
-          expected: '.',
-          got: 'xx',
-          offset: 2,
-        },
-      }]);
-    }
+    expect(ast.text).toEqual('..');
+    expect(ast.errors).toEqual([{
+      expected: '.',
+      got: 'xx',
+      offset: 2,
+    }]);
   });
   it('recovarableErrors', () => {
-    const parser = repeat('repeat', sequence('seq', term('.')));
+    const parser = repeat('repeat', sequence('seq', term('y')));
     const ast = parser('x');
-    expect(isParserSuccess(ast)).toBe(true);
-    if (isParserSuccess(ast)) {
-      expect(ast.text).toEqual('');
-      expect(ast.recoverableErrors).toEqual([{
-        type: 'term',
-        error: {
-          expected: '.',
-          got: 'x',
-          offset: 0,
-        },
-      }]);
-    }
+    expect(ast.text).toEqual('');
+    expect(ast.errors).toEqual([{
+      expected: 'y',
+      got: 'x',
+      offset: 0,
+    }]);
   });
 
 });

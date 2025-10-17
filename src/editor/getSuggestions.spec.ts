@@ -1,9 +1,9 @@
 import { getSuggestions } from './getSuggestions';
 import { describe, it, expect, vi } from 'vitest';
-import { Parser } from '../parser/Parser';
+import { Parser } from '../parser';
 import { funcParser } from '../example/funcParser';
 import { textSyntax } from '../syntax/textSyntax';
-import type { NodeTypes } from '../parser/types';
+import type { NodeTypes } from '../parser';
 
 const parser = new Parser(funcParser);
 

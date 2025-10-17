@@ -5,14 +5,14 @@ describe('term', () => {
   it('should parse term', () => {
     const terminal = 'abc';
     const parser = term(terminal);
-    expect(parser(terminal)).toEqual({type: 'term', text: terminal});
+    expect(parser(terminal)).toEqual({type: 'term', text: terminal, errors: []});
   });
 
   it('should ignore extra', () => {
     const terminal = 'abc';
     const extra = 'def';
     const parser = term(terminal);
-    expect(parser(terminal + extra)).toEqual({type: 'term', text: terminal});
+    expect(parser(terminal + extra)).toEqual({type: 'term', text: terminal, errors: []});
   });
 
   it('should reject not matching', () => {
@@ -21,11 +21,12 @@ describe('term', () => {
     const parser = term(terminal);
     expect(parser(other)).toEqual({
       type: 'term',
-      error: {
+      text: '',
+      errors: [{
         expected: 'abc',
         got: 'def',
         offset: 0,
-      },
+      }],
     });
   });
 

@@ -1,11 +1,12 @@
 import type { ParserError } from './types';
 
-export function appendOffset<T extends string>(error: ParserError<T>, offset: number): ParserError<T> {
+export function appendOffset(error: ParserError, offset: number): ParserError {
   return {
     ...error,
-    error: {
-      ...error.error,
-      offset: error.error.offset + offset,
-    },
+    offset: error.offset + offset,
   };
+}
+
+export function appendOffsets(errors: ParserError[], offsets: number):ParserError[] {
+  return errors.map(error => appendOffset(error, offsets));
 }

@@ -1,13 +1,7 @@
-import { pattern } from '../parser/pattern';
-import { seq } from '../parser/seq';
-import { rational } from '../parser/rational';
-import { term } from '../parser/term';
-import { sequence } from '../parser/sequence';
-import { ws } from '../parser/ws';
-import { optionalWhitespace } from '../parser/optionalWhitespace';
+import { pattern, seq, rational, term, sequence, ws, optionalWhitespace } from '../parser';
 
 const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
-const keyword = (text: string) => term('keyword', text);
+const keyword = (text: string) => term(text, 'keyword');
 
 const expr = seq('expression',
   rational,

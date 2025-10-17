@@ -1,19 +1,19 @@
-import { isParserSuccess, type Parse, type ParserError } from './types';
+import { isParserSuccess, type Parse, ParserError } from './types';
 
 export function alternative<T extends string>(type:T = 'alternative' as T, ...seq: Parse<T>[]): Parse<T> {
   return (text: string) => {
-    const errors: ParserError<T>[] = [];
+    const errors: ParserError[] = [];
     for (const parser of seq) {
       const result = parser(text);
       if (isParserSuccess(result)) {
         return result;
       }
-      errors.push(result);
+      errors.push(...result.errors);
     }
     return {
       type,
       text: '',
-      recoverableErrors: errors,
+      errors,
     };
   };
 }
