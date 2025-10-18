@@ -1,8 +1,7 @@
 import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
 import { type Parse, Parser, type ParserResult } from '../parser';
-import { getSuggestions } from './getSuggestions';
-import { unique } from 'remeda';
+import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textSyntax } from '../syntax/textSyntax';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
@@ -67,7 +66,7 @@ export function DslEditor<T extends string>(
     className?:string,
     suggestions?: (type: T | 'error') => string[] | undefined,
   }) {
-  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [suggestions, setSuggestions] = useState<SuggestionsResult>({ suggestions: [], prefix: '' });
   const [syntax, setSyntax] = useState<SyntaxElement<T>[]>([]);
   const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({
     top: 0,
@@ -84,7 +83,7 @@ export function DslEditor<T extends string>(
   const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
     const suggestion = getSuggestions(_syntax, cursorStart, clientSuggestions);
-    setSuggestions(unique(suggestion));
+    setSuggestions(suggestion);
   }, [clientSuggestions]);
 
   const updateSuggestions = useCallback(() => {
@@ -111,27 +110,28 @@ export function DslEditor<T extends string>(
 
   const handleSuggestionSelect = useCallback((suggestion: string) => {
     if (!textarea.current) return;
-    const {selectionStart, selectionEnd} = textarea.current;
-    const newCode = code.substring(0, selectionStart) + suggestion + code.substring(selectionEnd);
+    const { selectionStart, selectionEnd } = textarea.current;
+    const { prefix } = suggestions;
+    const newCode = code.substring(0, selectionStart - prefix.length) + suggestion + code.substring(selectionEnd);
     onChange(newCode);
     setTimeout(() => {
       if (textarea.current) {
         textarea.current.focus();
-        textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart + suggestion.length;
+        textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart - prefix.length + suggestion.length;
       }
     }, 0);
     setSuggestionMenu(s => ({...s, visible: false}));
-  }, [code, onChange]);
+  }, [code, onChange, suggestions]);
 
   const suggestionMenuKeys = useMemo(() => ({
     ArrowDown() {
-      setSuggestionIndex(prevIndex => (prevIndex + 1) % suggestions.length);
+      setSuggestionIndex(prevIndex => (prevIndex + 1) % suggestions.suggestions.length);
     },
     ArrowUp() {
-      setSuggestionIndex(prevIndex => (prevIndex - 1 + suggestions.length) % suggestions.length);
+      setSuggestionIndex(prevIndex => (prevIndex - 1 + suggestions.suggestions.length) % suggestions.suggestions.length);
     },
     Enter() {
-      if (suggestions[suggestionIndex]) handleSuggestionSelect(suggestions[suggestionIndex]);
+      if (suggestions.suggestions[suggestionIndex]) handleSuggestionSelect(suggestions.suggestions[suggestionIndex]);
     },
     Escape() {
       setSuggestionMenu(s => ({...s, visible: false}));
@@ -182,9 +182,9 @@ export function DslEditor<T extends string>(
       />
       <SyntaxHighlighter syntax={syntax} ref={highlighter} wrap={wrap}/>
       <CursorPosition ref={cursor} text={code.substring(0, textarea.current?.selectionStart ?? 0)} wrap={wrap}/>
-      {suggestionMenu.visible && suggestions.length > 0 &&
+      {suggestionMenu.visible && suggestions.suggestions.length > 0 &&
           <SuggestionsMenu
-              suggestions={suggestions}
+              suggestions={suggestions.suggestions}
               onSelect={handleSuggestionSelect}
               style={{top: suggestionMenu.top, left: suggestionMenu.left}}
               selectedIndex={suggestionIndex}
@@ -192,7 +192,6 @@ export function DslEditor<T extends string>(
           />
       }
     </div>
-    <SuggestionsView suggestions={suggestions} onSelect={suggestion => onChange(code + suggestion)}/>
+    <SuggestionsView suggestions={suggestions.suggestions} onSelect={handleSuggestionSelect}/>
   </div>;
 }
-
