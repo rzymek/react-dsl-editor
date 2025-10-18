@@ -1,4 +1,4 @@
-import { type ChangeEvent, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { type ChangeEvent, CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
 import { type Parse, Parser, type ParserResult } from '../parser';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
@@ -56,7 +56,8 @@ export function DslEditor<T extends string>(
     grammar,
     wrap = false,
     suggestions: clientSuggestions,
-    className = DslEditor.name
+    className = DslEditor.name,
+    styles,
   }: {
     code: string,
     onChange: (text: string) => void,
@@ -64,6 +65,7 @@ export function DslEditor<T extends string>(
     grammar: Parse<T>,
     wrap?: boolean,
     className?:string,
+    styles?: Partial<Record<T|'error', CSSProperties>>,
     suggestions?: (type: T | 'error') => string[] | undefined,
   }) {
   const [suggestions, setSuggestions] = useState<SuggestionsResult>({ suggestions: [], prefix: '' });
@@ -180,7 +182,7 @@ export function DslEditor<T extends string>(
         onScroll={useSyncScroll(highlighter)}
         onKeyDown={handleKeyDown}
       />
-      <SyntaxHighlighter syntax={syntax} ref={highlighter} wrap={wrap}/>
+      <SyntaxHighlighter syntax={syntax} ref={highlighter} wrap={wrap} styles={styles}/>
       <CursorPosition ref={cursor} text={code.substring(0, textarea.current?.selectionStart ?? 0)} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.suggestions.length > 0 &&
           <SuggestionsMenu
