@@ -1,6 +1,7 @@
-import { isParserSuccess, type ParserResult } from '../types';
+import { isParserSuccess } from '../types';
+import { ASTNode } from '../ASTNode';
 
-export function filter<T extends string>(fn: (cst: ParserResult<T>) => boolean, cst: ParserResult<T>): ParserResult<T> {
+export function filter<T extends string>(fn: (cst: ASTNode<T>) => boolean, cst: ASTNode<T>): ASTNode<T> {
   if (!isParserSuccess(cst)) {
     return cst;
   }

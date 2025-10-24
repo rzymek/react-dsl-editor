@@ -35,11 +35,8 @@ describe('func syntax', () => {
     expect(syntax.map(it => it.startOffset)).toEqual([
       0, 3, 4, 7, 8, 10, 12, 13, 14,
     ]);
-    expect(syntax.map(it => it.endOffset)).toEqual([
-      3, 4, 7, 8, 10, 12, 13, 14, 15,
-    ]);
     expect(syntax.map(it => it.name)).toEqual([
-      'keyword', 'space', 'identifier', 'term', 'rational', 'optionalWhitespace', 'term', 'rational', 'term',
+      'fun', 'space', 'identifier', '{', 'rational', 'optionalWhitespace', '+', 'rational', '}',
     ]);
     expectSyntaxTextToEqual(syntax, testName());
   });
@@ -47,7 +44,7 @@ describe('func syntax', () => {
   it('fun foo{', () => {
     const syntax = parseTestName();
     expect(syntax.map(it => it.name)).toEqual([
-      'keyword', 'space', 'identifier', 'term', 'rational', 'term', 'rational', 'term',
+      'fun', 'space', 'identifier', '{',
     ]);
     expectSyntaxTextToEqual(syntax, testName());
   });
@@ -64,10 +61,14 @@ describe('func syntax', () => {
       name: 'error',
       text: 'yy',
       startOffset: 6,
-      endOffset: 8,
     });
   });
   it('fun x', () => {
+    const syntax = parseTestName();
+    const input: string = testName();
+    expectSyntaxTextToEqual(syntax, input);
+  });
+  it('fun x{1+1} fun y{2+', () => {
     const syntax = parseTestName();
     const input: string = testName();
     expectSyntaxTextToEqual(syntax, input);

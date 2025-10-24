@@ -14,17 +14,7 @@ function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: n
         name: ast.type,
         text: ast.text,
         startOffset: offset,
-        endOffset: offset + ast.text.length,
       });
-    } else if (ast.children === undefined) {
-      result.push(...ast.errors
-        .map(error => ({
-          name: ast.type,
-          text: '',
-          expected: typeof error.expected === 'string' ? error.expected : '',
-          startOffset: offset,
-          endOffset: offset + ast.text.length,
-        })));
     }
   }
   return result;
@@ -32,8 +22,8 @@ function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: n
 
 function removeOverlap<T>(syntax: SyntaxElement<T>[]) {
   return syntax.flatMap((element, index, arr) => {
-    const prev = arr[index - 1];
-    const prevEnd = prev?.endOffset ?? 0;
+    const prev = arr[index - 1] ?? {text: '', startOffset: 0, name: 'error'};
+    const prevEnd = prev.startOffset + prev.text.length;
     if (element.startOffset < prevEnd) {
       return [];
     }
@@ -45,7 +35,7 @@ export function textSyntax<T extends string>(ast: ParserResult<T>, text: string)
   const syntaxElements = syntaxForParserResult<T>(ast, 0);
   const syntaxEndOffset = _.pipe(
     syntaxElements,
-    _.map(it => it.endOffset),
+    _.map(it => it.startOffset + it.text.length),
     _.sortBy(it => it),
     _.last(),
     it => it ?? 0,
@@ -56,7 +46,6 @@ export function textSyntax<T extends string>(ast: ParserResult<T>, text: string)
       name: 'error',
       text: text.substring(startOffset),
       startOffset,
-      endOffset: text.length,
     });
   }
   return removeOverlap(syntaxElements);

@@ -24,7 +24,7 @@ function Demo() {
         grammar={grammar}
         suggestions={suggest}
         styles={{
-          keyword: {color: 'yellowgreen', fontStyle: 'italic'}
+          fun: {color: 'yellowgreen', fontStyle: 'italic'}
         }}
         onParsed={setOutput}/>
       <pre style={{overflow: 'auto'}}>{JSON.stringify(output, null, 2)}</pre>

@@ -12,3 +12,4 @@ export * from './sequence';
 export * from './term';
 export * from './types';
 export * from './ws';
+export { ASTNode } from './ASTNode';

@@ -1,8 +1,9 @@
 import { filter } from './filter';
-import { isParserError, type ParserResult } from '../types';
+import { isParserError } from '../types';
+import { ASTNode } from '../ASTNode';
 
 
-export function trimEmptyNode<T extends string>(it:ParserResult<T>) {
+export function trimEmptyNode<T extends string>(it:ASTNode<T>) {
   return filter(
     node => isParserError(node) || node.text !== '' || !!node.children,
     it

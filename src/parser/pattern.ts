@@ -20,6 +20,7 @@ export function pattern<T extends string>(regex: string, type: T = 'pattern' as 
           expected: new RegExp(regex),
           got: text,
           offset: 0,
+          type
         }],
       } satisfies ParserResult<T>;
     }

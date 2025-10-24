@@ -9,19 +9,15 @@ describe('repeat', () => {
     const parser = repeat('repeat', term('.'));
     const ast = parser('....xx');
     expect(isParserSuccess(ast)).toBe(true);
-    if (isParserSuccess(ast)) {
-      expect(ast.text).toEqual('....');
-      expect(ast.errors).toEqual([]);
-    }
+    expect(ast.text).toEqual('....');
+    expect(ast.errors).toEqual([]);
   });
   it('max', () => {
     const parser = repeat('repeat', term('.'), 1, 2);
     const ast = parser('....xx');
     expect(isParserSuccess(ast)).toBe(true);
-    if (isParserSuccess(ast)) {
-      expect(ast.text).toEqual('..');
-      expect(ast.errors).toEqual([]);
-    }
+    expect(ast.text).toEqual('..');
+    expect(ast.errors).toEqual([]);
   });
 
   it('min', () => {
@@ -34,7 +30,7 @@ describe('repeat', () => {
       offset: 2,
     }]);
   });
-  it('recovarableErrors', () => {
+  it('repeat seq', () => {
     const parser = repeat('repeat', sequence('seq', term('y')));
     const ast = parser('x');
     expect(ast.text).toEqual('');
@@ -44,6 +40,5 @@ describe('repeat', () => {
       offset: 0,
     }]);
   });
-
 });
 

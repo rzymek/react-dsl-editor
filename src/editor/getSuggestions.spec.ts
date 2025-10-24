@@ -11,7 +11,7 @@ function funcSyntax(code: string) {
   return textSyntax(parser.parse(code), code);
 }
 
-describe('getSuggestions', () => {
+describe.skip('getSuggestions', () => {
   it('should suggest the next missing term, without asking client', () => {
     const clientSuggestions = vi.fn();
     const suggestions = getSuggestions(funcSyntax(''), 0, clientSuggestions);

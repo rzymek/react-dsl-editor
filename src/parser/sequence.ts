@@ -5,11 +5,11 @@ export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Pa
   return (text: string): ParserResult<T> => {
     const results: ParserResult<T>[] = [];
     let offset = 0;
-    const errors: ParserError[] = [];
+    const errors: ParserError<T>[] = [];
     for (const parser of seq) {
       const result = parser(text.substring(offset));
-      offset += result.text.length;
       result.errors = appendOffsets(result.errors, offset);
+      offset += result.text.length;
       errors.push(...result.errors);
       results.push(result);
     }

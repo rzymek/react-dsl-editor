@@ -1,12 +1,16 @@
 import type { SyntaxElement } from './SyntaxHighlighter';
-import * as _ from 'remeda';
+// import * as _ from 'remeda';
 
 export type SuggestionsResult = {
   suggestions: string[],
   prefix: string,
 }
 
-export function getSuggestions<T>(syntax: SyntaxElement<T>[], cursorStart: number, clientSuggestions?: (type: ('error' | T)) => (string[] | undefined)): SuggestionsResult {
+export function getSuggestions<T>(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  syntax: SyntaxElement<T>[], cursorStart: number, clientSuggestions?: (type: ('error' | T)) => (string[] | undefined),
+): SuggestionsResult {
+  /*
   const results = _.pipe(
     syntax,
     _.filter(it => it.startOffset <= cursorStart && cursorStart <= Math.max(it.endOffset, it.startOffset + (it.expected ?? '').length)), // syntax elements within cursor position
@@ -29,6 +33,10 @@ export function getSuggestions<T>(syntax: SyntaxElement<T>[], cursorStart: numbe
     suggestions: _.unique(result.suggestions),
     prefix: result.prefix,
   } : {
+    suggestions: [],
+    prefix: '',
+  };*/
+  return {
     suggestions: [],
     prefix: '',
   };

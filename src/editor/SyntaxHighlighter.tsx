@@ -4,9 +4,7 @@ import { ReadOnlyTextarea } from './ReadOnlyTextarea';
 export interface SyntaxElement<T> {
   name: T | 'error',
   text: string,
-  expected?: string | undefined,
   startOffset: number,
-  endOffset: number,
 }
 
 export function SyntaxHighlighter<T extends string>({syntax = [], ref, wrap, styles}: {

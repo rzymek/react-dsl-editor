@@ -9,9 +9,9 @@ describe('sequence', () => {
     expect(result.text).toBe('abc');
     expect(result.errors).toEqual([]);
     expect(result.children).toEqual([
-      {text: 'a', type: 'term', errors: []},
-      {text: 'b', type: 'term', errors: []},
-      {text: 'c', type: 'term', errors: []},
+      {text: 'a', type: 'a', errors: []},
+      {text: 'b', type: 'b', errors: []},
+      {text: 'c', type: 'c', errors: []},
     ]);
   });
 
@@ -20,10 +20,10 @@ describe('sequence', () => {
     const result = parser('abd');
     expect(result.text).toBe('ab');
     expect(result.children).toEqual([
-      {text: 'a', type: 'term', errors: []},
-      {text: 'b', type: 'term', errors: []},
+      {text: 'a', type: 'a', errors: []},
+      {text: 'b', type: 'b', errors: []},
       {
-        text: '', type: 'term',
+        text: '', type: 'c',
         errors: [{expected: 'c', got: 'd', offset: 2}],
       }]);
     expect(result.errors).toEqual([
@@ -36,8 +36,8 @@ describe('sequence', () => {
     const result = parser('');
     expect(result.text).toBe('');
     expect(result.children).toEqual([
-      {text: '', type: 'term', errors: [{expected: 'a', got: '', offset: 0}]},
-      {text: '', type: 'term', errors: [{expected: 'b', got: '', offset: 0}]},
+      {text: '', type: 'a', errors: [{expected: 'a', got: '', offset: 0}]},
+      {text: '', type: 'b', errors: [{expected: 'b', got: '', offset: 0}]},
     ]);
     expect(result.errors).toEqual([
       {expected: 'a', got: '', offset: 0},
@@ -51,7 +51,7 @@ describe('sequence', () => {
     expect(result.text).toBe('a');
     expect(result.errors).toEqual([]);
     expect(result.children).toEqual([
-      {text: 'a', type: 'term', errors: []},
+      {text: 'a', type: 'a', errors: []},
     ]);
   });
 
