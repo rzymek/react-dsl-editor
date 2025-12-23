@@ -81,14 +81,41 @@ describe('timesheet syntax', () => {
     const input: string = testName();
     expectSyntaxTextToEqual(syntax, input);
   });
-  it('01.02.2024 11:11-',()=>{
+  it('01.02.2024 11:11-', () => {
     const syntax = parseTestNameUsing(timesheet().grammar);
     const input: string = testName();
     expectSyntaxTextToEqual(syntax, input);
-  })
-  it('01.02',()=>{
+  });
+  it('01.02', () => {
     const syntax = parseTestNameUsing(timesheet().grammar);
     const input: string = testName();
     expectSyntaxTextToEqual(syntax, input);
-  })
+  });
+  describe('parse as much as possible', () => {
+    it('01.02.2024 11:11-project1-12:00-project2-12:0', () => {
+      const syntax = parseTestNameUsing(timesheet().grammar);
+      const input: string = testName();
+      expectSyntaxTextToEqual(syntax, input);
+      expect(syntax.map(it => it.name)).toMatchInlineSnapshot(`
+        [
+          "day",
+          ".",
+          "month",
+          ".",
+          "year",
+          "space",
+          "hour",
+          "-",
+          "project",
+          "-",
+          "hour",
+          "-",
+          "project",
+          "-",
+          "error",
+        ]
+      `);
+    });
+  });
+
 });

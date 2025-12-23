@@ -7,7 +7,7 @@ export function optional<T extends string>(subparser: Parse<T>): Parse<T> {
       return {
         type: result.type,
         text: '',
-        errors: result.errors
+        errors: []
       };
     } else {
       return result;
