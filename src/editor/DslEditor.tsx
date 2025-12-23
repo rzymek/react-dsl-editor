@@ -166,7 +166,8 @@ export function DslEditor<T extends string>(
     <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
-        spellCheck={false}
+        // @ts-ignore
+        spellcheck={false}
         wrap={wrap ? 'soft' : 'off'}
         style={{
           ...textStyle,

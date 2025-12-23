@@ -21,4 +21,3 @@ export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Pa
     };
   };
 }
-
