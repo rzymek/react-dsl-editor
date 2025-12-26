@@ -86,6 +86,7 @@ export function DslEditor<T extends string>(
     visible: false,
   });
   const [suggestionIndex, setSuggestionIndex] = useState(0);
+  const [cursorText, setCursorText] = useState('');
 
   const parser = useRef<Parser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
@@ -100,6 +101,7 @@ export function DslEditor<T extends string>(
 
   const updateSuggestions = useCallback(() => {
     updateSuggestionsForSyntax(syntax);
+    setCursorText(textarea.current?.value?.substring(0, textarea.current?.selectionStart ?? 0) ?? '');
   }, [syntax, updateSuggestionsForSyntax]);
 
   useEffect(() => {
@@ -115,6 +117,7 @@ export function DslEditor<T extends string>(
     const syntax = textSyntax(ast, code);
     updateSuggestionsForSyntax(syntax);
     setSyntax(syntax);
+    setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
   }, [code, onParsed, updateSuggestionsForSyntax]);
 
   const getCursorCoordinates = useCallback(() =>
@@ -170,6 +173,7 @@ export function DslEditor<T extends string>(
   const handleChange = useCallback((e: ChangeEvent<HTMLTextAreaElement>) => {
     onChange(e.target.value);
     setSuggestionMenu(s => ({...s, visible: false}));
+    setCursorText(e.target.value.substring(0, e.target.selectionStart));
   }, [onChange]);
 
   return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}}
@@ -196,7 +200,7 @@ export function DslEditor<T extends string>(
         {...textareaProps}
       />
       <SyntaxHighlighter syntax={syntax} ref={highlighter} wrap={wrap} styles={styles}/>
-      <CursorPosition ref={cursor} text={code.substring(0, textarea.current?.selectionStart ?? 0)} wrap={wrap}/>
+      <CursorPosition ref={cursor} text={cursorText} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.suggestions.length > 0 &&
           <SuggestionsMenu
               suggestions={suggestions.suggestions}

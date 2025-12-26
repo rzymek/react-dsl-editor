@@ -4,6 +4,7 @@ export function useSyncScroll<Target extends HTMLElement, Source extends HTMLEle
   return useCallback((e: UIEvent<Source>) => {
     const source = e.currentTarget;
     if (target.current && source) {
+      // eslint-disable-next-line react-hooks/immutability
       target.current.scrollTop = source.scrollTop;
       target.current.scrollLeft = source.scrollLeft;
     }
