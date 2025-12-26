@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - master
+permissions:
+  id-token: write
 
 jobs:
   publish:
@@ -20,7 +22,6 @@ jobs:
       - run: pnpm install
       - run: pnpm test
       - run: pnpm lint
-      - run: pnpm build
-      - run: pnpm publish --no-git-checks
+      - run: pnpm publish --no-git-checks --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
