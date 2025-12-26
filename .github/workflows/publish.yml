@@ -19,7 +19,6 @@ jobs:
       - uses: pnpm/action-setup@v4
         with:
           version: 10
-      - run: pnpm install
-      - run: pnpm publish --no-git-checks --provenance
-        env:
-          NODE_AUTH_TOKEN: ""
+          cache: true
+          run_install: true
+      - run: npm publish --no-git-checks --provenance
