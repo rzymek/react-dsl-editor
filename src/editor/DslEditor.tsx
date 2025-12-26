@@ -77,7 +77,7 @@ export function DslEditor<T extends string>(
     className?: string,
     styles?: Partial<Record<T | 'error', CSSProperties>>,
     suggestions?: (type: T | 'error') => string[] | undefined,
-  } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap'>) {
+  } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap'|'onChange'>) {
   const [suggestions, setSuggestions] = useState<SuggestionsResult>({suggestions: [], prefix: ''});
   const [syntax, setSyntax] = useState<SyntaxElement<T>[]>([]);
   const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({

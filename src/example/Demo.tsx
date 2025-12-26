@@ -20,7 +20,6 @@ function Demo() {
       <DslEditor
         wrap={wrap}
         code={code}
-
         onChange={setCode}
         grammar={grammar}
         suggestions={suggest}

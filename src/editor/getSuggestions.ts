@@ -7,9 +7,9 @@ export type SuggestionsResult = {
 }
 
 export function getSuggestions<T>(
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   syntax: SyntaxElement<T>[], cursorStart: number, clientSuggestions?: (type: ('error' | T)) => (string[] | undefined),
 ): SuggestionsResult {
+  console.assert(true, syntax, cursorStart, clientSuggestions);
   /*
   const results = _.pipe(
     syntax,
