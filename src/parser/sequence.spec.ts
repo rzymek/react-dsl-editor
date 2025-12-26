@@ -24,10 +24,10 @@ describe('sequence', () => {
       {text: 'b', type: 'b', errors: []},
       {
         text: '', type: 'c',
-        errors: [{expected: 'c', got: 'd', offset: 2}],
+        errors: [{expected: 'c', got: 'd', offset: 2, type: 'c'}],
       }]);
     expect(result.errors).toEqual([
-      {expected: 'c', got: 'd', offset: 2},
+      {expected: 'c', got: 'd', offset: 2, type: 'c'},
     ]);
   });
 
@@ -36,12 +36,12 @@ describe('sequence', () => {
     const result = parser('');
     expect(result.text).toBe('');
     expect(result.children).toEqual([
-      {text: '', type: 'a', errors: [{expected: 'a', got: '', offset: 0}]},
-      {text: '', type: 'b', errors: [{expected: 'b', got: '', offset: 0}]},
+      {text: '', type: 'a', errors: [{expected: 'a', got: '', offset: 0, type: 'a'}]},
+      {text: '', type: 'b', errors: [{expected: 'b', got: '', offset: 0, type: 'b'}]},
     ]);
     expect(result.errors).toEqual([
-      {expected: 'a', got: '', offset: 0},
-      {expected: 'b', got: '', offset: 0},
+      {expected: 'a', got: '', offset: 0, type: 'a'},
+      {expected: 'b', got: '', offset: 0, type: 'b'},
     ]);
   });
 

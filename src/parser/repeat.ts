@@ -8,13 +8,13 @@ export function repeat<T extends string>(type: T = 'repeat' as T, parser: Parse<
     const errors: ParserError<T>[] = [];
     for (let i = 0; i < max; i++) {
       const result = parser(text.substring(offset));
-      result.errors.forEach(error =>
-        errors.push(appendOffset(error, offset)),
-      );
       offset += result.text.length;
       if ((isParserError(result) || errors.length > 0) && i >= min) {
         break;
       }
+      result.errors.forEach(error =>
+        errors.push(appendOffset(error, offset)),
+      );
       results.push(result);
     }
     return {

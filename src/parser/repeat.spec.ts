@@ -28,6 +28,7 @@ describe('repeat', () => {
       expected: '.',
       got: 'xx',
       offset: 2,
+      type: '.',
     }]);
   });
   it('repeat seq', () => {
@@ -38,6 +39,7 @@ describe('repeat', () => {
       expected: 'y',
       got: 'x',
       offset: 0,
+      type: "y",
     }]);
   });
 });

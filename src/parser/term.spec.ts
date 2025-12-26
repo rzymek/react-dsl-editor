@@ -24,6 +24,7 @@ describe('term', () => {
       text: '',
       errors: [{
         expected: 'abc',
+        type: terminal,
         got: 'def',
         offset: 0,
       }],

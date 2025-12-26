@@ -1,4 +1,13 @@
-import { type ChangeEvent, CSSProperties, useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import {
+  type ChangeEvent,
+  CSSProperties,
+  TextareaHTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
 import { type Parse, Parser, type ParserResult } from '../parser';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
@@ -58,17 +67,18 @@ export function DslEditor<T extends string>(
     suggestions: clientSuggestions,
     className = DslEditor.name,
     styles,
+    ...textareaProps
   }: {
     code: string,
     onChange: (text: string) => void,
     onParsed?: (ast: ParserResult<T>) => void,
     grammar: Parse<T>,
     wrap?: boolean,
-    className?:string,
-    styles?: Partial<Record<T|'error', CSSProperties>>,
+    className?: string,
+    styles?: Partial<Record<T | 'error', CSSProperties>>,
     suggestions?: (type: T | 'error') => string[] | undefined,
-  }) {
-  const [suggestions, setSuggestions] = useState<SuggestionsResult>({ suggestions: [], prefix: '' });
+  } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap'>) {
+  const [suggestions, setSuggestions] = useState<SuggestionsResult>({suggestions: [], prefix: ''});
   const [syntax, setSyntax] = useState<SyntaxElement<T>[]>([]);
   const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({
     top: 0,
@@ -112,8 +122,8 @@ export function DslEditor<T extends string>(
 
   const handleSuggestionSelect = useCallback((suggestion: string) => {
     if (!textarea.current) return;
-    const { selectionStart, selectionEnd } = textarea.current;
-    const { prefix } = suggestions;
+    const {selectionStart, selectionEnd} = textarea.current;
+    const {prefix} = suggestions;
     const newCode = code.substring(0, selectionStart - prefix.length) + suggestion + code.substring(selectionEnd);
     onChange(newCode);
     setTimeout(() => {
@@ -162,7 +172,8 @@ export function DslEditor<T extends string>(
     setSuggestionMenu(s => ({...s, visible: false}));
   }, [onChange]);
 
-  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}} className={className}>
+  return <div style={{display: 'grid', gridTemplateRows: '1fr auto', flex: 1, width: '100%', height: '100%'}}
+              className={className}>
     <div style={{position: 'relative', border: '1px solid black', overflow: 'hidden'}}>
       <textarea
         ref={textarea}
@@ -182,6 +193,7 @@ export function DslEditor<T extends string>(
         onChange={handleChange}
         onScroll={useSyncScroll(highlighter)}
         onKeyDown={handleKeyDown}
+        {...textareaProps}
       />
       <SyntaxHighlighter syntax={syntax} ref={highlighter} wrap={wrap} styles={styles}/>
       <CursorPosition ref={cursor} text={code.substring(0, textarea.current?.selectionStart ?? 0)} wrap={wrap}/>

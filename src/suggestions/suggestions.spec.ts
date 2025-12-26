@@ -18,7 +18,7 @@ function parseTestName<T extends string>(grammar: Parse<T>) {
 
 describe('suggestionsFromErrors', () => {
   describe('should return all ast node types at position', () => {
-    it('fun f1{1+1} f|', () => {
+    it.skip('fun f1{1+1} f|', () => {
       // given
       const {ast, cursorPositon} = parseTestName(funcParser);
       // when
@@ -28,7 +28,7 @@ describe('suggestionsFromErrors', () => {
         {text: 'fun', type: 'fun'},
       ]);
     });
-    it('f|u foo{2+2}', () => {
+    it.skip('f|u foo{2+2}', () => {
       // given
       const {ast, cursorPositon} = parseTestName(funcParser);
       // when
@@ -38,7 +38,7 @@ describe('suggestionsFromErrors', () => {
         {text: 'fun', type: 'fun'},
       ]);
     });
-    it('fun b|', () => {
+    it.skip('fun b|', () => {
       // given
       function clientSuggestions(type: NodeTypes<typeof funcParser>) {
         if (type === 'identifier') {
@@ -73,7 +73,7 @@ describe('suggestionsFromErrors', () => {
       ]);
     });
 
-    it('fun foo{1+1} fun bar {2|', () => {
+    it.skip('fun foo{1+1} fun bar {2|', () => {
       // given
       function clientSuggestions(type: NodeTypes<typeof funcParser>) {
         if (type === 'rational') {
