@@ -1,8 +1,10 @@
 {
   "name": "react-dsl-editor",
-  "private": false,
   "license": "MIT",
   "version": "0.2.1",
+  "repository": {
+    "url": "https://github.com/rzymek/react-dsl-editor"
+  },
   "publishConfig": {
     "access": "public",
     "provenance": true
