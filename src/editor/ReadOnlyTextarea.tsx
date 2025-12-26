@@ -1,12 +1,11 @@
-import { CSSProperties, PropsWithChildren, Ref } from 'react';
+import { CSSProperties, forwardRef, PropsWithChildren } from 'react';
 import { textStyle } from './textStyle';
 
-export function ReadOnlyTextarea({ref, wrap, children, style = {}}: PropsWithChildren<{
-  ref?: Ref<HTMLPreElement>,
+export const ReadOnlyTextarea = forwardRef(function ReadOnlyTextarea({wrap, children, style = {}}: PropsWithChildren<{
   wrap: boolean,
   style?: CSSProperties,
 }>) {
-  return <pre ref={ref} style={{
+  return <pre style={{
     ...textStyle,
     pointerEvents: 'none',
     margin: 0,
@@ -14,4 +13,4 @@ export function ReadOnlyTextarea({ref, wrap, children, style = {}}: PropsWithChi
     whiteSpace: wrap ? 'pre-wrap' : 'pre',
     ...style,
   }}>{children}</pre>;
-}
+})

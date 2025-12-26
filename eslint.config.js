@@ -7,15 +7,17 @@ import {defineConfig, globalIgnores} from 'eslint/config'
 
 export default defineConfig([
     globalIgnores(['dist']),
+    js.configs.recommended,
+    ...tseslint.configs.recommended,
     {
         files: ['**/*.{ts,tsx,js}'],
-        extends: [
-            js.configs.recommended,
-            tseslint.configs.recommended,
-            reactHooks.configs['recommended-latest'],
-            reactRefresh.configs.vite,
-        ],
+        plugins: {
+            'react-hooks': reactHooks,
+            'react-refresh': reactRefresh,
+        },
         rules: {
+            ...reactHooks.configs['recommended-latest'].rules,
+            ...reactRefresh.configs.vite.rules,
             "@typescript-eslint/no-inferrable-types": "error",
             "quote-props": ["error", "as-needed"]
         },

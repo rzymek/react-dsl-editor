@@ -1,19 +1,18 @@
-import { Ref, useImperativeHandle, useRef } from 'react';
+import { forwardRef, useImperativeHandle, useRef } from 'react';
 import { ReadOnlyTextarea } from './ReadOnlyTextarea';
 
 export interface CursorPositionHandle {
   getCursorPosition(): { top: number, left: number };
 }
 
-export function CursorPosition(props: {
+export const CursorPosition = forwardRef(function CursorPosition(props: {
   text: string,
   wrap: boolean,
-  ref: Ref<CursorPositionHandle>
-}) {
+}, ref) {
   const cursor = useRef<HTMLSpanElement>(null);
   const area = useRef<HTMLPreElement>(null);
 
-  useImperativeHandle(props.ref, () => ({
+  useImperativeHandle(ref, () => ({
     getCursorPosition() {
       if (!cursor.current || !area.current) {
         return {top: 0, left: 0};
@@ -29,4 +28,4 @@ export function CursorPosition(props: {
   return <ReadOnlyTextarea ref={area} wrap={props.wrap} style={{visibility: 'hidden'}}>
     {props.text}<span ref={cursor}>&nbsp;</span>
   </ReadOnlyTextarea>;
-}
+})
