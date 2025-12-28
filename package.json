@@ -9,6 +9,7 @@
     "access": "public",
     "provenance": true
   },
+  "packageManager": "pnpm@10.24.0",
   "type": "module",
   "module": "./dist/react-dsl-editor.js",
   "types": "./dist/index.d.ts",
