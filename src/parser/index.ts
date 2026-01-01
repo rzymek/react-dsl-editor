@@ -15,3 +15,4 @@ export * from './ParsingError';
 export * from './types';
 export * from './ASTNode';
 export { tap } from './tap';
+export {faultTolerance} from "./faultTolerance";

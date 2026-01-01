@@ -17,6 +17,9 @@ export function repeat<T extends string>(type: T = 'repeat' as T, parser: Parse<
       }
       offset += result.text.length;
       results.push(result);
+      if(result.text.length === 0) {
+        break;
+      }
     }
     return {
       type,

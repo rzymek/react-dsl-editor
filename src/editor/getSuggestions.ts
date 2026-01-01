@@ -1,5 +1,5 @@
 import type { SyntaxElement } from './SyntaxHighlighter';
-// import * as _ from 'remeda';
+import * as _ from 'remeda';
 
 export type SuggestionsResult = {
   suggestions: string[],
@@ -9,8 +9,6 @@ export type SuggestionsResult = {
 export function getSuggestions<T>(
   syntax: SyntaxElement<T>[], cursorStart: number, clientSuggestions?: (type: ('error' | T)) => (string[] | undefined),
 ): SuggestionsResult {
-  console.assert(true, syntax, cursorStart, clientSuggestions);
-  /*
   const results = _.pipe(
     syntax,
     _.filter(it => it.startOffset <= cursorStart && cursorStart <= Math.max(it.endOffset, it.startOffset + (it.expected ?? '').length)), // syntax elements within cursor position
@@ -33,10 +31,6 @@ export function getSuggestions<T>(
     suggestions: _.unique(result.suggestions),
     prefix: result.prefix,
   } : {
-    suggestions: [],
-    prefix: '',
-  };*/
-  return {
     suggestions: [],
     prefix: '',
   };

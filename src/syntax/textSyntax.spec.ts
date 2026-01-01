@@ -7,7 +7,7 @@ import { funcParser } from '../example/funcParser';
 import { timesheet } from '../example/timesheet';
 
 function testName(): string {
-  return expect.getState().currentTestName!.replace(/^.*[>] /g, '');
+  return expect.getState().currentTestName!.replace(/^.*> /g, '');
 }
 
 function expectSyntaxTextToEqual(syntax: SyntaxElement<string>[], expected: string): void {

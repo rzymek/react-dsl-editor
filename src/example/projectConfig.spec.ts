@@ -17,6 +17,7 @@ describe('projectConfigDsl', () => {
       
     `;
     const result = new Parser(projectDsl.grammar).parse(valid);
+    expect(result.errors).toEqual([]);
     expect(visit(result, node => {
       if (node.type === 'projectName') {
         return node.text;

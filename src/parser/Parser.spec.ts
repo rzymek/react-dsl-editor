@@ -14,7 +14,8 @@ describe('Parser', () => {
     const result = parser.parse('fun f1{1+1} f');
     // then
     expect(result.errors).toEqual([{
-      expected: '',
+      expected: [],
+      parser: expect.anything(),
       got: 'f',
       offset: 12,
       type: 'error'
@@ -28,11 +29,12 @@ describe('Parser', () => {
     // then
     expect(result.text).toEqual('');
     expect(result.errors).toEqual([{
-      expected: '',
+      expected: [],
+      parser: expect.anything(),
       got: 'x',
       offset: 0,
       type: 'error'
-    }] satisfies ParserError<unknown>[]);
+    }] satisfies ParserError<string>[]);
   });
   it('bar', () => {
     // given

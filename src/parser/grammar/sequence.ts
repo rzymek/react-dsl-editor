@@ -1,5 +1,6 @@
-import { isParserError, type Parse, type ParserResult, ParserSuccess } from '../types';
-import { tap } from '../tap';
+import {isParserError, type Parse, type ParserResult, ParserSuccess} from '../types';
+import {tap} from '../tap';
+import {faultTolerance} from "../faultTolerance";
 
 export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Parse<T>[]): Parse<T> {
   function sequence(text: string): ParserResult<T> {
@@ -8,9 +9,19 @@ export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Pa
     let offset = 0;
     for (const parser of seq) {
       const rest = text.substring(offset);
-      const result = parser(rest);
+      let result = parser(rest);
       if (isParserError(result)) {
-        return result;
+        const resultOverride = faultTolerance(result, {
+          type,
+          parser: sequence,
+          text:rest,
+          children: results
+        })
+        if (resultOverride) {
+          result = resultOverride
+        } else {
+          return result;
+        }
       }
       offset += result.text.length;
       results.push(result);

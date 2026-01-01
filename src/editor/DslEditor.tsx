@@ -95,11 +95,12 @@ export function DslEditor<T extends string>(
 
   const updateSuggestionsForSyntax = useCallback((_syntax: SyntaxElement<T>[]) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
-    const suggestion = getSuggestions(_syntax, cursorStart, clientSuggestions);
-    setSuggestions(suggestion);
+    const suggestions = getSuggestions(_syntax, cursorStart, clientSuggestions);
+    setSuggestions(suggestions);
   }, [clientSuggestions]);
 
   const updateSuggestions = useCallback(() => {
+    console.log('updateSuggestions')
     updateSuggestionsForSyntax(syntax);
     setCursorText(textarea.current?.value?.substring(0, textarea.current?.selectionStart ?? 0) ?? '');
   }, [syntax, updateSuggestionsForSyntax]);
@@ -210,6 +211,7 @@ export function DslEditor<T extends string>(
           />
       }
     </div>
+    {JSON.stringify(suggestions)}
     <SuggestionsView suggestions={suggestions.suggestions} onSelect={handleSuggestionSelect}/>
   </div>;
 }

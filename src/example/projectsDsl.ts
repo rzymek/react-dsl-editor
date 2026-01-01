@@ -34,8 +34,6 @@ const grammar = repeat('config',
 export const projectDsl = {
   grammar,
   suggest(type: NodeTypes<typeof grammar>) {
-    if (type === 'error') {
-      return undefined;
-    }
+      return [type];
   },
 };

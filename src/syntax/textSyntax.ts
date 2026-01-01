@@ -14,6 +14,8 @@ function syntaxForParserResult<T extends string>(ast: ASTNode<T>, offset: number
         name: ast.type,
         text: ast.text,
         startOffset: offset,
+        endOffset: offset + ast.text.length,
+        expected: '',
       });
     }
   }
@@ -46,6 +48,8 @@ export function textSyntax<T extends string>(ast: ASTNode<T>, text: string): Syn
       name: 'error',
       text: text.substring(startOffset),
       startOffset,
+      endOffset: startOffset + text.length,
+      expected: '',
     });
   }
   return removeOverlap(syntaxElements);
