@@ -1,4 +1,5 @@
 import type { Parse, ParserError, ParserResult, ParserSuccess } from '../types';
+import { tap } from '../tap';
 
 export function term<T extends string>(str: T): Parse<T>;
 export function term<T extends string>(str: string, type: T): Parse<T>;
@@ -6,6 +7,7 @@ export function term<T extends string>(str: string, _type?: T): Parse<T> {
   const type = _type ?? str as T;
 
   function term(text: string): ParserResult<T> {
+    tap(term, text);
     if (text.startsWith(str)) {
       return {
         type,

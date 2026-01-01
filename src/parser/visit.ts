@@ -1,8 +1,9 @@
-import { isParserError, ParserResult, ParserSuccess } from './types';
+import { isParserError } from './types';
+import { ASTNode } from './ASTNode';
 
 export function visit<T extends string, V>(
-  parserResult: ParserResult<T>,
-  visitor: (node: ParserSuccess<T>) => V | undefined,
+  parserResult: ASTNode<T>,
+  visitor: (node: ASTNode<T>) => V | undefined,
 ): V[] {
   if(isParserError(parserResult)) {
     return [];

@@ -2,6 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { projectDsl } from './projectsDsl';
 import dedent from 'string-dedent';
 import { visit } from '../parser/visit';
+import { Parser } from '../parser';
 
 describe('projectConfigDsl', () => {
   it('e2e', () => {
@@ -15,7 +16,7 @@ describe('projectConfigDsl', () => {
         total: h.m
       
     `;
-    const result = projectDsl.grammar(valid);
+    const result = new Parser(projectDsl.grammar).parse(valid);
     expect(visit(result, node => {
       if (node.type === 'projectName') {
         return node.text;

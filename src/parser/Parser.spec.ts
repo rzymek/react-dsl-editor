@@ -2,9 +2,9 @@ import { describe, it, expect } from 'vitest';
 import { Parser } from './Parser';
 import { funcParser } from '../example/funcParser';
 import { NodeTypes, ParserError } from './types';
-import { repeat } from './repeat';
-import { term } from './term';
-import { sequence } from './sequence';
+import { repeat } from './grammar/repeat';
+import { term } from './grammar/term';
+import { sequence } from './grammar/sequence';
 
 describe('Parser', () => {
   it.skip('should report unexpected trailing input as error', () => {

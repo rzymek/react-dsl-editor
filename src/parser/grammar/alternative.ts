@@ -1,8 +1,11 @@
 import { isParserError, type Parse, ParserError, ParserSuccess } from '../types';
 import { map, only, pipe, sortBy, take } from 'remeda';
+import { tap } from '../tap';
+
 
 export function alternative<T extends string>(type: T = 'alternative' as T, ...seq: Parse<T>[]): Parse<T> {
   function alternative(text: string) {
+    tap(alternative, text);
     const errors: ParserError<T>[] = [];
     for (const parser of seq) {
       const result = parser(text);
@@ -18,8 +21,9 @@ export function alternative<T extends string>(type: T = 'alternative' as T, ...s
       }
     }
     return {
+      type,
       offset: 0,
-      expected: errors.flatMap(e => e.expected),
+      expected: errors.flatMap(e => `${e.expected} (${e.type})`),
       got: pipe(
         errors,
         map(it => it.got),
@@ -27,7 +31,6 @@ export function alternative<T extends string>(type: T = 'alternative' as T, ...s
         take(1),
         only(),
       )!,
-      type,
       parser: alternative,
     } satisfies ParserError<T>;
   }

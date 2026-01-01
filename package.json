@@ -3,7 +3,7 @@
   "license": "MIT",
   "version": "0.2.3",
   "repository": {
-    "url": "https://github.com/rzymek/react-dsl-editor"
+    "url": "git+https://github.com/rzymek/react-dsl-editor.git"
   },
   "publishConfig": {
     "access": "public",
@@ -27,7 +27,7 @@
     "build": "rimraf dist && vite build",
     "lint": "eslint",
     "test": "vitest",
-    "prepublishOnly": "npm-run-all -p lint test build"
+    "prepublishOnly": "CI=1 npm-run-all -p lint test build"
   },
   "dependencies": {
     "randexp": "^0.5.3",
