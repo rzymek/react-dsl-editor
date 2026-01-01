@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
 import { projectDsl } from './projectsDsl';
-import dedent from 'string-dedent'
+import dedent from 'string-dedent';
 import { visit } from '../parser/visit';
 
 describe('projectConfigDsl', () => {
-  it('e2e',()=>{
+  it('e2e', () => {
     const valid = dedent`
       # comment
       projects:
@@ -13,12 +13,19 @@ describe('projectConfigDsl', () => {
       
       display:
         total: h.m
+      
     `;
     const result = projectDsl.grammar(valid);
-    expect(visit(result, node=> {
-      if(node.type === 'projects') {
-        return node;
+    expect(visit(result, node => {
+      if (node.type === 'projectName') {
+        return node.text;
       }
-    })).toMatchSnapshot()
-  })
+    })).toEqual(['p1', 'p2']);
+
+    expect(visit(result, node => {
+      if (node.type === 'totalDisplay') {
+        return node.children![0].text
+      }
+    })).toEqual(['h.m']);
+  });
 });

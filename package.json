@@ -30,6 +30,7 @@
     "prepublishOnly": "npm-run-all -p lint test build"
   },
   "dependencies": {
+    "randexp": "^0.5.3",
     "remeda": "^2.32.0"
   },
   "peerDependencies": {

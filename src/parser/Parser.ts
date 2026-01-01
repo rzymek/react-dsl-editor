@@ -1,17 +1,27 @@
-import { type Parse, type ParserResult } from './types';
+import { isParserError, type Parse, ParserResult } from './types';
 import { trimEmptyNode } from './ast/trimEmptyNode';
 import { ASTNode } from './ASTNode';
 
 function withOffset<T extends string>(parserResult: ParserResult<T>, offset = 0): ASTNode<T> {
+  if(isParserError(parserResult)) {
+    return {
+      children: [],
+      errors: [parserResult],
+      offset: 0,
+      text: '',
+      type: parserResult.type
+    }
+  }
   let childOffset = offset;
   return {
+    errors: [],//TODO: ?
     ...parserResult,
     children: parserResult.children?.map((it,idx,arr)=> {
       const {text} = arr[idx-1] ?? {text:''}
       childOffset += text.length;
       return withOffset(it, childOffset);
     }),
-    offset,
+    offset
   }
 }
 
@@ -28,8 +38,9 @@ export class Parser<T extends string> {
       const offset = result.text.length;
       result.errors.push({
         offset,
+        parser: this.parser,
         got: input.substring(offset),
-        expected: '',
+        expected: [],
         type: 'error' as T
       });
     }

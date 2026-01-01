@@ -1,4 +1,6 @@
-import type { Parse, ParserResult } from './types';
+import type { Parse, ParserError, ParserResult } from '../types';
+import RandExp from 'randexp';
+import { range } from 'remeda';
 
 export function pattern(regex: string): Parse<'pattern'>;
 export function pattern<T extends string>(regex: string, type: T): Parse<T>;
@@ -11,20 +13,16 @@ export function pattern<T extends string>(regex: string, type: T = 'pattern' as 
         type,
         parser: pattern,
         text: match[0],
-        errors: [],
       } satisfies ParserResult<T>;
     } else {
+      const rangexp = new RandExp(regex);
       return {
         type,
         parser: pattern,
-        text: '',
-        errors: [{
-          expected: new RegExp(regex),
-          got: text,
-          offset: 0,
-          type,
-        }],
-      } satisfies ParserResult<T>;
+        expected: range(0, 10).map(() => rangexp.gen()),
+        got: text,
+        offset: 0,
+      } satisfies ParserError<T>;
     }
   }
 

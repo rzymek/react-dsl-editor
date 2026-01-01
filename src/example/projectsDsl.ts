@@ -1,7 +1,8 @@
-import { alternative, optional, ws, pattern, repeat, sequence, term, type NodeTypes } from '../parser';
+import { alternative, optional,  pattern, repeat, sequence, term, type NodeTypes } from '../parser';
 
-const newLine = term('\n');
-const comment = pattern('#[^#\n]*', 'comment');
+const ws = pattern('[ \t]*');
+const newLine = pattern('[ \\t]*\\n');
+const comment = pattern('#[^#\\n]*', 'comment');
 const grammar = repeat('config',
   alternative('line',
     sequence('space', ws, newLine),
@@ -22,9 +23,9 @@ const grammar = repeat('config',
 
     sequence('section:display',
       term('display:'), ws, newLine,
-      alternative('',
-        sequence('',
-          term('total:'), ws,
+      alternative('alt',
+        sequence('seq',
+          ws, term('total:'), ws,
           alternative('totalDisplay',
             term('h:m'),
             term('h.m'),

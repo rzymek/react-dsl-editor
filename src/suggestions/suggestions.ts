@@ -9,15 +9,14 @@ export interface Suggestion<T> {
 }
 
 export function suggestionsFromErrors<T extends string>(node: ASTNode<T>, cursorPositon: number): Suggestion<T>[] {
-  return _.pipe(node.errors,
+  return _.pipe(
+    node.errors,
     _.flatMap(error => {
-      if (typeof error.expected !== 'string') {
+      if (error.offset <= cursorPositon && cursorPositon <= error.offset + error.expected.length) {
+        return error.expected.map(expected => ({text: expected, type: error.type}));
+      } else {
         return [];
       }
-      if (error.offset <= cursorPositon && cursorPositon <= error.offset + error.expected.length) {
-        return [{text: error.expected, type: error.type}];
-      }
-      return [];
     }),
     _.take(1),
   );
@@ -33,7 +32,7 @@ export function getSuggestions<T extends string>(ast: ASTNode<T>, cursorPositon:
         return suggestionResponse.filter(s => s.startsWith(prefix));
       } else {
         return suggestionsFromErrors<T>(node, cursorPositon)
-          .map(it=>it.text)
+          .map(it => it.text)
           .filter(s => s.startsWith(prefix));
       }
     });

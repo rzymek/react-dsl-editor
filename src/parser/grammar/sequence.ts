@@ -1,23 +1,22 @@
-import { type Parse, type ParserError, type ParserResult } from './types';
-import { appendOffsets } from './appendOffset';
+import { isParserError, type Parse, type ParserResult, ParserSuccess } from '../types';
 
 export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Parse<T>[]): Parse<T> {
   function sequence(text: string): ParserResult<T> {
-    const results: ParserResult<T>[] = [];
+    const results: ParserSuccess<T>[] = [];
     let offset = 0;
-    const errors: ParserError<T>[] = [];
     for (const parser of seq) {
-      const result = parser(text.substring(offset));
-      result.errors = appendOffsets(result.errors, offset);
+      const rest = text.substring(offset);
+      const result = parser(rest);
+      if (isParserError(result)) {
+        return result;
+      }
       offset += result.text.length;
-      errors.push(...result.errors);
       results.push(result);
     }
     return {
       type,
       parser: sequence,
       text: text.substring(0, offset),
-      errors,
       children: results,
     };
   }
