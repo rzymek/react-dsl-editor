@@ -9,7 +9,7 @@ import {
   useState,
 } from 'react';
 import { type SyntaxElement, SyntaxHighlighter } from './SyntaxHighlighter';
-import { type Parse, Parser, type ParserResult } from '../parser';
+import { ASTNode, type Parse, Parser } from '../parser';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textSyntax } from '../syntax/textSyntax';
 import { textStyle } from './textStyle';
@@ -27,7 +27,7 @@ function SuggestionsMenu({
                          }: {
   suggestions: string[],
   onSelect: (suggestion: string) => void,
-  style: React.CSSProperties,
+  style: CSSProperties,
   selectedIndex: number,
   onHover: (index: number) => void,
 }) {
@@ -71,7 +71,7 @@ export function DslEditor<T extends string>(
   }: {
     code: string,
     onChange: (text: string) => void,
-    onParsed?: (ast: ParserResult<T>) => void,
+    onParsed?: (ast: ASTNode<T>) => void,
     grammar: Parse<T>,
     wrap?: boolean,
     className?: string,

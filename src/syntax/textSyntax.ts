@@ -1,8 +1,8 @@
-import { isParserSuccess, type ParserResult } from '../parser';
+import { ASTNode, isParserSuccess } from '../parser';
 import type { SyntaxElement } from '../editor/SyntaxHighlighter';
 import * as _ from 'remeda';
 
-function syntaxForParserResult<T extends string>(ast: ParserResult<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
+function syntaxForParserResult<T extends string>(ast: ASTNode<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
   if (ast.children) {
     for (const child of ast.children) {
       syntaxForParserResult(child, offset, result);
@@ -31,7 +31,7 @@ function removeOverlap<T>(syntax: SyntaxElement<T>[]) {
   });
 }
 
-export function textSyntax<T extends string>(ast: ParserResult<T>, text: string): SyntaxElement<T>[] {
+export function textSyntax<T extends string>(ast: ASTNode<T>, text: string): SyntaxElement<T>[] {
   const syntaxElements = syntaxForParserResult<T>(ast, 0);
   const syntaxEndOffset = _.pipe(
     syntaxElements,

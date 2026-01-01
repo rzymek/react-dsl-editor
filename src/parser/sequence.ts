@@ -2,7 +2,7 @@ import { type Parse, type ParserError, type ParserResult } from './types';
 import { appendOffsets } from './appendOffset';
 
 export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Parse<T>[]): Parse<T> {
-  return (text: string): ParserResult<T> => {
+  function sequence(text: string): ParserResult<T> {
     const results: ParserResult<T>[] = [];
     let offset = 0;
     const errors: ParserError<T>[] = [];
@@ -15,9 +15,13 @@ export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Pa
     }
     return {
       type,
+      parser: sequence,
       text: text.substring(0, offset),
       errors,
       children: results,
     };
-  };
+  }
+
+  sequence.type = type;
+  return sequence;
 }

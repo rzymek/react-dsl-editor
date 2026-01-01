@@ -1,6 +1,6 @@
 import * as _ from 'remeda';
 import { unique } from 'remeda';
-import { ASTNode, ParserResult } from '../parser';
+import { ASTNode } from '../parser';
 import { nodeTypesAt } from './nodeTypesAt';
 
 export interface Suggestion<T> {
@@ -8,7 +8,7 @@ export interface Suggestion<T> {
   type: T,
 }
 
-export function suggestionsFromErrors<T extends string>(node: ParserResult<T>, cursorPositon: number): Suggestion<T>[] {
+export function suggestionsFromErrors<T extends string>(node: ASTNode<T>, cursorPositon: number): Suggestion<T>[] {
   return _.pipe(node.errors,
     _.flatMap(error => {
       if (typeof error.expected !== 'string') {
@@ -32,7 +32,7 @@ export function getSuggestions<T extends string>(ast: ASTNode<T>, cursorPositon:
       if (suggestionResponse !== undefined) {
         return suggestionResponse.filter(s => s.startsWith(prefix));
       } else {
-        return suggestionsFromErrors(node, cursorPositon)
+        return suggestionsFromErrors<T>(node, cursorPositon)
           .map(it=>it.text)
           .filter(s => s.startsWith(prefix));
       }

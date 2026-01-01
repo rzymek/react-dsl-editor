@@ -2,7 +2,7 @@ import { isParserError, type Parse, type ParserError, type ParserResult } from '
 import { appendOffset } from './appendOffset';
 
 export function repeat<T extends string>(type: T = 'repeat' as T, parser: Parse<T>, min = 1, max = Infinity): Parse<T> {
-  return (text: string): ParserResult<T> => {
+  function repeat(text: string): ParserResult<T> {
     const results: ParserResult<T>[] = [];
     let offset = 0;
     const errors: ParserError<T>[] = [];
@@ -19,9 +19,13 @@ export function repeat<T extends string>(type: T = 'repeat' as T, parser: Parse<
     }
     return {
       type,
+      parser: repeat,
       text: results.map(it => it.text).join(''),
       errors,
       children: results,
     };
-  };
+  }
+
+  repeat.type = type;
+  return repeat;
 }

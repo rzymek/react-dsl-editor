@@ -15,7 +15,9 @@ export function SyntaxHighlighter<T extends string>({syntax = [], ref, wrap, sty
 }) {
   return <ReadOnlyTextarea ref={ref} wrap={wrap}>
     {syntax.map((element, idx) =>
-      <span key={`token_${idx}`} className={[element.name].join(' ')} style={styles?.[element.name as T]}>
+      <span key={`token_${idx}`}
+            className={[element.name].join(' ')}
+            style={styles?.[element.name as T]}>
         {element.text}
       </span>,
     )}
