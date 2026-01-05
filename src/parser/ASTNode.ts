@@ -1,10 +1,8 @@
-import {ParserError} from "./types";
+import { GrammarNode } from './types';
 
-export interface ASTNode<T extends string> {
-  type: T,
+export interface CSTNode<T extends string> {
   text: string,
-  children?: ASTNode<T>[],
-  suggestions: string[],
-  error?: ParserError<T>,
   offset: number,
+  grammar: GrammarNode<T>,
+  children?: CSTNode<T>[],
 }

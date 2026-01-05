@@ -1,8 +1,6 @@
 import { describe, expect, it } from 'vitest';
-import { repeat } from './repeat';
-import { term } from './term';
-import { isParserError, isParserSuccess, NodeTypes, ParserError } from '../types';
 import { sequence } from './sequence';
+import { repeat } from './repeat';
 
 describe('repeat', () => {
   it('defaults', () => {

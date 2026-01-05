@@ -1,4 +1,4 @@
-import { repeat } from '../repeat';
-import { term } from '../term';
+import { pattern } from '../core/pattern';
+import { optional } from '../core/optional';
 
-export const ws = repeat('ws', term(' ', 'space'));
+export const ws = optional(pattern(/\s+/))

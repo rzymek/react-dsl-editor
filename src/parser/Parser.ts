@@ -1,48 +1,44 @@
-import {isParserError, type Parse, ParserResult} from './types';
-import {trimEmptyNode} from './ast/trimEmptyNode';
-import {ASTNode} from './ASTNode';
-import {limit} from "./tap";
-import {sequence} from "./grammar/sequence";
-import {eof} from "./grammar/eof";
+import { asException, GrammarNode, isParserError, ParserSuccess } from './types';
+import { trimEmptyNode } from './ast/trimEmptyNode';
+import { CSTNode } from './ASTNode';
+import { sequence } from './grammar/core/sequence';
+import { eof } from './grammar/core/eof';
 
-function withOffset<T extends string>(parserResult: ParserResult<T>, offset = 0): ASTNode<T> {
-  if (isParserError(parserResult)) {
-    return {
-      children: [],
-      error: parserResult,
-      suggestions: parserResult.expected,
-      offset: 0,
-      text: '',
-      type: parserResult.type
-    }
-  }
+function withOffset<T extends string>(parserResult: ParserSuccess<T>, offset = 0): CSTNode<T> {
   let childOffset = offset;
   return {
-    suggestions: parserResult.parser.suggestions(),
-    ...parserResult,
+    grammar: parserResult.grammar,
+    text: parserResult.text,
+    offset,
     children: parserResult.children?.map((it, idx, arr) => {
-      const {text} = arr[idx - 1] ?? {text: ''}
+      const {text} = arr[idx - 1] ?? {text: ''};
       childOffset += text.length;
       return withOffset(it, childOffset);
     }),
-    offset
-  }
+  } satisfies CSTNode<T>;
 }
 
 export class Parser<T extends string> {
-  private readonly parser: Parse<T | '_content_' | 'eof'>;
+  private readonly grammar: GrammarNode<T>;
 
-  constructor(parser: Parse<T>) {
-    this.parser = sequence<T | '_content_' | 'eof'>('_content_', parser, eof);
+  constructor(grammar: GrammarNode<T>) {
+    this.grammar = sequence(grammar, eof);
   }
 
-  public parse(input: string): ASTNode<T | '_content_' | 'eof'> {
-    limit.value = 5000;
-    const result = withOffset(this.parser(input));
+  public parse(input: string) {
+    const parserResult = this.grammar.parse(input, {
+      faultTolerant: false,
+    });
+    if (isParserError(parserResult)) {
+      throw asException(parserResult);
+    }
+    const result = withOffset(parserResult);
     const normalized = [
       trimEmptyNode,
-      // <T>(it:T)=>it,
     ].reduce((ast, fn) => fn(ast), result);
-    return normalized;
+    return {
+      cst: normalized,
+      result: parserResult,
+    };
   }
 }

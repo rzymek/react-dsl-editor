@@ -1,11 +1,9 @@
 import { filter } from './filter';
-import { isParserError } from '../types';
-import { ASTNode } from '../ASTNode';
+import { CSTNode } from '../ASTNode';
 
-
-export function trimEmptyNode<T extends string>(it:ASTNode<T>) {
+export function trimEmptyNode<T extends string>(it:CSTNode<T>) {
   return filter(
-    node => isParserError(node) || node.text !== '' || !!node.children,
+    node => node.text !== '' || !!node.children,
     it
   );
 }

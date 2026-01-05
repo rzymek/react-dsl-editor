@@ -1,14 +1,15 @@
-import { isParserError } from './types';
-import { ASTNode } from './ASTNode';
+import { isParserError, ParserSuccess } from './types';
 
-export function visit<T extends string, V>(
-  parserResult: ASTNode<T>,
-  visitor: (node: ASTNode<T>) => V | undefined,
+export function visit<T extends string, V = string>(
+  parserResult: ParserSuccess<T>,
+  type: T,
+  extractor: (node: ParserSuccess<T>) => V = node => node.text as V,
 ): V[] {
-  if(isParserError(parserResult)) {
+  if (isParserError(parserResult)) {
     return [];
   }
-  const visited = visitor(parserResult);
-  const result: V[] = visited === undefined ? [] : [visited];
-  return result.concat(...parserResult.children?.flatMap(child => visit(child, visitor)) ?? []);
+  const result = parserResult.grammar.type === type ? [extractor(parserResult)] : [];
+  return result.concat(
+    ...parserResult.children?.flatMap(child => visit(child, type, extractor)) ?? [],
+  );
 }

@@ -1,42 +1,51 @@
-export interface ParserContext<T,C> {
+import { ParsingError } from './ParsingError';
+
+export interface ParserContext {
   faultTolerant: boolean;
 }
 
-export interface GrammarNode<T, C> {
-  type: T | C;
-
+export interface GrammarNode<T extends string= never> {
+  type: T;
   suggestions(): string[];
-
-  parse(text: string, context: ParserContext<T, C>): ParserResult<T, C>;
+  parse(text: string, context: ParserContext): ParserResult<T>;
+  children: GrammarNode<T>[];
 }
 
-export interface ParserSuccess<T, C> {
+export interface ParserSuccess<T extends string = never> {
   text: string;
-  grammar: GrammarNode<T, C>
+  grammar: GrammarNode<T>,
+  children: ParserSuccess<T>[],
 }
 
-export interface ParserError<T, C> {
-  grammar: GrammarNode<T, C>
+export interface ParserError<T extends string = never> {
+  grammar: GrammarNode<T>
   got: string;
   expected: string[],
 }
 
-export type ParserResult<T, C> = ParserSuccess<T, C> | ParserError<T, C>;
+export type ParserResult<T extends string = never> = ParserSuccess<T> | ParserError<T>;
 
-export function success<T, C>(param: ParserSuccess<T, C>) {
+export function success<T extends string>(param: ParserSuccess<T>) {
+  return {
+    t: param.grammar.type,
+    ...param
+  };
+}
+
+export function error<T extends string>(param: ParserError<T>) {
   return param;
 }
 
-export function error<T, C>(param: ParserError<T, C>) {
-  return param;
-}
-
-export function isParserError<T,C>(result: ParserResult<T,C>): result is ParserError<T,C> {
+export function isParserError<T extends string>(result: ParserResult<T>): result is ParserError<T> {
   return 'expected' in result;
 }
 
-export function isParserSuccess<T,C>(result: ParserResult<T,C>): result is ParserSuccess<T,C> {
+export function isParserSuccess<T extends string>(result: ParserResult<T>): result is ParserSuccess<T> {
   return !isParserError(result);
+}
+
+export function asException<T extends string>(error: ParserError<T>) {
+  return new ParsingError(`[${error.grammar.type}]: Expected ${error.expected.map(it => `'${it}'`).join(' | ')}, but got '${error.got}'`);
 }
 
 /*
@@ -67,7 +76,5 @@ export type NodeTypes<T> = _NodeTypes<T> | 'error';
 
 
 
-export function asException<T extends string>(error: ParserError<T>) {
-  return new ParsingError(`[${error.parser.name}: ${error.type}]: Expected ${error.expected.map(it => `'${it}'`).join(' | ')}, but got '${error.got}' at ${error.offset}`)
-}
+
 */

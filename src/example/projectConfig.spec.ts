@@ -14,20 +14,9 @@ describe('projectConfigDsl', () => {
       
       display:
         total: h.m
-      
     `;
-    const result = new Parser(projectDsl.grammar).parse(valid);
-    expect(result.suggestions).toEqual([]);
-    expect(visit(result, node => {
-      if (node.type === 'projectName') {
-        return node.text;
-      }
-    })).toEqual(['p1', 'p2']);
-
-    expect(visit(result, node => {
-      if (node.type === 'totalDisplay') {
-        return node.children![0].text
-      }
-    })).toEqual(['h.m']);
+    const {result} = new Parser(projectDsl).parse(valid);
+    expect.soft(visit(result, 'project')).toEqual(['p1', 'p2']);
+    expect.soft(visit(result, 'display.total')).toEqual(['h.m']);
   });
 });

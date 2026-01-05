@@ -33,6 +33,9 @@ importers:
       '@vitejs/plugin-react':
         specifier: ^5.1.2
         version: 5.1.2(rolldown-vite@7.1.14(@types/node@25.0.3))
+      any-toolkit-vitest:
+        specifier: ^0.0.2
+        version: 0.0.2(vitest@4.0.16(@types/node@25.0.3))
       eslint:
         specifier: ^9.39.2
         version: 9.39.2
@@ -628,6 +631,14 @@ packages:
   ansis@4.2.0:
     resolution: {integrity: sha512-HqZ5rWlFjGiV0tDm3UxxgNRqsOTniqoKZu0pIAfh7TZQMGuZK+hH0drySty0si0QXj1ieop4+SkSfPZBPPkHig==}
     engines: {node: '>=14'}
+
+  any-toolkit-vitest@0.0.2:
+    resolution: {integrity: sha512-LHg/PgytLHhL5hjg+vwFyiigXrG6CtE1NUFk8CEEJD8+C+pugivydw/0U9cOukz8zeBQ0+wP2XChYJRg75XCcA==}
+    peerDependencies:
+      vitest: ^3
+
+  any-toolkit@0.0.2:
+    resolution: {integrity: sha512-7F1AduSW+UoXHEBBXNwqroNbkXumOLCtYNlnTR+4hRQOrReGM4OVE4Y4T4PC+CerWllVtOCmShaX8sAOgkaPIQ==}
 
   argparse@1.0.10:
     resolution: {integrity: sha512-o5Roy6tNG4SL/FOkCAN6RzjiakZS25RLYFrcMttJqbdd8BWrnA+fGz57iN5Pb06pvBGvl5gQ0B48dJlslXvoTg==}
@@ -2606,6 +2617,15 @@ snapshots:
       color-convert: 2.0.1
 
   ansis@4.2.0: {}
+
+  any-toolkit-vitest@0.0.2(vitest@4.0.16(@types/node@25.0.3)):
+    dependencies:
+      any-toolkit: 0.0.2
+      vitest: 4.0.16(@types/node@25.0.3)
+
+  any-toolkit@0.0.2:
+    dependencies:
+      randexp: 0.5.3
 
   argparse@1.0.10:
     dependencies:

@@ -1,10 +1,6 @@
-import { isParserSuccess } from '../types';
-import { ASTNode } from '../ASTNode';
+import { CSTNode } from '../ASTNode';
 
-export function filter<T extends string>(fn: (cst: ASTNode<T>) => boolean, cst: ASTNode<T>): ASTNode<T> {
-  if (!isParserSuccess(cst)) {
-    return cst;
-  }
+export function filter<T extends string>(fn: (cst: CSTNode<T>) => boolean, cst: CSTNode<T>): CSTNode<T> {
   const {children} = cst;
   if (!children) {
     return cst;
