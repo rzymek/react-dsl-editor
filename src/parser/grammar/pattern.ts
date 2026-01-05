@@ -1,34 +1,51 @@
-import type { Parse, ParserError, ParserResult } from '../types';
 import RandExp from 'randexp';
-import { map, pipe, range, unique } from 'remeda';
-import { tap } from '../tap';
+import {map, pipe, range, unique} from 'remeda';
+import {tap} from '../tap';
+import {error, GrammarNode, ParserResult, success } from "../types";
 
-export function pattern(regex: string): Parse<'pattern'>;
-export function pattern<T extends string>(regex: string, type: T): Parse<T>;
-export function pattern<T extends string>(regex: string, type: T = 'pattern' as T): Parse<T> {
-  function pattern(text: string): ParserResult<T> {
+
+export function pattern(regex: RegExp): GrammarNode<'pattern', ''>;
+export function pattern<T>(regex: RegExp, type: T): GrammarNode<T, ''>
+export function pattern<T extends string>(regex: RegExp, type: T = 'pattern' as T): GrammarNode<T, ''> {
+  const grammar = {
+    type: type,
+    suggestions: () => {
+      const rangexp = new RandExp(regex)
+      rangexp.defaultRange.subtract(-Infinity, +Infinity)
+      return pipe(range(0, 10), map(() => rangexp.gen()), unique());
+    },
+    parse: pattern
+  }
+
+  function pattern(text: string): ParserResult<T, ''> {
     tap(pattern, text);
-    const rexp = new RegExp(`^${regex}`);
-    const match = rexp.exec(text);
+    const re = new RegExp(regex, "yu");
+    re.lastIndex = 0;
+    const match = re.exec(text);
     if (match) {
-      return {
-        type,
-        parser: pattern,
+      return success({
         text: match[0],
-      } satisfies ParserResult<T>;
+        grammar,
+      });
     } else {
       const rangexp = new RandExp(regex);
-      rangexp.defaultRange.subtract(-Infinity,+Infinity)
-      return {
-        type,
-        parser: pattern,
-        expected: pipe(range(0, 10),map(() => rangexp.gen()), unique()),
+      rangexp.defaultRange.subtract(-Infinity, +Infinity)
+      return error({
+        grammar,
         got: text,
         offset: 0,
-      } satisfies ParserError<T>;
+        expected: grammar.suggestions(),
+      });
     }
   }
 
-  pattern.type = type;
-  return pattern;
+  return {
+    type: type,
+    suggestions: () => {
+      const rangexp = new RandExp(regex)
+      rangexp.defaultRange.subtract(-Infinity, +Infinity)
+      return pipe(range(0, 10), map(() => rangexp.gen()), unique());
+    },
+    parse: pattern
+  };
 }

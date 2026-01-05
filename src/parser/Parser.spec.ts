@@ -13,7 +13,7 @@ describe('Parser', () => {
     // when
     const result = parser.parse('fun f1{1+1} f');
     // then
-    expect(result.errors).toEqual([{
+    expect(result.suggestions).toEqual([{
       expected: [],
       parser: expect.anything(),
       got: 'f',
@@ -28,7 +28,7 @@ describe('Parser', () => {
     const result = parser.parse('x');
     // then
     expect(result.text).toEqual('');
-    expect(result.errors).toEqual([{
+    expect(result.suggestions).toEqual([{
       expected: [],
       parser: expect.anything(),
       got: 'x',
@@ -43,6 +43,6 @@ describe('Parser', () => {
     const result = parser.parse('fun f');
     // then
     expect(result.text).toEqual('fun f');
-    expect(result.errors).not.toHaveLength(0);
+    expect(result.suggestions).not.toHaveLength(0);
   });
 });

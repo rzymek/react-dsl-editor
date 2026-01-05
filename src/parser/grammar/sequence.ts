@@ -1,6 +1,7 @@
 import {isParserError, type Parse, type ParserResult, ParserSuccess} from '../types';
 import {tap} from '../tap';
 import {faultTolerance} from "../faultTolerance";
+import {repeat} from "./repeat";
 
 export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Parse<T>[]): Parse<T> {
   function sequence(text: string): ParserResult<T> {
@@ -14,9 +15,9 @@ export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Pa
         const resultOverride = faultTolerance(result, {
           type,
           parser: sequence,
-          text:rest,
+          text: rest,
           children: results
-        })
+        }, sequence)
         if (resultOverride) {
           result = resultOverride
         } else {
@@ -35,5 +36,6 @@ export function sequence<T extends string>(type: T = 'sequence' as T, ...seq: Pa
   }
 
   sequence.type = type;
+  sequence.suggestions = seq[0]?.suggestions ?? (()=>[])
   return sequence;
 }

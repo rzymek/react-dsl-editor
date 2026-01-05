@@ -26,5 +26,6 @@ export function term<T extends string>(str: string, _type?: T): Parse<T> {
   }
 
   term.type = type;
+  term.suggestions = () => [str];
   return term;
 }

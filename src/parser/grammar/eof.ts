@@ -19,3 +19,5 @@ export function eof(text: string): ParserResult<'eof'> {
     } satisfies ParserError<'eof'>;
   }
 }
+eof.type='eof'
+eof.suggestions = () => [];

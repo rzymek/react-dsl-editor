@@ -1,5 +1,5 @@
 import { sequence } from './sequence';
-import { optionalWhitespace } from './optionalWhitespace';
+import { optionalWhitespace } from './composite/optionalWhitespace';
 import { Parse } from '../types';
 
 export function seq<T extends string>(type: T = 'seq' as T, ...p: Parse<T>[]): Parse<T | 'optionalWhitespace'> {

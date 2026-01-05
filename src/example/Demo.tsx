@@ -18,7 +18,7 @@ function Demo() {
         <label><input type="checkbox" checked={wrap} onChange={e => setWrap(e.currentTarget.checked)}/>wrap</label>
         <div style={{
             minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr 1fr', height: '75vh',
-            backgroundColor: !isEmpty(output?.errors ?? []) ? '#f88' : '#afa'
+            backgroundColor: !isEmpty(output?.suggestions ?? []) ? '#f88' : '#afa'
         }}>
             <DslEditor
                 wrap={wrap}

@@ -21,5 +21,7 @@ export function optional<T extends string>(subparser: Parse<T>): Parse<T | 'opti
     }
   }
 
+  optional.type = 'optional'
+  optional.suggestions = () => [];
   return optional;
 }

@@ -1,7 +1,7 @@
 import * as _ from 'remeda';
-import { unique } from 'remeda';
-import { ASTNode } from '../parser';
-import { nodeTypesAt } from './nodeTypesAt';
+import {unique} from 'remeda';
+import {ASTNode} from '../parser';
+import {nodeTypesAt} from './nodeTypesAt';
 
 export interface Suggestion<T> {
   text: string,
@@ -10,10 +10,10 @@ export interface Suggestion<T> {
 
 export function suggestionsFromErrors<T extends string>(node: ASTNode<T>, cursorPositon: number): Suggestion<T>[] {
   return _.pipe(
-    node.errors,
-    _.flatMap(error => {
-      if (error.offset <= cursorPositon && cursorPositon <= error.offset + error.expected.length) {
-        return error.expected.map(expected => ({text: expected, type: error.type}));
+    node.suggestions,
+    _.flatMap(suggestion => {
+      if (node.offset <= cursorPositon && cursorPositon <= node.offset + suggestion.length) {
+        return [{text: suggestion, type: node.type}];
       } else {
         return [];
       }
