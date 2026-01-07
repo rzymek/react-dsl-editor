@@ -26,7 +26,6 @@ function Demo() {
                 code={code}
                 onChange={setCode}
                 grammar={grammar}
-                suggestions={()=>undefined}
                 onParsed={setOutput}/>
             <pre style={{overflow: 'auto'}}>{JSON.stringify(output, null, 2)}</pre>
         </div>
