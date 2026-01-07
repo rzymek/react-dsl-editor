@@ -11,17 +11,17 @@ const requiredWS = pattern(/[ \t]+/);
 const ws = optional(requiredWS);
 
 // const newLine = named('newline',sequence(ws, alternative(pattern(/\n/), eof)));
-const newLine = named('newline',alternative(pattern(/\n/), eof));
-const comment = named('comment',pattern(/#[^#\n]*\n/));
+const newLine = alternative(pattern(/\n/), eof);
+const comment = pattern(/#[^#\n]*\n/);
 const grammar = repeat(
   alternative(
     newLine,
     sequence(
       term('projects:'), newLine,
       repeat(
-        named('prws',sequence(
-        requiredWS, named('project', pattern(/[a-z0-9:.]+/)), newLine,
-      ))),
+        sequence(
+          requiredWS, named('project', pattern(/[a-z0-9:.]+/)), newLine,
+        )),
     ),
     sequence(
       term('display:'), newLine,
@@ -38,4 +38,4 @@ const grammar = repeat(
   ),
 );
 
-export const projectDsl = grammar;
+export const projectDsl = sequence(grammar,eof);

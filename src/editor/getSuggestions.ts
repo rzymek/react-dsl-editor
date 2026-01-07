@@ -1,37 +1,34 @@
-import type { SyntaxElement } from './SyntaxHighlighter';
-import * as _ from 'remeda';
+import { flatMap, pipe } from 'remeda';
+import { CSTNode } from '../parser';
+import { cstPathAt } from '../example/cstPathAt';
 
-export type SuggestionsResult = {
-  suggestions: string[],
+export interface SuggestionsResult {
+  suggestion: string,
   prefix: string,
 }
 
-export function getSuggestions<T>(
-  syntax: SyntaxElement<T>[], cursorStart: number, clientSuggestions?: (type: ('error' | T)) => (string[] | undefined),
-): SuggestionsResult {
-  const results = _.pipe(
-    syntax,
-    _.filter(it => it.startOffset <= cursorStart && cursorStart <= Math.max(it.endOffset, it.startOffset + (it.expected ?? '').length)), // syntax elements within cursor position
-    _.map((syntaxElement): SuggestionsResult => {
-        const suggestions = syntaxElement.expected ? [syntaxElement.expected] : clientSuggestions?.(syntaxElement.name) ?? [];
-        const prefix = ((syntaxElement.text || syntaxElement.expected) ?? '').substring(0, cursorStart - syntaxElement.startOffset);
-        const filteredSuggestions = suggestions // get suggestion for type
-          .filter(suggestion =>
-            suggestion.startsWith(prefix),
-          ) // filter by prefix
-          .filter(suggestion => suggestion.length !== prefix.length); // reject fully written suggestions
-        return {suggestions: filteredSuggestions, prefix};
-      },
-    ),
-    _.filter(result => result.suggestions.length > 0), // find the first syntax element with suggestions
-    _.take(1),
+export function getSuggestions<T extends string>(
+  syntax: CSTNode<T>, cursorStart: number, clientSuggestions: (cstNode: CSTNode<T>) => (string[] | undefined) = () => undefined,
+): SuggestionsResult[] {
+  const cstPath = cstPathAt(syntax, cursorStart);
+  const nodeSuggestions = pipe(
+    cstPath,
+    flatMap(node => {
+      if (node.grammar.meta?.name !== undefined) {
+        const suggestions = clientSuggestions(node);
+        if (suggestions) {
+          return suggestions.map(suggestion => ({node, suggestion}));
+        }
+      }
+      return node.grammar.suggestions().map(suggestion => ({node, suggestion}));
+    }),
   );
-  const [result] = results;
-  return result ? {
-    suggestions: _.unique(result.suggestions),
-    prefix: result.prefix,
-  } : {
-    suggestions: [],
-    prefix: '',
-  };
+  return nodeSuggestions.flatMap(it => {
+    const prefix = it.node.text.substring(0, cursorStart - it.node.offset);
+    if (it.suggestion.startsWith(prefix)) {
+      return [{suggestion: it.suggestion, prefix}];
+    } else {
+      return [];
+    }
+  });
 }

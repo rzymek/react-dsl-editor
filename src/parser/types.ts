@@ -2,13 +2,15 @@ import { ParsingError } from './ParsingError';
 
 export interface ParserContext {
   faultTolerant: boolean;
+  faultCorrection<T extends string>(parse: ParserResult<T>, grammar: GrammarNode<T>): ParserResult<T>;
 }
 
-export interface GrammarNode<T extends string= never> {
+export interface GrammarNode<T extends string = never> {
   type: T;
   suggestions(): string[];
   parse(text: string, context: ParserContext): ParserResult<T>;
   children: GrammarNode<T>[];
+  meta?: Record<string, unknown>;
 }
 
 export interface ParserSuccess<T extends string = never> {
@@ -28,7 +30,7 @@ export type ParserResult<T extends string = never> = ParserSuccess<T> | ParserEr
 export function success<T extends string>(param: ParserSuccess<T>) {
   return {
     t: param.grammar.type,
-    ...param
+    ...param,
   };
 }
 

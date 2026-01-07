@@ -1,34 +1,38 @@
-import { type NodeTypes, optional, pattern, repeat, sequence, term, ws } from '../parser';
 import { range } from 'remeda';
+import { pattern } from '../parser/grammar/core/pattern';
+import { repeat } from '../parser/grammar/core/repeat';
+import { sequence } from '../parser/grammar/core/sequence';
+import { term } from '../parser/grammar/composite/term';
+import { ws } from '../parser/grammar/composite/ws';
+import { optional } from '../parser/grammar/core/optional';
 
 export function timesheet() {
-  const hour = pattern('[0-9]{1,2}:[0-9]{2}', 'hour');
-  const grammar = repeat('timesheet',
-    sequence('line',
-      sequence('date',
-        pattern('[0-9]{2}', 'day'),
+  const hour = pattern(/[0-9]{1,2}:[0-9]{2}/);
+  const grammar = repeat(
+    sequence(
+      sequence(
+        pattern(/[0-9]{2}/),
         term('.'),
-        pattern('[0-9]{2}', 'month'),
+        pattern(/[0-9]{2}/),
         term('.'),
-        pattern('[0-9]{4}', 'year'),
+        pattern(/[0-9]{4}/),
       ),
-      repeat('periods', sequence('period',
+      repeat(sequence(
         ws,
-        repeat('continuous',
-          sequence('start',
+        repeat(sequence(
             hour,
             term('-'),
-            pattern('[^-|]+', 'project'),
-            optional(pattern('[|][^-]+', 'subproject')),
+            pattern(/[^-|]+/),
+            optional(pattern(/[|][^-]+/)),
             term('-'),
           ),
         ),
         hour,
       )),
-      repeat('EOL', term('\n')),
+      repeat(term('\n')),
     ));
 
-  function suggest(type: NodeTypes<typeof grammar>) {
+  function suggest(type: string) {
     if (type === 'month') {
       return range(1, 12 + 1)
         .map(it => it.toString().padStart(2, '0'));

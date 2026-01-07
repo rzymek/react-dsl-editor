@@ -8,7 +8,12 @@ export function visit<T extends string, V = string>(
   if (isParserError(parserResult)) {
     return [];
   }
-  const result = parserResult.grammar.type === type ? [extractor(parserResult)] : [];
+  // const filter = (parserResult: ParserSuccess<T>) => parserResult.grammar.type === type;
+  const filter = (parserResult: ParserSuccess<T>) =>
+    parserResult.grammar.meta?.name === type;
+  const result = filter(parserResult)
+    ? [extractor(parserResult)]
+    : [];
   return result.concat(
     ...parserResult.children?.flatMap(child => visit(child, type, extractor)) ?? [],
   );

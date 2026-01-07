@@ -3,6 +3,7 @@ import { projectDsl } from './projectsDsl';
 import dedent from 'string-dedent';
 import { visit } from '../parser/visit';
 import { Parser } from '../parser';
+import { cstPathAt } from './cstPathAt';
 
 describe('projectConfigDsl', () => {
   it('e2e', () => {
@@ -10,13 +11,26 @@ describe('projectConfigDsl', () => {
       # comment
       projects:
         p1
-        p2
+        p|2
       
       display:
         total: h.m
     `;
-    const {result} = new Parser(projectDsl).parse(valid);
+    const input = valid.replace('|', '');
+    const cursor = valid.indexOf('|');
+    const {result, cst, terminals} = new Parser(projectDsl).parse(input);
     expect.soft(visit(result, 'project')).toEqual(['p1', 'p2']);
     expect.soft(visit(result, 'display.total')).toEqual(['h.m']);
+    expect.soft(cstPathAt(cst, cursor).map(it => `${it.type} ${it.meta?.name ?? ''}`.trim())).toEqual([
+      'sequence',
+      'repeat',
+      'sequence',
+      'repeat',
+      'sequence',
+      'named project',
+      "pattern",
+    ]);
+    expect.soft(terminals.map(it=>it.text).join('')).toEqual(input);
+    expect.soft(terminals.map(it=>it.text).join('')).toEqual(input);
   });
 });

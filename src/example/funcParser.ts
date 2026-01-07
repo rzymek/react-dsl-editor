@@ -1,20 +1,26 @@
-import { pattern, seq, rational, term, sequence, ws, optionalWhitespace, repeat } from '../parser';
+import { pattern } from '../parser/grammar/core/pattern';
+import { seq } from '../parser/grammar/composite/seq';
+import { rational } from '../parser/grammar/composite/rational';
+import { term } from '../parser/grammar/composite/term';
+import { sequence } from '../parser/grammar/core/sequence';
+import { ws } from '../parser/grammar/composite/ws';
+import { repeat } from '../parser/grammar/core/repeat';
 
-const identifier = pattern(`[a-zA-Z_][a-zA-Z0-9_]*`, 'identifier');
+const identifier = pattern(/[a-zA-Z_][a-zA-Z0-9_]*/);
 
-const expr = seq('expression',
+const expr = seq(
   rational,
   term('+'),
   rational,
 );
 
-const func = sequence('func',
-  optionalWhitespace,
-  term('fun'), ws, identifier, optionalWhitespace, term('{'),
-  /**/expr,
+const func = sequence(
+  ws,
+  term('fun'), ws, identifier, ws, term('{'),
+  expr,
   term('}'),
-  optionalWhitespace);
+  ws);
 
-const functions = repeat('functions', func);
+const functions = repeat(func);
 
 export const funcParser = functions;

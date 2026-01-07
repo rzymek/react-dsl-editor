@@ -1,6 +1,4 @@
-import { ASTNode, isParserSuccess } from '../parser';
-import type { SyntaxElement } from '../editor/SyntaxHighlighter';
-import * as _ from 'remeda';
+/*
 
 function syntaxForParserResult<T extends string>(ast: ASTNode<T>, offset: number, result: SyntaxElement<T>[] = []): SyntaxElement<T>[] {
   if (ast.children) {
@@ -21,7 +19,6 @@ function syntaxForParserResult<T extends string>(ast: ASTNode<T>, offset: number
   }
   return result;
 }
-
 function removeOverlap<T>(syntax: SyntaxElement<T>[]) {
   return syntax.flatMap((element, index, arr) => {
     const prev = arr[index - 1] ?? {text: '', startOffset: 0, name: 'error'};
@@ -53,4 +50,4 @@ export function textSyntax<T extends string>(ast: ASTNode<T>, text: string): Syn
     });
   }
   return removeOverlap(syntaxElements);
-}
+}*/

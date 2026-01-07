@@ -1,14 +1,9 @@
-import * as _ from 'remeda';
-import {unique} from 'remeda';
-import {ASTNode} from '../parser';
-import {nodeTypesAt} from './nodeTypesAt';
-
 export interface Suggestion<T> {
   text: string,
   type: T,
 }
-
-export function suggestionsFromErrors<T extends string>(node: ASTNode<T>, cursorPositon: number): Suggestion<T>[] {
+/*
+export function suggestionsFromErrors<T extends string>(node: CSTNode<T>, cursorPositon: number): Suggestion<T>[] {
   return _.pipe(
     node.suggestions,
     _.flatMap(suggestion => {
@@ -37,4 +32,4 @@ export function getSuggestions<T extends string>(ast: ASTNode<T>, cursorPositon:
       }
     });
   return unique(types);
-}
+}*/

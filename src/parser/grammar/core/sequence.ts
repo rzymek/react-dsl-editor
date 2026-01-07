@@ -19,7 +19,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]):GrammarNo
       const results: ParserSuccess<T>[] = [];
       for (const node of nodes) {
         const rest = text.substring(offset);
-        const result = node.parse(rest, context);
+        const result = context.faultCorrection(node.parse(rest, context), grammar);
         if (isParserError(result)) {
           if (context.faultTolerant) {
             continue;
@@ -30,7 +30,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]):GrammarNo
         results.push(result);
       }
       return success({
-        grammar,
+        grammar: grammar,
         text: text.substring(0, offset),
         children: results,
       });

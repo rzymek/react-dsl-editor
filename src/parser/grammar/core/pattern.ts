@@ -3,9 +3,10 @@ import { map, pipe, range, unique } from 'remeda';
 import { error, GrammarNode, ParserResult, success } from '../../types';
 
 export function pattern(regex: RegExp) {
-  const grammar:GrammarNode = {
+  const grammar: GrammarNode = {
     type: 'pattern' as never,
     children: [],
+    meta: {regex},
     suggestions: () => {
       const rangexp = new RandExp(regex);
       rangexp.defaultRange.subtract(-Infinity, +Infinity);
