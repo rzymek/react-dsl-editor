@@ -1,5 +1,5 @@
 import RandExp from 'randexp';
-import { map, pipe, range, sortBy, identity, unique, first, only, take, filter, anyPass } from 'remeda';
+import { filter, first, map, pipe, range, unique } from 'remeda';
 import { error, GrammarNode, ParserResult, success } from '../../types';
 import leven from 'leven';
 
