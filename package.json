@@ -30,6 +30,7 @@
     "prepublishOnly": "CI=1 npm-run-all -p lint test build"
   },
   "dependencies": {
+    "leven": "^4.1.0",
     "randexp": "^0.5.3",
     "remeda": "^2.32.0"
   },

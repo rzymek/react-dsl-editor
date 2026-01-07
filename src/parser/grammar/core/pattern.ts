@@ -1,18 +1,23 @@
 import RandExp from 'randexp';
-import { map, pipe, range, unique } from 'remeda';
+import { map, pipe, range, sortBy, identity, unique, first, only, take, filter, anyPass } from 'remeda';
 import { error, GrammarNode, ParserResult, success } from '../../types';
+import leven from 'leven';
 
 export function pattern(regex: RegExp) {
+  const rangexp = new RandExp(regex);
+  rangexp.randInt = ()=>0;
+  rangexp.defaultRange.subtract(-Infinity, +Infinity);
+
+  function suggestions() {
+    return pipe(range(0, 10), map(() => rangexp.gen()), unique());
+  }
+
   const grammar: GrammarNode = {
     type: 'pattern' as never,
     children: [],
     meta: {regex},
-    suggestions: () => {
-      const rangexp = new RandExp(regex);
-      rangexp.defaultRange.subtract(-Infinity, +Infinity);
-      return pipe(range(0, 10), map(() => rangexp.gen()), unique());
-    },
-    parse(text: string): ParserResult {
+    suggestions,
+    parse(text, context): ParserResult {
       const re = new RegExp(regex, 'yu');
       re.lastIndex = 0;
       const match = re.exec(text);
@@ -23,8 +28,20 @@ export function pattern(regex: RegExp) {
           children: [],
         });
       } else {
-        const rangexp = new RandExp(regex);
-        rangexp.defaultRange.subtract(-Infinity, +Infinity);
+        if(context.faultTolerant) {
+          const fuzzyMatch = pipe(
+            suggestions(),
+            filter(s => leven(s, text) <= 2),
+            first()
+          )
+          if(fuzzyMatch !== undefined) {
+            return success({
+              text: text.substring(0, fuzzyMatch.length),
+              grammar,
+              children: [],
+            })
+          }
+        }
         return error({
           grammar,
           got: text,

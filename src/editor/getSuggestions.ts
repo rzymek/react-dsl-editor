@@ -1,4 +1,4 @@
-import { flatMap, pipe } from 'remeda';
+import { flatMap, pipe, uniqueBy } from 'remeda';
 import { CSTNode } from '../parser';
 import { cstPathAt } from '../example/cstPathAt';
 
@@ -23,12 +23,16 @@ export function getSuggestions<T extends string>(
       return node.grammar.suggestions().map(suggestion => ({node, suggestion}));
     }),
   );
-  return nodeSuggestions.flatMap(it => {
-    const prefix = it.node.text.substring(0, cursorStart - it.node.offset);
-    if (it.suggestion.startsWith(prefix)) {
-      return [{suggestion: it.suggestion, prefix}];
-    } else {
-      return [];
-    }
-  });
+  return pipe(
+    nodeSuggestions,
+    flatMap(it => {
+      const prefix = it.node.text.substring(0, cursorStart - it.node.offset);
+      if (it.suggestion.startsWith(prefix)) {
+        return [{suggestion: it.suggestion, prefix}];
+      } else {
+        return [];
+      }
+    }),
+    uniqueBy(it => it.suggestion)
+  );
 }
