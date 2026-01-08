@@ -1,12 +1,14 @@
 import { pattern } from '../parser/grammar/core/pattern';
 import { seq } from '../parser/grammar/composite/seq';
-import { rational } from '../parser/grammar/composite/rational';
+import { rational as _rational } from '../parser/grammar/composite/rational';
 import { term } from '../parser/grammar/composite/term';
 import { sequence } from '../parser/grammar/core/sequence';
 import { ws } from '../parser/grammar/composite/ws';
 import { repeat } from '../parser/grammar/core/repeat';
+import { named } from '../parser/grammar/core/named';
 
-const identifier = pattern(/[a-zA-Z_][a-zA-Z0-9_]*/);
+const identifier = named('identifier',pattern(/[a-zA-Z_][a-zA-Z0-9_]*/));
+const rational = named('rational', _rational);
 
 const expr = seq(
   rational,

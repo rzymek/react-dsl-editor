@@ -1,4 +1,5 @@
 import { ParsingError } from './ParsingError';
+import { CSTNode } from './CSTNode';
 
 export interface ParserContext {
   faultTolerant: boolean;
@@ -28,10 +29,7 @@ export interface ParserError<T extends string = never> {
 export type ParserResult<T extends string = never> = ParserSuccess<T> | ParserError<T>;
 
 export function success<T extends string>(param: ParserSuccess<T>) {
-  return {
-    t: param.grammar.type,
-    ...param,
-  };
+  return param;
 }
 
 export function error<T extends string>(param: ParserError<T>) {
@@ -49,6 +47,10 @@ export function isParserSuccess<T extends string>(result: ParserResult<T>): resu
 export function asException<T extends string>(error: ParserError<T>) {
   return new ParsingError(`[${error.grammar.type}]: Expected ${error.expected.map(it => `'${it}'`).join(' | ')}, but got '${error.got}'`);
 }
+
+type _NodeTypes<T> = T extends GrammarNode<infer U> ? U : never;
+export type NodeTypes<T> = _NodeTypes<T> | 'error';
+export type CSTOf<T> = CSTNode<_NodeTypes<T>>;
 
 /*
 export interface ParserError<T extends string> {
@@ -72,9 +74,6 @@ export type Parse<T extends string> = ((text: string) => ParserResult<T>) & ({
   type: string,
   suggestions: ()=>string[],
 });
-
-type _NodeTypes<T> = T extends Parse<infer U> ? U : never;
-export type NodeTypes<T> = _NodeTypes<T> | 'error';
 
 
 

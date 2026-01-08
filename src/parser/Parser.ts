@@ -1,5 +1,5 @@
 import { asException, GrammarNode, isParserError, ParserSuccess } from './types';
-import { CSTNode } from './ASTNode';
+import { CSTNode } from './CSTNode';
 import { sequence } from './grammar/core/sequence';
 import { eof } from './grammar/core/eof';
 import { isEmpty } from 'remeda';

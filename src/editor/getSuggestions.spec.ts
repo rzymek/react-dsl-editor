@@ -1,14 +1,13 @@
 import { getSuggestions } from './getSuggestions';
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { Parser } from '../parser';
 import { funcParser } from '../example/funcParser';
-import { textSyntax } from '../syntax/textSyntax';
-import type { NodeTypes } from '../parser';
+import { CSTOf, GrammarNode, NodeTypes } from '../parser/types';
 
 const parser = new Parser(funcParser);
 
 function funcSyntax(code: string) {
-  return textSyntax(parser.parse(code), code);
+  return parser.parse(code).cst;
 }
 
 describe.skip('getSuggestions', () => {
@@ -20,8 +19,8 @@ describe.skip('getSuggestions', () => {
   });
   it('should ask for client suggestions and filter by prefix', () => {
     const code = 'fun b';
-    const suggestions = getSuggestions(funcSyntax(code), code.length, type => {
-      if (type === 'identifier') {
+    const suggestions = getSuggestions(funcSyntax(code), code.length, node => {
+      if (node.grammar.type === 'identifier') {
         return ['foo', 'bar', 'baz'];
       }
     });
@@ -29,10 +28,10 @@ describe.skip('getSuggestions', () => {
   });
   it('should not suggest already completed suggestions', () => {
     const code = 'fun foo';
-    const askedFor = [] as NodeTypes<typeof funcParser>[];
-    const suggestions = getSuggestions(funcSyntax(code), code.length, type => {
-      askedFor.push(type);
-      if (type === 'identifier') {
+    const askedFor = [] as CSTOf<typeof funcParser>[];
+    const suggestions = getSuggestions(funcSyntax(code), code.length, node => {
+      askedFor.push(node);
+      if (node.grammar.type === 'identifier') {
         return ['foo', 'bar', 'baz'];
       }
     });
@@ -41,3 +40,90 @@ describe.skip('getSuggestions', () => {
   });
 
 });
+
+describe('suggestions',()=>{
+
+  function testName(): string {
+    return expect.getState().currentTestName!.replace(/^.*[>] /g, '');
+  }
+
+  function parseTestName<T extends string>(grammar: GrammarNode<T>) {
+    const input = testName();
+    const cursorPositon = input.indexOf('|');
+    const code = input.replace('|', '');
+    const parser = new Parser(grammar);
+    const result = parser.parse(code);
+    return {cursorPositon, ...result};
+  }
+
+  describe.skip('suggestionsFromErrors', () => {
+    describe('should return all ast node types at position', () => {
+      it('fun f1{1+1} f|', () => {
+        // given
+        const {cst, cursorPositon} = parseTestName(funcParser);
+        // when
+        const suggestions = getSuggestions(cst,  cursorPositon);
+        // then
+        expect(suggestions).toEqual([
+          {text: 'fun', type: 'fun'},
+        ]);
+      });
+      it('f|u foo{2+2}', () => {
+        // given
+        const {cst, cursorPositon} = parseTestName(funcParser);
+        // when
+        const suggestions = getSuggestions(cst, cursorPositon);
+        // then
+        expect(suggestions).toEqual([
+          {text: 'fun', type: 'fun'},
+        ]);
+      });
+      it('fun b|', () => {
+        // given
+        function clientSuggestions(node: CSTOf<typeof funcParser>) {
+          if (node.grammar.type === 'identifier') {
+            return ['foo', 'bar', 'baz'];
+          }
+        }
+
+        const {cst, cursorPositon} = parseTestName(funcParser);
+        // when
+        const suggestions = getSuggestions(cst, cursorPositon, clientSuggestions);
+        // then
+        expect(suggestions).toEqual([
+          'bar', 'baz',
+        ]);
+      });
+      it('fun b|ar {2+2}', () => {
+        // given
+        function clientSuggestions(node: CSTOf<typeof funcParser>) {
+          if (node.grammar.type === 'identifier') {
+            return ['foo', 'bar', 'baz'];
+          }
+        }
+
+        const {cst, cursorPositon} = parseTestName(funcParser);
+        // when
+        const suggestions = getSuggestions(cst, cursorPositon, clientSuggestions);
+        // then
+        expect(suggestions).toEqual([
+          'bar', 'baz',
+        ]);
+      });
+
+      it('fun foo{1+1} fun bar {2|', () => {
+        const {cst, cursorPositon} = parseTestName(funcParser);
+        // when
+        const suggestions = getSuggestions(cst, cursorPositon, node => {
+          if (node.grammar.type === 'rational') {
+            return ['0'];
+          }
+        });
+        // then
+        expect(suggestions).toEqual(expect.arrayContaining([
+          '+', '0',
+        ]));
+      });
+    });
+  });
+})

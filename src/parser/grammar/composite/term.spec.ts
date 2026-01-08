@@ -43,7 +43,7 @@ describe('term', () => {
     }
     expect(result.expected).toEqual(['abc']);
     expect(result.got).toEqual('def');
-    expect(result.grammar.type).toEqual('abc');
+    expect(result.grammar.meta).toEqual({regex: /abc/});
   });
 
 });

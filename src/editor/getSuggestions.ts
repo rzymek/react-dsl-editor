@@ -1,6 +1,6 @@
 import { flatMap, pipe, uniqueBy } from 'remeda';
-import { CSTNode } from '../parser';
 import { cstPathAt } from '../example/cstPathAt';
+import { CSTNode } from '../parser/CSTNode';
 
 export interface SuggestionsResult {
   suggestion: string,
@@ -13,7 +13,7 @@ export function getSuggestions<T extends string>(
   const cstPath = cstPathAt(syntax, cursorStart);
   const nodeSuggestions = pipe(
     cstPath,
-    flatMap(node => {
+    flatMap((node:CSTNode<T>) => {
       if (node.grammar.meta?.name !== undefined) {
         const suggestions = clientSuggestions(node);
         if (suggestions) {

@@ -1,19 +1,26 @@
 import { describe, expect, it } from 'vitest';
 import { sequence } from './sequence';
 import { repeat } from './repeat';
+import { term } from '../composite/term';
+import { isParserError, isParserSuccess, NodeTypes, ParserContext, ParserError } from '../../types';
+
+const context: ParserContext = {
+  faultTolerant: false,
+  faultCorrection: it => it,
+};
 
 describe('repeat', () => {
   it('defaults', () => {
-    const parser = repeat('repeat', term('.'));
-    const ast = parser('....xx');
+    const grammar = repeat(term('.'));
+    const ast = grammar.parse('....xx', context);
     expect(isParserSuccess(ast)).toBe(true);
     if (isParserSuccess(ast)) {
       expect(ast.text).toEqual('....');
     }
   });
   it('max', () => {
-    const parser = repeat('repeat', term('.'), 1, 2);
-    const ast = parser('....xx');
+    const grammar = repeat(term('.'), 1, 2);
+    const ast = grammar.parse('....xx', context);
     expect(isParserSuccess(ast)).toBe(true);
     if (isParserSuccess(ast)) {
       expect(ast.text).toEqual('..');
@@ -21,31 +28,27 @@ describe('repeat', () => {
   });
 
   it('min', () => {
-    const parser = repeat('repeat', term('.'), 3);
-    const ast = parser('..xx');
+    const grammar = repeat(term('.'), 3);
+    const ast = grammar.parse('..xx', context);
     expect(isParserError(ast)).toBe(true);
     if (isParserError(ast)) {
       expect(ast).toEqual({
-        offset: 0,
         expected: ['.'],
         got: 'xx',
-        type: '.',
-        parser: ast.parser,
-      } satisfies ParserError<NodeTypes<typeof parser>>);
+        grammar: ast.grammar,
+      } satisfies ParserError<NodeTypes<typeof grammar>>);
     }
   });
   it('repeat seq', () => {
-    const parser = repeat('repeat', sequence('seq', term('y')));
-    const ast = parser('x');
+    const grammar = repeat(sequence(term('y')));
+    const ast = grammar.parse('x', context);
     expect(isParserError(ast)).toBe(true);
     if (isParserError(ast)) {
       expect(ast).toEqual({
-        expected: 'y',
+        expected: ['y'],
         got: 'x',
-        offset: 0,
-        type: 'y',
-        parser: ast.parser,
-      });
+        grammar: ast.grammar,
+      } satisfies ParserError<NodeTypes<typeof grammar>>);
     }
   });
 });

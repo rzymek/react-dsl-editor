@@ -1,4 +1,4 @@
-import { CSTNode } from '../parser';
+import { CSTNode } from '../parser/CSTNode';
 
 export function cstPathAt<T extends string>(input: CSTNode<T>, cursor: number): CSTNode<T>[] {
   return _cstPathAt(input, cursor, [])

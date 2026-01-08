@@ -48,6 +48,7 @@ describe('cstPathAt', () => {
           "[repeat    ] fun foo { 123  + 34 }",
           "[sequence  ] fun foo { 123  + 34 }",
           "[sequence  ]  123  + 34 ",
+          "[named     ] 123",
           "[pattern   ] 123",
         ]
       `)
@@ -64,6 +65,7 @@ describe('cstPathAt', () => {
           "[sequence  ] fun foo { 123  + 34 }",
           "[repeat    ] fun foo { 123  + 34 }",
           "[sequence  ] fun foo { 123  + 34 }",
+          "[named     ] foo",
           "[pattern   ] foo",
         ]
       `)
@@ -81,6 +83,7 @@ describe('cstPathAt', () => {
         "[sequence  ] fun foo { ",
         "[repeat    ] fun foo { ",
         "[sequence  ] fun foo { ",
+        "[named     ] foo",
         "[pattern   ] foo",
       ]
     `)
@@ -97,6 +100,7 @@ describe('cstPathAt', () => {
         "[sequence  ] fun foo { xxx",
         "[repeat    ] fun foo { xxx",
         "[sequence  ] xxx",
+        "[named     ] xxx",
         "[pattern   ] xxx",
       ]
     `)
@@ -131,6 +135,7 @@ describe('cstPathAt', () => {
         "[sequence  ] fun foo{2+2}",
         "[repeat    ] fun foo{2+2}",
         "[sequence  ] fun foo{2+2}",
+        "[named     ] foo",
         "[pattern   ] foo",
         "[optional  ] ",
         "[pattern   ] {",
