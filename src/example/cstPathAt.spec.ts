@@ -1,8 +1,7 @@
 import { describe, expect, it } from 'vitest';
-import { Parser } from '../parser';
-import { funcParser } from '../example/funcParser';
+import { funcParser } from './funcParser';
 import { cstPathAt } from './cstPathAt';
-import { GrammarNode } from '../parser/types';
+import { DSLParser, GrammarNode } from '../parser';
 
 function testName(): string {
   return expect.getState().currentTestName!.replace(/^.*[>] /g, '');
@@ -12,7 +11,7 @@ function parseTestName(grammar: GrammarNode<string>) {
   const input = testName();
   const cursorPositon = input.indexOf('|');
   const code = input.replace('|', '');
-  const parser = new Parser(grammar);
+  const parser = new DSLParser(grammar);
   const result = parser.parse(code);
   return {cursorPositon, ...result};
 }

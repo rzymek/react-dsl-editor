@@ -1,10 +1,10 @@
 import { getSuggestions } from './getSuggestions';
 import { describe, expect, it, vi } from 'vitest';
-import { Parser } from '../parser';
 import { funcParser } from '../example/funcParser';
 import { CSTOf, GrammarNode, NodeTypes } from '../parser/types';
+import { DSLParser } from '../parser';
 
-const parser = new Parser(funcParser);
+const parser = new DSLParser(funcParser);
 
 function funcSyntax(code: string) {
   return parser.parse(code).cst;
@@ -51,7 +51,7 @@ describe('suggestions',()=>{
     const input = testName();
     const cursorPositon = input.indexOf('|');
     const code = input.replace('|', '');
-    const parser = new Parser(grammar);
+    const parser = new DSLParser(grammar);
     const result = parser.parse(code);
     return {cursorPositon, ...result};
   }

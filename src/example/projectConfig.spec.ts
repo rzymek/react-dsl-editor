@@ -2,7 +2,7 @@ import { describe, expect, it } from 'vitest';
 import { projectDsl } from './projectsDsl';
 import dedent from 'string-dedent';
 import { visit } from '../parser/visit';
-import { Parser } from '../parser';
+import { DSLParser } from '../parser';
 import { cstPathAt } from './cstPathAt';
 
 describe('projectConfigDsl', () => {
@@ -18,7 +18,7 @@ describe('projectConfigDsl', () => {
     `;
     const input = valid.replace('|', '');
     const cursor = valid.indexOf('|');
-    const {result, cst, terminals} = new Parser(projectDsl).parse(input);
+    const {result, cst, terminals} = new DSLParser(projectDsl).parse(input);
     expect.soft(visit(result, 'project')).toEqual(['p1', 'p2']);
     expect.soft(visit(result, 'display.total')).toEqual(['h.m']);
     expect.soft(cstPathAt(cst, cursor).map(it => `${it.grammar.type} ${it.grammar.meta?.name ?? ''}`.trim())).toEqual([
