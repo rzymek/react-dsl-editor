@@ -31,13 +31,13 @@ function flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
   return _flatCST(result).filter(it => it.text !== '');
 }
 
-export interface ParserResult<T extends string> {
+export interface DSL<T extends string> {
   cst: CSTNode<T>;
   terminals: CSTNode<T>[];
   result: ParserSuccess<T>;
 }
 
-export class Parser<T extends string> {
+export class DSLParser<T extends string> {
   private readonly grammar: GrammarNode<T>;
 
   constructor(grammar: GrammarNode<T>) {
@@ -58,7 +58,7 @@ export class Parser<T extends string> {
     return parserResult;
   }
 
-  public parse(input: string): ParserResult<T> {
+  public parse(input: string): DSL<T> {
     const parserResult = this._parse(input);
     if (isParserError(parserResult)) {
       throw asException(parserResult);

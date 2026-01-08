@@ -1,17 +1,17 @@
 import { describe, it, expect } from 'vitest';
-import { Parser, ParserResult } from './Parser';
+import { DSLParser, DSL } from './DSLParser';
 import { funcParser } from '../example/funcParser';
 import { projectDsl } from '../example/projectsDsl';
 import dedent from "string-dedent"
 
-function asText(result: ParserResult<string>): string {
+function asText(result: DSL<string>): string {
   return result.terminals.map(it => it.text).join('');
 }
 
 describe('Parser', () => {
   it('should report unexpected trailing input as error (funcParser)', () => {
     // given
-    const parser = new Parser(funcParser);
+    const parser = new DSLParser(funcParser);
     // when
     const src = 'fun f1{1+1} fun f2{2';
     const result = parser.parse(src);
@@ -20,7 +20,7 @@ describe('Parser', () => {
   });
   it('should report unexpected trailing input as error (projectDsl)', () => {
     // given
-    const parser = new Parser(projectDsl);
+    const parser = new DSLParser(projectDsl);
     // when
     const src = dedent`
       projects:

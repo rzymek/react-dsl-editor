@@ -4,7 +4,7 @@ import { useState } from 'react';
 import { projectDsl } from './projectsDsl';
 import dedent from 'string-dedent';
 import { ParserSuccess } from '../parser/types';
-import { CSTNode } from '../parser';
+import { CSTNode } from '../parser/CSTNode';
 
 // const {grammar, suggest} = timesheet();
 // const {grammar, suggest} = funcDemo();

@@ -3,7 +3,7 @@ import { funcParser } from '../example/funcParser';
 import { timesheet } from '../example/timesheet';
 import { CSTNode } from './CSTNode';
 import { GrammarNode } from './types';
-import { Parser } from './Parser';
+import { DSLParser } from './DSLParser';
 
 function testName() {
   return expect.getState().currentTestName!.replace(/^.*> /g, '');
@@ -14,7 +14,7 @@ function expectSyntaxTextToEqual(syntax: CSTNode<string>[], expected: unknown): 
 }
 
 function parseTestNameUsing(grammar: GrammarNode<string>) {
-  const parser = new Parser(grammar);
+  const parser = new DSLParser(grammar);
   const input = testName();
   return parser.parse(input);
 }

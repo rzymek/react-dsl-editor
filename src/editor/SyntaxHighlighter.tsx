@@ -1,8 +1,8 @@
 import { CSSProperties, Ref } from 'react';
 import { ReadOnlyTextarea } from './ReadOnlyTextarea';
-import { CSTNode } from '../parser';
 import { isEmpty } from 'remeda';
 import { defaultStyleFor } from './defaultStyleFor';
+import { CSTNode } from '../parser/CSTNode';
 
 export interface SyntaxElement<T> {
   expected: string;

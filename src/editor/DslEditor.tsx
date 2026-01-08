@@ -9,7 +9,6 @@ import {
   useState,
 } from 'react';
 import { SyntaxHighlighter } from './SyntaxHighlighter';
-import { CSTNode,  Parser, ParserResult } from '../parser';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
@@ -17,6 +16,8 @@ import { SuggestionsView } from './SuggestionsView';
 import { shortcutName } from './shortcutName';
 import { useSyncScroll } from './useSyncScroll';
 import { GrammarNode, ParserSuccess } from '../parser/types';
+import { CSTNode } from '../parser/CSTNode';
+import { DSL, DSLParser } from '../parser/DSLParser';
 
 function SuggestionsMenu({
                            suggestions,
@@ -77,7 +78,7 @@ export function DslEditor<T extends string>(
     suggestions?: (node: CSTNode<T>) => string[] | undefined,
   } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap' | 'onChange'>) {
   const [suggestions, setSuggestions] = useState<SuggestionsResult[]>([]);
-  const [parserResult, setParserResult] = useState<ParserResult<T>>();
+  const [parserResult, setParserResult] = useState<DSL<T>>();
   const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({
     top: 0,
     left: 0,
@@ -86,7 +87,7 @@ export function DslEditor<T extends string>(
   const [suggestionIndex, setSuggestionIndex] = useState(0);
   const [cursorText, setCursorText] = useState('');
 
-  const parser = useRef<Parser<T>>(null);
+  const parser = useRef<DSLParser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const cursor = useRef<CursorPositionHandle>(null);
   const highlighter = useRef<HTMLPreElement>(null);
@@ -106,7 +107,7 @@ export function DslEditor<T extends string>(
   }, [parserResult, updateSuggestionsForSyntax]);
 
   useEffect(() => {
-    parser.current = new Parser(grammar);
+    parser.current = new DSLParser(grammar);
   }, [grammar]);
 
   useEffect(() => {

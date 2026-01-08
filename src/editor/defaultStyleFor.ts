@@ -1,5 +1,5 @@
 import { CSSProperties } from 'react';
-import { CSTNode } from '../parser';
+import { CSTNode } from '../parser/CSTNode';
 
 const colors: string[] = [
   '#FF0000',
