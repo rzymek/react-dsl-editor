@@ -19,8 +19,8 @@ describe('projectConfigDsl', () => {
     const input = valid.replace('|', '');
     const cursor = valid.indexOf('|');
     const {result, cst, terminals} = new DSLParser(projectDsl).parse(input);
-    expect.soft(visit(result, 'project')).toEqual(['p1', 'p2']);
-    expect.soft(visit(result, 'display.total')).toEqual(['h.m']);
+    expect.soft(visit(result, ['project'])).toEqual(['p1', 'p2']);
+    expect.soft(visit(result, ['display.total'])).toEqual(['h.m']);
     expect.soft(cstPathAt(cst, cursor).map(it => `${it.grammar.type} ${it.grammar.meta?.name ?? ''}`.trim())).toEqual([
       'sequence',
       'sequence',

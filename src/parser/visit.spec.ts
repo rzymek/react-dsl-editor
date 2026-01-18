@@ -14,7 +14,7 @@ describe('visit', () => {
         named('bx', pattern(/b./)),
       ));
     const {result} = new DSLParser(grammar).parse('a1b1a2b2');
-    expect(visit(result, 'ax')).toEqual(['a1','a2']);
-    expect(visit(result, 'bx')).toEqual(['b1','b2']);
+    expect(visit(result, ['ax'])).toEqual(['a1','a2']);
+    expect(visit(result, ['bx'])).toEqual(['b1','b2']);
   });
 });
