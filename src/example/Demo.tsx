@@ -3,8 +3,8 @@ import './Demo.css';
 import { useState } from 'react';
 import { projectDsl } from './projectsDsl';
 import dedent from 'string-dedent';
-import { ParserSuccess } from '../parser/types';
 import { CSTNode } from '../parser/CSTNode';
+import { DSL } from '../parser';
 
 // const {grammar, suggest} = timesheet();
 // const {grammar, suggest} = funcDemo();
@@ -21,15 +21,15 @@ function Demo() {
         proj1
         proj2
       display:
-        total: h.m
+        total: h./m
     `);
-  const [output, setOutput] = useState<ParserSuccess<string>>();
+  const [output, setOutput] = useState<DSL<string>>();
   const [wrap, setWrap] = useState(false);
   return <div>
     <label><input type="checkbox" checked={wrap} onChange={e => setWrap(e.currentTarget.checked)}/>wrap</label>
     <div style={{
       minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr 1fr', height: '75vh',
-      backgroundColor: !output ? '#ffc8c8' : undefined
+      backgroundColor: !output ? '#ffebeb' : undefined
     }}>
       <DslEditor
         wrap={wrap}

@@ -1,12 +1,4 @@
-import {
-  asException,
-  GrammarNode,
-  isParserError,
-  isParserSuccess,
-  ParserError,
-  ParserResult,
-  ParserSuccess,
-} from './types';
+import { asException, GrammarNode, isParserError, isParserSuccess, ParserSuccess } from './types';
 import { CSTNode } from './CSTNode';
 import { sequence } from './grammar/core/sequence';
 import { eof } from './grammar/core/eof';
@@ -24,6 +16,7 @@ function withOffset<T extends string>(parserResult: ParserSuccess<T>, offset = 0
       return withOffset(it, childOffset);
     }),
     grammar: parserResult.grammar,
+    recoverableError: parserResult.recoverableError ?? false,
   } satisfies CSTNode<T>;
 }
 
@@ -53,21 +46,22 @@ export interface DSL<T extends string> {
   errors: DSLError[];
 }
 
-function toDSLError(parserResult: ParserError<string>) {
-  return {
-    message: `Expected '${parserResult.expected}', but got '${parserResult.got}'`,
-    start: parserResult.offset,
-    end: parserResult.offset + Math.max(...parserResult.expected.map(it=>it.length))
-  };
-}
 
-function getErrors<T extends string>(parserResult: ParserResult<T>) {
-  if (isParserSuccess(parserResult)) {
-    return [];
+function getErrors<T extends string>(node: CSTNode<T>): DSLError[] {
+  const childErrors = node.children?.flatMap(it => getErrors(it)) ?? [];
+  if (node.recoverableError) {
+    const error: DSLError = {
+      start: node.offset,
+      end: Math.max(1, node.end),
+      message: node.grammar.type,
+    };
+    return [
+      error,
+      ...childErrors,
+    ];
+  } else {
+    return childErrors;
   }
-  return [
-    toDSLError(parserResult),
-  ];
 }
 
 export class DSLParser<T extends string> {
@@ -100,7 +94,7 @@ export class DSLParser<T extends string> {
       terminals,
       result: faultTolerantResult,
       strictResult: isParserSuccess(parserResult) ? parserResult : undefined,
-      errors: getErrors(parserResult),
+      errors: getErrors(cst),
     };
   }
 }

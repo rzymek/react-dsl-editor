@@ -39,6 +39,7 @@ export function pattern(regex: RegExp) {
               text: text.substring(0, fuzzyMatch.length),
               grammar,
               children: [],
+              recoverableError: true
             })
           }
         }

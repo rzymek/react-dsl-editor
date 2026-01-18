@@ -37,7 +37,7 @@ export function ErrorHighlighter({ref, wrap, errors, children: text}: {
 }) {
   const [error] = errors;
   if (!error) return <></>;
-  return <ReadOnlyTextarea ref={ref} wrap={wrap} data-id="ErrorHighlighter">{
+  return <ReadOnlyTextarea ref={ref} wrap={wrap} data-id="ErrorHighlighter" style={{color: 'transparent'}}>{
     text.substring(0, error.start)
   }<span style={squiggly} title={error.message}>{text.substring(error.start, error.end)}</span>{
     text.substring(error.end)

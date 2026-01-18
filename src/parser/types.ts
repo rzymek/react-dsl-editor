@@ -18,6 +18,7 @@ export interface ParserSuccess<T extends string = never> {
   text: string;
   grammar: GrammarNode<T>,
   children: ParserSuccess<T>[],
+  recoverableError?: boolean
 }
 
 export interface ParserError<T extends string = never> {

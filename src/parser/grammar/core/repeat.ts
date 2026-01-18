@@ -16,31 +16,34 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
           faultTolerant: context.faultTolerant && !encounteredFailure,
         });
         if (isParserError(result)) {
+          const error = {...result, offset};
           if (i >= min) {
             break;
           } else {
             if (!context.faultTolerant) {
-              return result;
+              return error;
             } else {
               if (!encounteredFailure) {
                 encounteredFailure = true;
                 continue;
               }
-              return result;
+              return error;
             }
           }
         }
         offset += result.text.length;
-        children.push(result);
+        children.push({
+          ...result,
+          recoverableError: encounteredFailure
+        });
       }
       return success({
         grammar,
         children,
-        text
-    :
-      text.substring(0, offset),
-    })
-      ;
+        text:
+          text.substring(0, offset),
+      })
+        ;
     },
   };
   return grammar;

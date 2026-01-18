@@ -15,7 +15,7 @@ import { CursorPosition, CursorPositionHandle } from './CursorPosition';
 import { SuggestionsView } from './SuggestionsView';
 import { shortcutName } from './shortcutName';
 import { useSyncScroll } from './useSyncScroll';
-import { GrammarNode, ParserSuccess } from '../parser/types';
+import { GrammarNode } from '../parser/types';
 import { CSTNode } from '../parser/CSTNode';
 import { DSL, DSLParser } from '../parser/DSLParser';
 import { isEmpty } from 'remeda';
@@ -72,7 +72,7 @@ export function DslEditor<T extends string>(
   }: {
     code: string,
     onChange: (text: string) => void,
-    onParsed?: (ast: ParserSuccess<T> | undefined) => void,
+    onParsed?: (dsl: DSL<T>) => void,
     grammar: GrammarNode<T>,
     wrap?: boolean,
     className?: string,
@@ -118,7 +118,7 @@ export function DslEditor<T extends string>(
     }
     const result = parser.current.parse(code);
     setParserResult(result);
-    onParsed?.(result.strictResult);
+    onParsed?.(result);
     updateSuggestionsForSyntax(result.cst);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
   }, [code, onParsed, updateSuggestionsForSyntax]);

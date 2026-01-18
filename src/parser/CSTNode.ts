@@ -6,4 +6,5 @@ export interface CSTNode<T extends string> {
   end: number,
   grammar: GrammarNode<T>,
   children?: CSTNode<T>[],
+  recoverableError: boolean,
 }

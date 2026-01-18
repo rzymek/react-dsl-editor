@@ -17,17 +17,23 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]):GrammarNo
     parse(text, context) {
       let offset = 0;
       const results: ParserSuccess<T>[] = [];
+      let recoverableErrorEncountered = false;
       for (const node of nodes) {
         const rest = text.substring(offset);
         const result = context.faultCorrection(node.parse(rest, context), grammar);
         if (isParserError(result)) {
           if (context.faultTolerant) {
+            recoverableErrorEncountered = true;
             continue;
           }
-          return result;
+          return {...result, offset};
         }
         offset += result.text.length;
-        results.push(result);
+        results.push({
+          ...result,
+          recoverableError: recoverableErrorEncountered
+        });
+        recoverableErrorEncountered = false
       }
       return success({
         grammar: grammar,

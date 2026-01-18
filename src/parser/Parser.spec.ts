@@ -31,7 +31,21 @@ describe('Parser', () => {
     // then
     expect(asText(result)).toEqual(src);
   });
-
+  it('foo', () => {
+    // given
+    const parser = new DSLParser(projectDsl);
+    // when
+    const src = dedent`
+      projects:
+        proj1
+        proj2
+      display:
+        total: h./m
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+  });
   /*
   it.skip('y != x', () => {
     // given
