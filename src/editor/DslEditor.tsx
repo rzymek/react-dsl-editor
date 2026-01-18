@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { ErrorHighlighter, SyntaxHighlighter } from './SyntaxHighlighter';
+import { ErrorHighlighter, SyntaxColorsProvider, SyntaxHighlighter } from './SyntaxHighlighter';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
@@ -19,6 +19,7 @@ import { GrammarNode } from '../parser/types';
 import { CSTNode } from '../parser/CSTNode';
 import { DSL, DSLParser } from '../parser/DSLParser';
 import { isEmpty } from 'remeda';
+import { defaultSyntaxColors } from './defaultStyleFor';
 
 function SuggestionsMenu({
                            suggestions,
@@ -68,6 +69,7 @@ export function DslEditor<T extends string>(
     wrap = false,
     suggestions: clientSuggestions,
     className = DslEditor.name,
+    syntaxColors = defaultSyntaxColors('light'),
     ...textareaProps
   }: {
     code: string,
@@ -77,6 +79,7 @@ export function DslEditor<T extends string>(
     wrap?: boolean,
     className?: string,
     suggestions?: (node: CSTNode<T>) => string[] | undefined,
+    syntaxColors?: SyntaxColorsProvider,
   } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap' | 'onChange'>) {
   const [suggestions, setSuggestions] = useState<SuggestionsResult[]>([]);
   const [parserResult, setParserResult] = useState<DSL<T>>();
@@ -202,7 +205,7 @@ export function DslEditor<T extends string>(
         onKeyDown={handleKeyDown}
         {...textareaProps}
       />
-      {parserResult && <SyntaxHighlighter cstRoot={parserResult.cst} ref={highlighter} wrap={wrap}/>}
+      {parserResult && <SyntaxHighlighter cstRoot={parserResult.cst} ref={highlighter} wrap={wrap} syntaxColors={syntaxColors}/>}
       {!isEmpty(parserResult?.errors ?? []) &&
           <ErrorHighlighter ref={errorHighlighter} errors={parserResult?.errors ?? []}
                             wrap={wrap}>{code}</ErrorHighlighter>}
