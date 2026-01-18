@@ -10,14 +10,6 @@ const squiggly: CSSProperties = {
   textDecorationColor: 'red',
 };
 
-export interface SyntaxElement<T> {
-  expected: string;
-  name: T | 'error',
-  text: string,
-  startOffset: number,
-  endOffset: number,
-}
-
 export type SyntaxColorsProvider = (node: CSTNode<string>) => CSSProperties | undefined;
 
 export function SyntaxHighlighter<T extends string>({cstRoot, ref, wrap, syntaxColors}: {
