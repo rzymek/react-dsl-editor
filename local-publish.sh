@@ -11,5 +11,5 @@ pnpx npm-cli-login -r http://localhost:4873/
 AUTH=$(echo -n "$NPM_USER:$NPM_PASS" | base64 -w 0)
 npm config set //localhost:4873/:_auth $AUTH --registry http://localhost:4873/
 
-npm publish --registry http://localhost:4873/ --provenance=false --tag rc
+npm publish --registry http://localhost:4873/ --provenance=false --tag latest
 
