@@ -3,6 +3,13 @@ import { ReadOnlyTextarea } from './ReadOnlyTextarea';
 import { isEmpty } from 'remeda';
 import { defaultStyleFor } from './defaultStyleFor';
 import { CSTNode } from '../parser/CSTNode';
+import { DSLError } from '../parser';
+
+const squiggly: CSSProperties = {
+  textDecorationLine: 'underline',
+  textDecorationStyle: 'wavy',
+  textDecorationColor: 'red',
+};
 
 export interface SyntaxElement<T> {
   expected: string;
@@ -20,6 +27,21 @@ export function SyntaxHighlighter<T extends string>({cstRoot, ref, wrap}: {
   return <ReadOnlyTextarea ref={ref} wrap={wrap}>
     <StyledNode node={cstRoot} styleFor={defaultStyleFor}/>
   </ReadOnlyTextarea>;
+}
+
+export function ErrorHighlighter({ref, wrap, errors, children: text}: {
+  ref?: Ref<HTMLPreElement>,
+  wrap: boolean,
+  children: string,
+  errors: DSLError[]
+}) {
+  const [error] = errors;
+  if (!error) return <></>;
+  return <ReadOnlyTextarea ref={ref} wrap={wrap} data-id="ErrorHighlighter">{
+    text.substring(0, error.start)
+  }<span style={squiggly} title={error.message}>{text.substring(error.start, error.end)}</span>{
+    text.substring(error.end)
+  }</ReadOnlyTextarea>;
 }
 
 function StyledNode(props: { node: CSTNode<string>, styleFor: (node: CSTNode<string>) => CSSProperties | undefined }) {

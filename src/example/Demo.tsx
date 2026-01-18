@@ -18,7 +18,10 @@ function suggestions(node: CSTNode<string>): string[] {
 function Demo() {
   const [code, setCode] = useState(dedent`
       projects:
-        p1
+        proj1
+        proj2
+      display:
+        total: h.m
     `);
   const [output, setOutput] = useState<ParserSuccess<string>>();
   const [wrap, setWrap] = useState(false);
@@ -26,6 +29,7 @@ function Demo() {
     <label><input type="checkbox" checked={wrap} onChange={e => setWrap(e.currentTarget.checked)}/>wrap</label>
     <div style={{
       minHeight: '50vh', display: 'grid', gridTemplateColumns: '1fr 1fr', height: '75vh',
+      backgroundColor: !output ? '#ffc8c8' : undefined
     }}>
       <DslEditor
         wrap={wrap}
@@ -34,7 +38,9 @@ function Demo() {
         grammar={grammar}
         suggestions={suggestions}
         onParsed={setOutput}/>
-      <pre style={{overflow: 'auto'}}>{JSON.stringify(output, null, 2)}</pre>
+      <pre style={{overflow: 'auto'}}>{
+        JSON.stringify(output, null, 2)
+      }</pre>
     </div>
   </div>;
 }

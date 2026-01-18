@@ -1,4 +1,12 @@
-import { asException, GrammarNode, isParserError, ParserSuccess } from './types';
+import {
+  asException,
+  GrammarNode,
+  isParserError,
+  isParserSuccess,
+  ParserError,
+  ParserResult,
+  ParserSuccess,
+} from './types';
 import { CSTNode } from './CSTNode';
 import { sequence } from './grammar/core/sequence';
 import { eof } from './grammar/core/eof';
@@ -31,10 +39,35 @@ function flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
   return _flatCST(result).filter(it => it.text !== '');
 }
 
+export interface DSLError {
+  message: string,
+  start: number,
+  end: number,
+}
+
 export interface DSL<T extends string> {
   cst: CSTNode<T>;
   terminals: CSTNode<T>[];
   result: ParserSuccess<T>;
+  strictResult: ParserSuccess<T> | undefined;
+  errors: DSLError[];
+}
+
+function toDSLError(parserResult: ParserError<string>) {
+  return {
+    message: `Expected '${parserResult.expected}', but got '${parserResult.got}'`,
+    start: parserResult.offset,
+    end: parserResult.offset + Math.max(...parserResult.expected.map(it=>it.length))
+  };
+}
+
+function getErrors<T extends string>(parserResult: ParserResult<T>) {
+  if (isParserSuccess(parserResult)) {
+    return [];
+  }
+  return [
+    toDSLError(parserResult),
+  ];
 }
 
 export class DSLParser<T extends string> {
@@ -44,31 +77,30 @@ export class DSLParser<T extends string> {
     this.grammar = sequence(grammar, eof);
   }
 
-  private _parse(input: string) {
+  public parse(input: string): DSL<T> {
     const parserResult = this.grammar.parse(input, {
       faultTolerant: false,
       faultCorrection: r => r,
     });
-    if (isParserError(parserResult)) {
-      return this.grammar.parse(input, {
+    const faultTolerantResult = isParserError(parserResult)
+      ? this.grammar.parse(input, {
         faultTolerant: true,
         faultCorrection: r => r,
-      });
-    }
-    return parserResult;
-  }
+      })
+      : parserResult;
 
-  public parse(input: string): DSL<T> {
-    const parserResult = this._parse(input);
-    if (isParserError(parserResult)) {
-      throw asException(parserResult);
+    if (isParserError(faultTolerantResult)) {
+      throw asException(faultTolerantResult);
     }
-    const cst: CSTNode<T> = withOffset(parserResult);
+    const cst: CSTNode<T> = withOffset(faultTolerantResult);
+
     const terminals = flatCST(cst);
     return {
       cst,
       terminals,
-      result: parserResult,
+      result: faultTolerantResult,
+      strictResult: isParserSuccess(parserResult) ? parserResult : undefined,
+      errors: getErrors(parserResult),
     };
   }
 }

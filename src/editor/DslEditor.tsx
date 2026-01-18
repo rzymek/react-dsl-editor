@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { SyntaxHighlighter } from './SyntaxHighlighter';
+import { ErrorHighlighter, SyntaxHighlighter } from './SyntaxHighlighter';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
@@ -18,6 +18,7 @@ import { useSyncScroll } from './useSyncScroll';
 import { GrammarNode, ParserSuccess } from '../parser/types';
 import { CSTNode } from '../parser/CSTNode';
 import { DSL, DSLParser } from '../parser/DSLParser';
+import { isEmpty } from 'remeda';
 
 function SuggestionsMenu({
                            suggestions,
@@ -71,7 +72,7 @@ export function DslEditor<T extends string>(
   }: {
     code: string,
     onChange: (text: string) => void,
-    onParsed?: (ast: ParserSuccess<T>) => void,
+    onParsed?: (ast: ParserSuccess<T> | undefined) => void,
     grammar: GrammarNode<T>,
     wrap?: boolean,
     className?: string,
@@ -91,6 +92,7 @@ export function DslEditor<T extends string>(
   const textarea = useRef<HTMLTextAreaElement>(null);
   const cursor = useRef<CursorPositionHandle>(null);
   const highlighter = useRef<HTMLPreElement>(null);
+  const errorHighlighter = useRef<HTMLPreElement>(null);
 
   const updateSuggestionsForSyntax = useCallback((cst: CSTNode<T>) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
@@ -99,7 +101,7 @@ export function DslEditor<T extends string>(
   }, [clientSuggestions]);
 
   const updateSuggestions = useCallback(() => {
-    if(!parserResult){
+    if (!parserResult) {
       return;
     }
     updateSuggestionsForSyntax(parserResult.cst);
@@ -116,7 +118,7 @@ export function DslEditor<T extends string>(
     }
     const result = parser.current.parse(code);
     setParserResult(result);
-    onParsed?.(result.result);
+    onParsed?.(result.strictResult);
     updateSuggestionsForSyntax(result.cst);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
   }, [code, onParsed, updateSuggestionsForSyntax]);
@@ -126,7 +128,7 @@ export function DslEditor<T extends string>(
 
   const handleSuggestionSelect = useCallback((suggestion: string) => {
     if (!textarea.current) return;
-    console.log(suggestion)
+    console.log(suggestion);
     // const {selectionStart, selectionEnd} = textarea.current;
     // const {prefix} = suggestions;
     // const newCode = code.substring(0, selectionStart - prefix.length) + suggestion + code.substring(selectionEnd);
@@ -196,15 +198,18 @@ export function DslEditor<T extends string>(
         value={code}
         onSelect={updateSuggestions}
         onChange={handleChange}
-        onScroll={useSyncScroll(highlighter)}
+        onScroll={useSyncScroll(highlighter, errorHighlighter)}
         onKeyDown={handleKeyDown}
         {...textareaProps}
       />
       {parserResult && <SyntaxHighlighter cstRoot={parserResult.cst} ref={highlighter} wrap={wrap}/>}
+      {!isEmpty(parserResult?.errors ?? []) &&
+          <ErrorHighlighter ref={errorHighlighter} errors={parserResult?.errors ?? []}
+                            wrap={wrap}>{code}</ErrorHighlighter>}
       <CursorPosition ref={cursor} text={cursorText} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.length > 0 &&
           <SuggestionsMenu
-              suggestions={suggestions.map(it=>it.suggestion)}
+              suggestions={suggestions.map(it => it.suggestion)}
               onSelect={handleSuggestionSelect}
               style={{top: suggestionMenu.top, left: suggestionMenu.left}}
               selectedIndex={suggestionIndex}
@@ -212,7 +217,7 @@ export function DslEditor<T extends string>(
           />
       }
     </div>
-    {JSON.stringify(suggestions)}
-    <SuggestionsView suggestions={suggestions.map(it=>it.suggestion)} onSelect={handleSuggestionSelect}/>
+    {JSON.stringify(parserResult?.errors ?? [])}
+    <SuggestionsView suggestions={suggestions.map(it => it.suggestion)} onSelect={handleSuggestionSelect}/>
   </div>;
 }
