@@ -35,6 +35,7 @@ describe('sequence', () => {
       expected: ['c'],
       got: 'd',
       grammar: expect.anything(),
+      offset: 2,
     } satisfies ParserError<NodeTypes<typeof grammar>>);
   });
 
@@ -45,7 +46,7 @@ describe('sequence', () => {
     if (isParserError(result)) throw asException(result);
     expect(result.text).toBe('a');
     expect(result.children).toEqual([
-      {text: 'a', grammar: termA, children: []},
+      {text: 'a', grammar: termA, children: [], recoverableError: false},
     ]);
   });
 

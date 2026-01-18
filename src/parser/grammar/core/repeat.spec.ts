@@ -36,6 +36,7 @@ describe('repeat', () => {
         expected: ['.'],
         got: 'xx',
         grammar: ast.grammar,
+        offset: 2,
       } satisfies ParserError<NodeTypes<typeof grammar>>);
     }
   });
@@ -48,6 +49,7 @@ describe('repeat', () => {
         expected: ['y'],
         got: 'x',
         grammar: ast.grammar,
+        offset: 0,
       } satisfies ParserError<NodeTypes<typeof grammar>>);
     }
   });
