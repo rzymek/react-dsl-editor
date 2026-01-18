@@ -32,18 +32,17 @@ const themes = {
   ] satisfies string[],
 } as const;
 
-const colorAssignments = new Map<string, string>();
+const colorAssignments = new Map<string, number>();
 
 function getColorAssigment(value: unknown, colors: string[]): string {
   const key = String(value);
-  const color = colorAssignments.get(key);
-  if (color) {
-    return color;
+  const colorIndex = colorAssignments.get(key);
+  if (colorIndex) {
+    return colors[colorIndex];
   }
-  const assignedColor = colors[colorAssignments.size % colors.length];
-  colorAssignments.set(key, assignedColor);
-  console.log(colorAssignments);
-  return assignedColor;
+  const assignedColorIndex = colorAssignments.size % colors.length;
+  colorAssignments.set(key, assignedColorIndex);
+  return colors[assignedColorIndex];
 }
 
 function defaultStyleFor(node: CSTNode<string>, colors: string[]): CSSProperties | undefined {
