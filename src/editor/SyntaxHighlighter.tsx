@@ -29,12 +29,13 @@ export function SyntaxHighlighter<T extends string>({cstRoot, ref, wrap}: {
   </ReadOnlyTextarea>;
 }
 
-export function ErrorHighlighter({ref, wrap, errors, children: text}: {
+export function ErrorHighlighter({ref, wrap, errors, children}: {
   ref?: Ref<HTMLPreElement>,
   wrap: boolean,
   children: string,
   errors: DSLError[]
 }) {
+  const text = `${children} `;
   const [error] = errors;
   if (!error) return <></>;
   return <ReadOnlyTextarea ref={ref} wrap={wrap} data-id="ErrorHighlighter" style={{color: 'transparent'}}>{
@@ -50,7 +51,6 @@ function StyledNode(props: { node: CSTNode<string>, styleFor: (node: CSTNode<str
     isEmpty(props.node.children ?? [])
       ? props.node.text
       : props.node.children!.map((child, idx) =>
-        <StyledNode node={child} styleFor={props.styleFor} key={idx}/>,
-      )
+        <StyledNode node={child} styleFor={props.styleFor} key={idx}/>)
   }</span>;
 }

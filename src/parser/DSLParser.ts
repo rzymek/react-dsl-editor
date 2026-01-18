@@ -46,13 +46,12 @@ export interface DSL<T extends string> {
   errors: DSLError[];
 }
 
-
 function getErrors<T extends string>(node: CSTNode<T>): DSLError[] {
   const childErrors = node.children?.flatMap(it => getErrors(it)) ?? [];
   if (node.recoverableError) {
     const error: DSLError = {
       start: node.offset,
-      end: Math.max(1, node.end),
+      end: Math.max(node.end, node.offset + 1),
       message: node.grammar.type,
     };
     return [
