@@ -1,5 +1,5 @@
-import { describe, it, expect } from 'vitest';
-import { DSLParser, DSL } from './DSLParser';
+import { describe, expect, it } from 'vitest';
+import { DSL, DSLParser } from './DSLParser';
 import { funcParser } from '../example/funcParser';
 import { projectDsl } from '../example/projectsDsl';
 import dedent from 'string-dedent';
@@ -7,8 +7,6 @@ import { timesheet } from '../example/timesheet';
 import { writeFile } from 'node:fs/promises';
 import { named, optional, pattern, repeat, sequence } from './grammar/core';
 import { term } from './grammar/composite';
-import { disjointIntervals } from '../editor/disjointIntervals';
-import { decorateIntervals } from '../editor/DecorateIntervals';
 
 function asText(result: DSL<string>): string {
   return result.terminals.map(it => it.text).join('');

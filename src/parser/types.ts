@@ -1,8 +1,10 @@
 import { ParsingError } from './ParsingError';
 import { CSTNode } from './CSTNode';
 
+export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'none';
+
 export interface ParserContext {
-  faultToleranceMode?: 'skip-parser' | 'skip-input';
+  faultToleranceMode: (grammarNode:GrammarNode<string>) => FaultToleranceMode;
 }
 
 export interface GrammarNode<T extends string = never> {

@@ -28,7 +28,7 @@ export function pattern(regex: RegExp) {
           children: [],
         });
       } else {
-        if (context.faultToleranceMode === 'skip-parser1') {
+        if (context.faultToleranceMode(grammar) !== 'none') {
           const fuzzyMatch = pipe(
             suggestions(),
             filter(s => leven(s, text) <= 2),

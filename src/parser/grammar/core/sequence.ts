@@ -23,14 +23,15 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         const rest = text.substring(offset);
         const result = node.parse(rest, context);
         if (isParserError(result)) {
-          if (context.faultToleranceMode) {
-            if (context.faultToleranceMode === 'skip-parser') {
+          const faultToleranceMode = context.faultToleranceMode(grammar);
+          if (faultToleranceMode !== 'none') {
+            if (faultToleranceMode === 'skip-parser') {
               results.push(recoverableError('error:missing-input', ''));
-            } else if(context.faultToleranceMode === 'skip-input'){
+            } else if (faultToleranceMode === 'skip-input') {
               const recovery = recoverableError<T>('error:unexpected-input', rest);
               results.push(recovery);
               offset += recovery.text.length;
-              if(offset >= text.length) {
+              if (offset >= text.length) {
                 return {...result, offset};
               }
               i--;

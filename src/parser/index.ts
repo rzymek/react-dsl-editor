@@ -6,3 +6,4 @@ export * from './visit';
 
 export * from './grammar/composite';
 export * from './grammar/core';
+export { Random } from './Random';

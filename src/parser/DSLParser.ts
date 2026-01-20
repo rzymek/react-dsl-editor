@@ -1,17 +1,18 @@
 import {
   asException,
+  FaultToleranceMode,
   GrammarNode,
   isParserError,
   isParserSuccess,
-  ParserContext, ParserError,
-
+  ParserError,
   ParserSuccess,
 } from './types';
 import { CSTNode } from './CSTNode';
 import { sequence } from './grammar/core/sequence';
 import { eof } from './grammar/core/eof';
-import { filter, isEmpty, map, only, pipe, firstBy, sum, sortBy } from 'remeda';
+import { isEmpty, map, pipe, sum } from 'remeda';
 import { disjointIntervals } from '../editor/disjointIntervals';
+import { Random } from './Random';
 
 function withOffset<T extends string>(parserResult: ParserSuccess<T>, offset = 0): CSTNode<T> {
   let childOffset = offset;
@@ -90,36 +91,35 @@ export class DSLParser<T extends string> {
   }
 
   public parse(input: string): DSL<T> {
-    const parserResult = this.grammar.parse(input, {});
+    const parserResult = this.grammar.parse(input, {
+      faultToleranceMode: () => 'none',
+    });
     let faultTolerantResult = parserResult;
     if (isParserError(parserResult)) {
-      const faultToleranceModes: ParserContext['faultToleranceMode'][] = [
-        'skip-input',
-        'skip-parser',
-      ];
-      console.log(pipe(
-        faultToleranceModes,
-        map(faultToleranceMode => {
-          return {
-            faultToleranceMode,
-            result: this.grammar.parse(input, {
-              faultToleranceMode,
-            }),
-          };
-        }),
-        filter(it => isParserSuccess(it.result)),
-        map(it => ({mode: it.faultToleranceMode, weight: totalErrorsLength(it.result as ParserSuccess<string>)})),
-        sortBy(it => it.weight),
-      ));
-      faultTolerantResult = pipe(
-        faultToleranceModes,
-        map(faultToleranceMode =>
-          this.grammar.parse(input, {
-            faultToleranceMode,
-          })),
-        filter(isParserSuccess),
-        firstBy(totalErrorsLength),
-      ) ?? parserResult;
+      const modes: FaultToleranceMode[] = ['none', 'skip-parser', 'skip-input'];
+      const rand = new Random(0);
+      let lastErrorsLenght = Infinity;
+      for (let i = 0; i < 10; i++) {
+        const x = this.grammar.parse(input, {
+          faultToleranceMode(grammar) {
+            if (grammar.type === 'pattern') {
+              return 'none';
+            }
+
+            const mode: FaultToleranceMode = modes[rand.nextInt(0, modes.length-1)];
+            // console.log('faultToleranceMode', grammar.type, mode);
+            return mode;
+          },
+        });
+        if (isParserSuccess(x)) {
+          const errLen = totalErrorsLength(x);
+          console.log({errLen});
+          if(errLen < lastErrorsLenght && pipe(flatCST(withOffset(x)), map(it=>it.text.length), sum()) === input.length) {
+            lastErrorsLenght = errLen;
+            faultTolerantResult = x;
+          }
+        }
+      }
     }
     if (isParserError(faultTolerantResult)) {
       throw asException(parserResult as ParserError<T>);
