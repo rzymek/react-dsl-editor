@@ -15,7 +15,12 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         defaultTo([]),
       );
     },
-    parse(text, context) {
+    parse(text, _context) {
+      const context = {
+        ..._context,
+        depth: _context.depth + 1,
+      }
+
       let offset = 0;
       const results: ParserSuccess<T>[] = [];
       for (let i = 0; i < nodes.length; i++) {
@@ -23,7 +28,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         const rest = text.substring(offset);
         const result = node.parse(rest, context);
         if (isParserError(result)) {
-          const faultToleranceMode = context.faultToleranceMode(grammar);
+          const faultToleranceMode = context.faultToleranceMode(grammar, context);
           if (faultToleranceMode !== 'none') {
             if (faultToleranceMode === 'skip-parser') {
               results.push(recoverableError('error:missing-input', ''));

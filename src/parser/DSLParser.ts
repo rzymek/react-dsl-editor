@@ -47,6 +47,7 @@ export interface DSLError {
   message: string,
   start: number,
   end: number,
+  depth:number,
 }
 
 export interface DSL<T extends string> {
@@ -57,13 +58,14 @@ export interface DSL<T extends string> {
   errors: DSLError[];
 }
 
-function getErrors<T extends string>(node: CSTNode<T>): DSLError[] {
-  const childErrors = node.children?.flatMap(it => getErrors(it)) ?? [];
+function getErrors<T extends string>(node: CSTNode<T>, depth: number): DSLError[] {
+  const childErrors = node.children?.flatMap(it => getErrors(it, depth + 1)) ?? [];
   if (node.recoverableError) {
     const error: DSLError = {
       start: node.offset,
       end: Math.max(node.end, node.offset + 1),
       message: node.grammar.type,
+      depth,
     };
     return [
       error,
@@ -75,12 +77,23 @@ function getErrors<T extends string>(node: CSTNode<T>): DSLError[] {
 }
 
 function totalErrorsLength(result: ParserSuccess<string>): number {
-  const errors = getErrors(withOffset(result));
+  const errors = getErrors(withOffset(result),1);
   return pipe(
     disjointIntervals(errors),
     map(it => Math.max(1, it.end - it.start)),
     sum(),
   );
+}
+
+function selectMode(depthPercentage: number, rand: Random): FaultToleranceMode {
+  return 'skip-input';
+  // if (depthPercentage < 0.5) {
+  //   return 'none';
+  // } else if (rand.nextInt(0,100) < 50) {
+  //   return 'skip-parser';
+  // } else {
+  //   return 'skip-input';
+  // }
 }
 
 export class DSLParser<T extends string> {
@@ -91,31 +104,32 @@ export class DSLParser<T extends string> {
   }
 
   public parse(input: string): DSL<T> {
+    let maxDepth = 0;
     const parserResult = this.grammar.parse(input, {
-      faultToleranceMode: () => 'none',
+      depth: 1,
+      faultToleranceMode: (_,context) => {
+        maxDepth = Math.max(maxDepth, context.depth);
+        return 'none';
+      },
     });
     let faultTolerantResult = parserResult;
     if (isParserError(parserResult)) {
-      const modes: FaultToleranceMode[] = ['none', 'skip-parser', 'skip-input'];
-      const rand = new Random(0);
-      let lastErrorsLenght = Infinity;
-      for (let i = 0; i < 10; i++) {
+      let lastErrorsLength = Infinity;
+      for (let i = 0; i < 1; i++) {
         const x = this.grammar.parse(input, {
-          faultToleranceMode(grammar) {
-            if (grammar.type === 'pattern') {
-              return 'none';
-            }
-
-            const mode: FaultToleranceMode = modes[rand.nextInt(0, modes.length-1)];
-            // console.log('faultToleranceMode', grammar.type, mode);
+          depth: 0,
+          faultToleranceMode(grammar, context) {
+            const depthPercentage = context.depth / maxDepth;
+            const mode = depthPercentage > 0.75 ? 'none' : 'skip-input';
+            console.log('faultToleranceMode', grammar.type, JSON.stringify(grammar.meta, (key, value)=>key==='regex'?value.toString():value), context.depth, mode, depthPercentage);
             return mode;
           },
         });
         if (isParserSuccess(x)) {
           const errLen = totalErrorsLength(x);
           console.log({errLen});
-          if(errLen < lastErrorsLenght && pipe(flatCST(withOffset(x)), map(it=>it.text.length), sum()) === input.length) {
-            lastErrorsLenght = errLen;
+          if (errLen < lastErrorsLength && pipe(flatCST(withOffset(x)), map(it => it.text.length), sum()) === input.length) {
+            lastErrorsLength = errLen;
             faultTolerantResult = x;
           }
         }

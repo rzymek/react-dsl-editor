@@ -1,4 +1,4 @@
-import { CSSProperties, Fragment, Ref } from 'react';
+import { CSSProperties, Ref } from 'react';
 import { ReadOnlyTextarea } from './ReadOnlyTextarea';
 import { isEmpty } from 'remeda';
 import { CSTNode } from '../parser/CSTNode';

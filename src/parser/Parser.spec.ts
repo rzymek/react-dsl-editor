@@ -69,9 +69,9 @@ describe('Parser', () => {
     const parser = new DSLParser(timesheet().grammar);
     // when
     const src = dedent`
-      1 10:00-a-11:00
-      2 10:00-a-11:00x
-      3 10:00-a-11:00
+      1 00:01-a-00:02
+      2 00:03-b-00:04x
+      3 00:05-c-00:06
     `;
     const result = parser.parse(src);
     await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');

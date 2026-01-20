@@ -3,25 +3,27 @@ import { pattern } from '../parser/grammar/core/pattern';
 import { repeat } from '../parser/grammar/core/repeat';
 import { sequence } from '../parser/grammar/core/sequence';
 import { term } from '../parser/grammar/composite/term';
-import { eof, named, optional } from '../parser';
+import { eof, GrammarNode, named } from '../parser';
 
 export function timesheet() {
   const hour = pattern(/[0-9]{1,2}:[0-9]{2}/);
+  const startSegment: GrammarNode<"start"> = sequence(
+    named('start', hour),
+    term('-'),
+    pattern(/[^-|]+/),
+    term('-'),
+  );
   const line = sequence(
     named('day', pattern(/[0-3]?[0-9]/)),
     repeat(sequence(
       pattern(/[ \t]/),
-      sequence(
-        named('start', hour),
-        term('-'),
-        pattern(/[^-|]+/),
-        term('-'),
-      ),
+      startSegment,
       named('end', hour),
     ), 1),
     pattern(/\n+/),
   );
   line.meta = {debugName:'line'}
+  startSegment.meta = {debugName:'startSegment'}
   const grammar = sequence(
     repeat(
       named('line', line)),

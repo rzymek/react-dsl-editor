@@ -5,7 +5,11 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
     type: 'repeat' as T,
     children: [child],
     suggestions: () => child.suggestions(),
-    parse(text: string, context: ParserContext) {
+    parse(text: string, _context: ParserContext) {
+      const context = {
+        ..._context,
+        depth: _context.depth + 1,
+      }
       let offset = 0;
       const children: ParserSuccess<T>[] = [];
       let i = 0;

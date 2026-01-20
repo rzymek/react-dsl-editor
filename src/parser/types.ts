@@ -4,7 +4,8 @@ import { CSTNode } from './CSTNode';
 export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'none';
 
 export interface ParserContext {
-  faultToleranceMode: (grammarNode:GrammarNode<string>) => FaultToleranceMode;
+  depth: number;
+  faultToleranceMode: (grammarNode: GrammarNode<string>, context: ParserContext) => FaultToleranceMode;
 }
 
 export interface GrammarNode<T extends string = never> {
