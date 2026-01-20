@@ -90,9 +90,7 @@ export class DSLParser<T extends string> {
   }
 
   public parse(input: string): DSL<T> {
-    const parserResult = this.grammar.parse(input, {
-      faultCorrection: r => r,
-    });
+    const parserResult = this.grammar.parse(input, {});
     let faultTolerantResult = parserResult;
     if (isParserError(parserResult)) {
       const faultToleranceModes: ParserContext['faultToleranceMode'][] = [
@@ -106,7 +104,6 @@ export class DSLParser<T extends string> {
             faultToleranceMode,
             result: this.grammar.parse(input, {
               faultToleranceMode,
-              faultCorrection: r => r,
             }),
           };
         }),
@@ -119,7 +116,6 @@ export class DSLParser<T extends string> {
         map(faultToleranceMode =>
           this.grammar.parse(input, {
             faultToleranceMode,
-            faultCorrection: r => r,
           })),
         filter(isParserSuccess),
         firstBy(totalErrorsLength),

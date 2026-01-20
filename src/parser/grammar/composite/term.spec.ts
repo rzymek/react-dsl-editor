@@ -3,8 +3,6 @@ import { term } from './term';
 import { asException, isParserError, isParserSuccess, ParserContext } from '../../types';
 
 const context: ParserContext = {
-  faultCorrection: x=>x,
-  faultTolerant: false
 };
 
 describe('term', () => {

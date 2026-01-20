@@ -5,8 +5,6 @@ import { pattern } from './pattern';
 import { asException, isParserError, ParserContext } from '../../types';
 
 const context: ParserContext = {
-  faultTolerant: false,
-  faultCorrection: it => it,
 };
 
 describe('named', () => {

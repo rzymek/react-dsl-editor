@@ -12,8 +12,6 @@ import {
 import { identity } from 'remeda';
 
 const context: ParserContext = {
-  faultTolerant: false,
-  faultCorrection: identity(),
 };
 
 describe('sequence', () => {

@@ -3,7 +3,6 @@ import { CSTNode } from './CSTNode';
 
 export interface ParserContext {
   faultToleranceMode?: 'skip-parser' | 'skip-input';
-  faultCorrection<T extends string>(parse: ParserResult<T>, grammar: GrammarNode<T>): ParserResult<T>;
 }
 
 export interface GrammarNode<T extends string = never> {

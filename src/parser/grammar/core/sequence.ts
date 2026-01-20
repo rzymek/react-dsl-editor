@@ -21,7 +21,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
       for (let i = 0; i < nodes.length; i++) {
         const node = nodes[i];
         const rest = text.substring(offset);
-        const result = context.faultCorrection(node.parse(rest, context), grammar);
+        const result = node.parse(rest, context);
         if (isParserError(result)) {
           if (context.faultToleranceMode) {
             if (context.faultToleranceMode === 'skip-parser') {
