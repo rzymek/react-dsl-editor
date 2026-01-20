@@ -5,8 +5,8 @@ import leven from 'leven';
 
 export function pattern(regex: RegExp) {
   const rangexp = new RandExp(regex);
-  rangexp.randInt = ()=>0;
-  rangexp.defaultRange.subtract(-Infinity, +Infinity);
+  rangexp.randInt = (min) => min;
+  // rangexp.defaultRange.subtract(-Infinity, +Infinity);
 
   function suggestions() {
     return pipe(range(0, 10), map(() => rangexp.gen()), unique());
@@ -28,19 +28,19 @@ export function pattern(regex: RegExp) {
           children: [],
         });
       } else {
-        if(context.faultTolerant) {
+        if (context.faultToleranceMode === 'skip-parser1') {
           const fuzzyMatch = pipe(
             suggestions(),
             filter(s => leven(s, text) <= 2),
-            first()
-          )
-          if(fuzzyMatch !== undefined) {
+            first(),
+          );
+          if (fuzzyMatch !== undefined) {
             return success({
               text: text.substring(0, fuzzyMatch.length),
               grammar,
               children: [],
-              recoverableError: true
-            })
+              recoverableError: true,
+            });
           }
         }
         return error({

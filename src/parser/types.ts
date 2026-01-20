@@ -2,7 +2,7 @@ import { ParsingError } from './ParsingError';
 import { CSTNode } from './CSTNode';
 
 export interface ParserContext {
-  faultTolerant: boolean;
+  faultToleranceMode?: 'skip-parser' | 'skip-input';
   faultCorrection<T extends string>(parse: ParserResult<T>, grammar: GrammarNode<T>): ParserResult<T>;
 }
 

@@ -1,7 +1,8 @@
 import { GrammarNode, isParserError, ParserSuccess, success } from '../../types';
 import { defaultTo, map, only, pipe, take } from 'remeda';
+import { recoverableError } from './recoverableErrorNode';
 
-export function sequence<T extends string>(...nodes: GrammarNode<T>[]):GrammarNode<T> {
+export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
     children: nodes,
     type: 'sequence' as T,
@@ -17,23 +18,29 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]):GrammarNo
     parse(text, context) {
       let offset = 0;
       const results: ParserSuccess<T>[] = [];
-      let recoverableErrorEncountered = false;
-      for (const node of nodes) {
+      for (let i = 0; i < nodes.length; i++) {
+        const node = nodes[i];
         const rest = text.substring(offset);
         const result = context.faultCorrection(node.parse(rest, context), grammar);
         if (isParserError(result)) {
-          if (context.faultTolerant) {
-            recoverableErrorEncountered = true;
+          if (context.faultToleranceMode) {
+            if (context.faultToleranceMode === 'skip-parser') {
+              results.push(recoverableError('error:missing-input', ''));
+            } else if(context.faultToleranceMode === 'skip-input'){
+              const recovery = recoverableError<T>('error:unexpected-input', rest);
+              results.push(recovery);
+              offset += recovery.text.length;
+              if(offset >= text.length) {
+                return {...result, offset};
+              }
+              i--;
+            }
             continue;
           }
           return {...result, offset};
         }
         offset += result.text.length;
-        results.push({
-          ...result,
-          recoverableError: recoverableErrorEncountered
-        });
-        recoverableErrorEncountered = false
+        results.push(result);
       }
       return success({
         grammar: grammar,
@@ -44,3 +51,4 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]):GrammarNo
   };
   return grammar;
 }
+

@@ -3,34 +3,29 @@ import { pattern } from '../parser/grammar/core/pattern';
 import { repeat } from '../parser/grammar/core/repeat';
 import { sequence } from '../parser/grammar/core/sequence';
 import { term } from '../parser/grammar/composite/term';
-import { ws } from '../parser/grammar/composite/ws';
-import { optional } from '../parser/grammar/core/optional';
+import { eof, named, optional } from '../parser';
 
 export function timesheet() {
   const hour = pattern(/[0-9]{1,2}:[0-9]{2}/);
-  const grammar = repeat(
-    sequence(
+  const line = sequence(
+    named('day', pattern(/[0-3]?[0-9]/)),
+    repeat(sequence(
+      pattern(/[ \t]/),
       sequence(
-        pattern(/[0-9]{2}/),
-        term('.'),
-        pattern(/[0-9]{2}/),
-        term('.'),
-        pattern(/[0-9]{4}/),
+        named('start', hour),
+        term('-'),
+        pattern(/[^-|]+/),
+        term('-'),
       ),
-      repeat(sequence(
-        ws,
-        repeat(sequence(
-            hour,
-            term('-'),
-            pattern(/[^-|]+/),
-            optional(pattern(/[|][^-]+/)),
-            term('-'),
-          ),
-        ),
-        hour,
-      )),
-      repeat(term('\n')),
-    ));
+      named('end', hour),
+    ), 1),
+    pattern(/\n+/),
+  );
+  line.meta = {debugName:'line'}
+  const grammar = sequence(
+    repeat(
+      named('line', line)),
+    eof);
 
   function suggest(type: string) {
     if (type === 'month') {

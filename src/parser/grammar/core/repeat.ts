@@ -7,43 +7,31 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
     suggestions: () => child.suggestions(),
     parse(text: string, context: ParserContext) {
       let offset = 0;
-      let encounteredFailure = false;
       const children: ParserSuccess<T>[] = [];
-      for (let i = 0; i < max && offset < text.length; i++) {
+      let i = 0;
+      for (; i < max && offset < text.length; i++) {
         const currentText = text.substring(offset);
-        const result = child.parse(currentText, {
-          ...context,
-          faultTolerant: context.faultTolerant && !encounteredFailure,
-        });
+        const result = child.parse(currentText, context);
         if (isParserError(result)) {
           const error = {...result, offset};
           if (i >= min) {
-            break;
+            return success({
+              grammar,
+              children,
+              text: text.substring(0, offset),
+            });
           } else {
-            if (!context.faultTolerant) {
-              return error;
-            } else {
-              if (!encounteredFailure) {
-                encounteredFailure = true;
-                continue;
-              }
-              return error;
-            }
+            return error;
           }
         }
         offset += result.text.length;
-        children.push({
-          ...result,
-          recoverableError: encounteredFailure
-        });
+        children.push(result);
       }
       return success({
         grammar,
         children,
-        text:
-          text.substring(0, offset),
-      })
-        ;
+        text: text.substring(0, offset),
+      });
     },
   };
   return grammar;

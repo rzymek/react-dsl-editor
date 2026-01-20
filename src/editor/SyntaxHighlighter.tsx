@@ -1,8 +1,10 @@
-import { CSSProperties, Ref } from 'react';
+import { CSSProperties, Fragment, Ref } from 'react';
 import { ReadOnlyTextarea } from './ReadOnlyTextarea';
 import { isEmpty } from 'remeda';
 import { CSTNode } from '../parser/CSTNode';
 import { DSLError } from '../parser';
+import { disjointIntervals } from './disjointIntervals';
+import { decorateIntervals } from './DecorateIntervals';
 
 const squiggly: CSSProperties = {
   textDecorationLine: 'underline',
@@ -30,18 +32,21 @@ export function ErrorHighlighter({ref, wrap, errors, children}: {
   errors: DSLError[]
 }) {
   const text = `${children} `;
-  const [error] = errors;
-  if (!error) return <></>;
+  const errorIntervals = disjointIntervals(errors);
+  if (errorIntervals.length === 0) return <></>;
   return <ReadOnlyTextarea ref={ref} wrap={wrap} data-id="ErrorHighlighter" style={{color: 'transparent'}}>{
-    text.substring(0, error.start)
-  }<span style={squiggly} title={error.message}>{text.substring(error.start, error.end)}</span>{
-    text.substring(error.end)
-  }</ReadOnlyTextarea>;
+    decorateIntervals(errorIntervals, text, (text, error) =>
+      <span key={`error-${error.start}`} style={squiggly} title={error.message}>{text}</span>,
+    )}</ReadOnlyTextarea>;
 }
 
 function StyledNode(props: { node: CSTNode<string>, styleFor: SyntaxColorsProvider }) {
   const style = props.styleFor(props.node);
-  return <span style={style}>{
+  return <span style={style}
+               data-node={props.node.grammar.type}
+               data-node-error={props.node.recoverableError}
+               data-node-meta={props.node.grammar.meta ? JSON.stringify(props.node.grammar.meta) : undefined}
+  >{
     isEmpty(props.node.children ?? [])
       ? props.node.text
       : props.node.children!.map((child, idx) =>

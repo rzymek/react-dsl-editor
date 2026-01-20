@@ -2,7 +2,13 @@ import { describe, it, expect } from 'vitest';
 import { DSLParser, DSL } from './DSLParser';
 import { funcParser } from '../example/funcParser';
 import { projectDsl } from '../example/projectsDsl';
-import dedent from "string-dedent"
+import dedent from 'string-dedent';
+import { timesheet } from '../example/timesheet';
+import { writeFile } from 'node:fs/promises';
+import { named, optional, pattern, repeat, sequence } from './grammar/core';
+import { term } from './grammar/composite';
+import { disjointIntervals } from '../editor/disjointIntervals';
+import { decorateIntervals } from '../editor/DecorateIntervals';
 
 function asText(result: DSL<string>): string {
   return result.terminals.map(it => it.text).join('');
@@ -43,6 +49,58 @@ describe('Parser', () => {
         total: h./m
     `;
     const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+  });
+  it('bar', async () => {
+    // given
+    const parser = new DSLParser(timesheet().grammar);
+    // when
+    const src = dedent`
+      1 11:00-a-11:00
+      2 10:00-a-11:00x
+      
+    `;
+    const result = parser.parse(src);
+    await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');
+    // then
+    expect(asText(result)).toEqual(src);
+  });
+  it('2', async () => {
+    // given
+    const parser = new DSLParser(timesheet().grammar);
+    // when
+    const src = dedent`
+      1 10:00-a-11:00
+      2 10:00-a-11:00x
+      3 10:00-a-11:00
+    `;
+    const result = parser.parse(src);
+    await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');
+    // then
+    expect(asText(result)).toEqual(src);
+  });
+  it('1', async () => {
+    // given
+    const hour = pattern(/[0-9]{1,2}:[0-9]{2}/);
+    const parser = new DSLParser(repeat(sequence(
+        optional(pattern(/[ \t]/)),
+        sequence(
+          named('start', hour),
+          term('-'),
+          pattern(/[^-|]+/),
+          term('-'),
+        ),
+        named('end', hour),
+      ), 1),
+    );
+    // when
+    const src = dedent`
+      10:00-a-11:00x
+    `;
+    const result = parser.parse(src);
+    await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');
+
     // then
     expect(asText(result)).toEqual(src);
   });

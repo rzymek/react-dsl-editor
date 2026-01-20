@@ -1,8 +1,17 @@
-import { asException, GrammarNode, isParserError, isParserSuccess, ParserSuccess } from './types';
+import {
+  asException,
+  GrammarNode,
+  isParserError,
+  isParserSuccess,
+  ParserContext, ParserError,
+
+  ParserSuccess,
+} from './types';
 import { CSTNode } from './CSTNode';
 import { sequence } from './grammar/core/sequence';
 import { eof } from './grammar/core/eof';
-import { isEmpty } from 'remeda';
+import { filter, isEmpty, map, only, pipe, firstBy, sum, sortBy } from 'remeda';
+import { disjointIntervals } from '../editor/disjointIntervals';
 
 function withOffset<T extends string>(parserResult: ParserSuccess<T>, offset = 0): CSTNode<T> {
   let childOffset = offset;
@@ -29,7 +38,8 @@ function _flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
 }
 
 function flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
-  return _flatCST(result).filter(it => it.text !== '');
+  return _flatCST(result)
+    .filter(it => it.text !== '');
 }
 
 export interface DSLError {
@@ -63,6 +73,15 @@ function getErrors<T extends string>(node: CSTNode<T>): DSLError[] {
   }
 }
 
+function totalErrorsLength(result: ParserSuccess<string>): number {
+  const errors = getErrors(withOffset(result));
+  return pipe(
+    disjointIntervals(errors),
+    map(it => Math.max(1, it.end - it.start)),
+    sum(),
+  );
+}
+
 export class DSLParser<T extends string> {
   private readonly grammar: GrammarNode<T>;
 
@@ -72,19 +91,44 @@ export class DSLParser<T extends string> {
 
   public parse(input: string): DSL<T> {
     const parserResult = this.grammar.parse(input, {
-      faultTolerant: false,
       faultCorrection: r => r,
     });
-    const faultTolerantResult = isParserError(parserResult)
-      ? this.grammar.parse(input, {
-        faultTolerant: true,
-        faultCorrection: r => r,
-      })
-      : parserResult;
-
-    if (isParserError(faultTolerantResult)) {
-      throw asException(faultTolerantResult);
+    let faultTolerantResult = parserResult;
+    if (isParserError(parserResult)) {
+      const faultToleranceModes: ParserContext['faultToleranceMode'][] = [
+        'skip-input',
+        'skip-parser',
+      ];
+      console.log(pipe(
+        faultToleranceModes,
+        map(faultToleranceMode => {
+          return {
+            faultToleranceMode,
+            result: this.grammar.parse(input, {
+              faultToleranceMode,
+              faultCorrection: r => r,
+            }),
+          };
+        }),
+        filter(it => isParserSuccess(it.result)),
+        map(it => ({mode: it.faultToleranceMode, weight: totalErrorsLength(it.result as ParserSuccess<string>)})),
+        sortBy(it => it.weight),
+      ));
+      faultTolerantResult = pipe(
+        faultToleranceModes,
+        map(faultToleranceMode =>
+          this.grammar.parse(input, {
+            faultToleranceMode,
+            faultCorrection: r => r,
+          })),
+        filter(isParserSuccess),
+        firstBy(totalErrorsLength),
+      ) ?? parserResult;
     }
+    if (isParserError(faultTolerantResult)) {
+      throw asException(parserResult as ParserError<T>);
+    }
+
     const cst: CSTNode<T> = withOffset(faultTolerantResult);
 
     const terminals = flatCST(cst);
