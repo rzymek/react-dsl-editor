@@ -1,11 +1,11 @@
 import { ParsingError } from './ParsingError';
 import { CSTNode } from './CSTNode';
 
-export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'none';
+export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'fuzzy-match' | 'partial-match';
 
 export interface ParserContext {
   depth: number;
-  faultToleranceMode: (grammarNode: GrammarNode<string>, context: ParserContext) => FaultToleranceMode;
+  faultToleranceMode: (grammarNode: GrammarNode<string>, context: ParserContext) => FaultToleranceMode[];
 }
 
 export interface GrammarNode<T extends string = never> {

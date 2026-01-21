@@ -1,11 +1,11 @@
-import { optional } from '../parser/grammar/core/optional';
-import { pattern } from '../parser/grammar/core/pattern';
-import { sequence } from '../parser/grammar/core/sequence';
-import { alternative } from '../parser/grammar/core/alternative';
-import { term } from '../parser/grammar/composite/term';
-import { eof } from '../parser/grammar/core/eof';
-import { repeat } from '../parser/grammar/core/repeat';
-import { named } from '../parser/grammar/core/named';
+import {optional} from '../parser/grammar/core/optional';
+import {pattern} from '../parser/grammar/core/pattern';
+import {sequence} from '../parser/grammar/core/sequence';
+import {alternative} from '../parser/grammar/core/alternative';
+import {term} from '../parser/grammar/composite/term';
+import {eof} from '../parser/grammar/core/eof';
+import {repeat} from '../parser/grammar/core/repeat';
+import {named} from '../parser/grammar/core/named';
 
 const requiredWS = pattern(/[ \t]+/);
 const ws = optional(requiredWS);
@@ -38,4 +38,4 @@ const grammar = repeat(
   ),
 );
 
-export const projectDsl = sequence(grammar,eof);
+export const projectDsl = sequence(grammar, eof);

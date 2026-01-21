@@ -4,14 +4,13 @@ import { useState } from 'react';
 import dedent from 'string-dedent';
 import { CSTNode } from '../parser/CSTNode';
 import { DSL } from '../parser';
-import { timesheet } from './timesheet';
 import { projectDsl } from './projectsDsl';
 
 // const {grammar} = timesheet();
 // const {grammar, suggest} = funcDemo();
 const grammar = projectDsl;
 
-function suggestions(node: CSTNode<string>): string[] {
+function suggestions(_node: CSTNode<string>): string[] {
   return [];//[node.grammar.meta?.name as string ?? '?'];
 }
 

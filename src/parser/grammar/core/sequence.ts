@@ -1,5 +1,6 @@
-import { GrammarNode, isParserError, ParserSuccess, success } from '../../types';
-import { recoverableError } from './recoverableErrorNode';
+import {isEmpty} from 'remeda';
+import {GrammarNode, isParserError, ParserSuccess, success} from '../../types';
+import {recoverableError} from './recoverableErrorNode';
 
 export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
@@ -30,18 +31,17 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         const result = node.parse(rest, context);
         if (isParserError(result)) {
           const faultToleranceMode = context.faultToleranceMode(grammar, context);
-          if (faultToleranceMode !== 'none') {
-            if (faultToleranceMode === 'skip-parser') {
-              results.push(recoverableError('error:missing-input', ''));
-            } else if (faultToleranceMode === 'skip-input') {
-              const recovery = recoverableError<T>('error:unexpected-input', rest);
-              results.push(recovery);
-              offset += recovery.text.length;
-              if (offset >= text.length) {
-                return {...result, offset};
-              }
-              i--;
+          if (faultToleranceMode.includes('skip-parser')) {
+            results.push(recoverableError('error:missing-input', ''));
+            continue;
+          } else if (faultToleranceMode.includes('skip-input')) {
+            const recovery = recoverableError<T>('error:unexpected-input', rest);
+            results.push(recovery);
+            offset += recovery.text.length;
+            if (offset >= text.length) {
+              return {...result, offset};
             }
+            i--;
             continue;
           }
           return {...result, offset};

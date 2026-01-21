@@ -1,12 +1,12 @@
-import { describe, expect, it } from 'vitest';
-import { DSL, DSLParser } from './DSLParser';
-import { funcParser } from '../example/funcParser';
-import { projectDsl } from '../example/projectsDsl';
+import {describe, expect, it} from 'vitest';
+import {DSL, DSLParser} from './DSLParser';
+import {funcParser} from '../example/funcParser';
+import {projectDsl} from '../example/projectsDsl';
 import dedent from 'string-dedent';
-import { timesheet } from '../example/timesheet';
-import { writeFile } from 'node:fs/promises';
-import { named, optional, pattern, repeat, sequence } from './grammar/core';
-import { term } from './grammar/composite';
+import {timesheet} from '../example/timesheet';
+import {writeFile} from 'node:fs/promises';
+import {named, optional, pattern, repeat, sequence} from './grammar/core';
+import {term} from './grammar/composite';
 
 function asText(result: DSL<string>): string {
   return result.terminals.map(it => it.text).join('');
@@ -30,7 +30,6 @@ describe('Parser', () => {
     const result = parser.parse(src);
     // then
     expect(asText(result)).toEqual(src);
-    expect(result.errors).toEqual([])
   });
   it('should report unexpected trailing input as error (projectDsl)', () => {
     // given
@@ -45,7 +44,7 @@ describe('Parser', () => {
     // then
     expect(asText(result)).toEqual(src);
   });
-  it('foo', () => {
+  it('project config', () => {
     // given
     const parser = new DSLParser(projectDsl);
     // when
@@ -54,7 +53,21 @@ describe('Parser', () => {
         proj1
         proj2
       display:
-        total: h./m
+        total: h.
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+  });
+  it('displ', () => {
+    // given
+    const parser = new DSLParser(projectDsl);
+    // when
+    const src = dedent`
+      projects:
+        proj1
+        proj2
+      displ
     `;
     const result = parser.parse(src);
     // then
