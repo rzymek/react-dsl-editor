@@ -1,8 +1,10 @@
-import { describe, expect, it } from 'vitest';
-import { term } from './term';
-import { asException, isParserError, isParserSuccess, ParserContext } from '../../types';
+import {describe, expect, it} from 'vitest';
+import {term} from './term';
+import {asException, isParserError, isParserSuccess, ParserContext} from '../../types';
 
 const context: ParserContext = {
+  depth: 0,
+  faultToleranceMode:()=>[]
 };
 
 describe('term', () => {

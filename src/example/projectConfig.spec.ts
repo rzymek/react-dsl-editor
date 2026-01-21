@@ -25,6 +25,7 @@ describe('projectConfigDsl', () => {
       'sequence',
       'sequence',
       'repeat',
+      'alternative',
       'sequence',
       'repeat',
       'sequence',
@@ -48,8 +49,8 @@ describe('projectConfigDsl', () => {
         "h:m",
         "h.m"
       ],
-      start: 0,
-      end: 3,
+      start: 18,
+      end: 21,
       depth: 1
     });
   })

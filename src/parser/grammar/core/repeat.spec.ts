@@ -5,6 +5,8 @@ import { term } from '../composite/term';
 import { isParserError, isParserSuccess, NodeTypes, ParserContext, ParserError } from '../../types';
 
 const context: ParserContext = {
+  depth: 0,
+  faultToleranceMode:()=>[]
 };
 
 describe('repeat', () => {

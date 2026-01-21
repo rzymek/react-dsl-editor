@@ -13,11 +13,12 @@ const ws = optional(requiredWS);
 // const newLine = named('newline',sequence(ws, alternative(pattern(/\n/), eof)));
 const newLine = alternative(pattern(/\n/), eof);
 const comment = pattern(/#[^#\n]*\n/);
+const displayTotal = named("display.total",alternative(term('h:m'),term('h.m')));
 export const displayConfig = sequence(
   term('display:'), newLine,
   alternative(
     sequence(
-      requiredWS, term('total:'), ws, alternative(term('h:m'),term('h.m')), newLine,
+      requiredWS, term('total:'), ws, displayTotal, newLine,
     ),
   ),
 );

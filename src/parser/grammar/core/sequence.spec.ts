@@ -12,6 +12,8 @@ import {
 import { identity } from 'remeda';
 
 const context: ParserContext = {
+  depth: 0,
+  faultToleranceMode:()=>[]
 };
 
 describe('sequence', () => {
@@ -44,7 +46,7 @@ describe('sequence', () => {
     if (isParserError(result)) throw asException(result);
     expect(result.text).toBe('a');
     expect(result.children).toEqual([
-      {text: 'a', grammar: termA, children: [], recoverableError: false},
+      {text: 'a', grammar: termA, children: []},
     ]);
   });
 
