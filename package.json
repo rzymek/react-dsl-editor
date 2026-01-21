@@ -1,7 +1,7 @@
 {
   "name": "react-dsl-editor",
   "license": "MIT",
-  "version": "0.3.4-rc1",
+  "version": "0.3.4-rc2",
   "repository": {
     "url": "git+https://github.com/rzymek/react-dsl-editor.git"
   },
