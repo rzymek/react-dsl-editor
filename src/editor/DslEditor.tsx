@@ -130,19 +130,18 @@ export function DslEditor<T extends string>(
 
   const handleSuggestionSelect = useCallback((suggestion: SuggestionsResult) => {
     if (!textarea.current) return;
-    console.log({suggestion});
-    // const {selectionStart, selectionEnd} = textarea.current;
-    // const {prefix} = suggestions;
-    // const newCode = code.substring(0, selectionStart - prefix.length) + suggestion + code.substring(selectionEnd);
-    // onChange(newCode);
-    // setTimeout(() => {
-    //   if (textarea.current) {
-    //     textarea.current.focus();
-    //     textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart - prefix.length + suggestion.length;
-    //   }
-    // }, 0);
-    // setSuggestionMenu(s => ({...s, visible: false}));
-  }, []);
+    const {selectionStart, selectionEnd} = textarea.current;
+    const {prefix} = suggestion;
+    const newCode = code.substring(0, selectionStart - prefix.length) + suggestion.suggestion + code.substring(selectionEnd);
+    onChange(newCode);
+    setTimeout(() => {
+      if (textarea.current) {
+        textarea.current.focus();
+        textarea.current.selectionStart = textarea.current.selectionEnd = selectionStart - prefix.length + suggestion.suggestion.length;
+      }
+    }, 0);
+    setSuggestionMenu(s => ({...s, visible: false}));
+  }, [code, onChange]);
 
   const suggestionMenuKeys = useMemo(() => ({
     ArrowDown() {

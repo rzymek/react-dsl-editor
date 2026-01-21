@@ -1,10 +1,12 @@
-import { GrammarNode, isParserError, ParserContext, success } from '../../types';
+import {GrammarNode, isParserError, ParserContext, success} from '../../types';
 
 export function named<T extends string, K extends string>(name: T, child: GrammarNode<K>) {
   const grammar: GrammarNode<T | K> = {
     meta: {name},
     type: 'named' as T,
-    suggestions(){return child.suggestions()},
+    suggestions() {
+      return child.suggestions()
+    },
     children: [child],
     parse(text: string, context: ParserContext) {
       const parse = child.parse(text, context);
@@ -19,4 +21,8 @@ export function named<T extends string, K extends string>(name: T, child: Gramma
     },
   };
   return grammar;
+}
+
+export function nodeName<T extends string>(node: { grammar:GrammarNode<T> }): T | undefined {
+  return node.grammar.meta?.name as T;
 }

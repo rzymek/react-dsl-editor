@@ -1,4 +1,5 @@
 import { isParserError, ParserSuccess } from './types';
+import {nodeName} from "./grammar/core";
 
 export function visit<T extends string, V = string>(
   parserResult: ParserSuccess<T>,
@@ -9,8 +10,10 @@ export function visit<T extends string, V = string>(
     return [];
   }
   // const filter = (parserResult: ParserSuccess<T>) => parserResult.grammar.type === type;
-  const filter = (parserResult: ParserSuccess<T>) =>
-    parserResult.grammar.meta?.name !== undefined && type.includes(parserResult.grammar.meta?.name as T);
+  const filter = (parserResult: ParserSuccess<T>) => {
+    const metaName = nodeName(parserResult);
+    return metaName !== undefined && type.includes(metaName);
+  };
   const result = filter(parserResult)
     ? [extractor(parserResult)]
     : [];

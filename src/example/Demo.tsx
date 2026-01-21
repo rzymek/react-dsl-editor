@@ -1,17 +1,19 @@
-import { DslEditor } from '../editor/DslEditor';
+import {DslEditor} from '../editor/DslEditor';
 import './Demo.css';
-import { useState } from 'react';
+import {useState} from 'react';
 import dedent from 'string-dedent';
-import { CSTNode } from '../parser/CSTNode';
-import { DSL } from '../parser';
-import { projectDsl } from './projectsDsl';
+import {CSTOf, DSL, nodeName} from '../parser';
+import {projectDsl} from './projectsDsl';
 
 // const {grammar} = timesheet();
 // const {grammar, suggest} = funcDemo();
 const grammar = projectDsl;
 
-function suggestions(_node: CSTNode<string>): string[] {
-  return [];//[node.grammar.meta?.name as string ?? '?'];
+function suggestions(node: CSTOf<typeof projectDsl>): string[] {
+  if(nodeName(node) === 'project') {
+    return ['proj1',"proj2"]
+  }
+  return [];
 }
 
 function Demo() {
@@ -19,7 +21,7 @@ function Demo() {
     projects:
       pro1
     display:
-      total: h.m
+      total: h.
       
     `);
   const [output, setOutput] = useState<DSL<string>>();

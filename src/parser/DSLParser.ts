@@ -55,10 +55,6 @@ function topError(parserResult: ParserResult<string>): DSLError[] {
   }]
 }
 
-function asText(result: ParserSuccess<string>): string {
-  return flatCST(withOffset(result)).map(it => it.text).join('');
-}
-
 export class DSLParser<T extends string> {
   private readonly grammar: GrammarNode<T>;
 
