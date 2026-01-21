@@ -3,7 +3,7 @@ import { describe, expect, it, vi } from 'vitest';
 import { funcParser } from '../example/funcParser';
 import { CSTOf, GrammarNode, NodeTypes } from '../parser/types';
 import { DSLParser } from '../parser';
-
+import {projectDsl} from "../example/projectsDsl";
 const parser = new DSLParser(funcParser);
 
 function funcSyntax(code: string) {
@@ -71,6 +71,20 @@ describe('suggestions', () => {
       it('f|u foo{2+2}', () => {
         // given
         const {cst, cursorPositon} = parseTestName(funcParser);
+        // when
+        const suggestions = getSuggestions(cst, cursorPositon);
+        // then
+        expect(suggestions).toEqual([
+          {text: 'fun', type: 'fun'},
+        ]);
+      });
+      it(`display:
+          total: |
+projects:
+          proj1
+          proj2`, () => {
+        // given
+        const {cst, cursorPositon} = parseTestName(projectDsl);
         // when
         const suggestions = getSuggestions(cst, cursorPositon);
         // then

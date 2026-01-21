@@ -18,10 +18,10 @@ function suggestions(node: CSTOf<typeof projectDsl>): string[] {
 
 function Demo() {
   const [code, setCode] = useState(dedent`
+    display:
+      total: 
     projects:
       pro1
-    display:
-      total: h.
       
     `);
   const [output, setOutput] = useState<DSL<string>>();

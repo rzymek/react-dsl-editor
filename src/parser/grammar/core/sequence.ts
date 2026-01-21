@@ -39,12 +39,12 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
             results.push(recovery);
             offset += recovery.text.length;
             if (offset >= text.length) {
-              return {...result, offset};
+              return {...result, offset: result.offset + offset};
             }
             i--;
             continue;
           }
-          return {...result, offset};
+          return {...result, offset: result.offset + offset};
         }
         offset += result.text.length;
         results.push(result);

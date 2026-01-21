@@ -1,6 +1,6 @@
 import RandExp from 'randexp';
-import { firstBy, filter, first, map, pipe, range, unique } from 'remeda';
-import { error, GrammarNode, ParserResult, success } from '../../types';
+import {firstBy, filter, first, map, pipe, range, unique} from 'remeda';
+import {error, GrammarNode, ParserResult, success} from '../../types';
 import leven from 'leven';
 
 function getCommonPrefix(a: string, b: string): string {
@@ -31,7 +31,7 @@ export function pattern(regex: RegExp) {
       const re = new RegExp(regex, 'yu');
       re.lastIndex = 0;
       const match = re.exec(text);
-      console.log(regex,JSON.stringify({match, text}))
+      console.log(regex, JSON.stringify({match, text}))
       if (match) {
         return success({
           text: match[0],
@@ -71,8 +71,8 @@ export function pattern(regex: RegExp) {
             });
           }
         }
-        if(mode.includes("skip-parser")) {
-          if(text.length === 0) {
+        if (mode.includes("skip-parser")) {
+          if (text.length === 0) {
             return success({
               text: '',
               grammar,
@@ -85,6 +85,7 @@ export function pattern(regex: RegExp) {
           grammar,
           got: text,
           expected: grammar.suggestions(),
+          offset: 0,
         });
 
       }

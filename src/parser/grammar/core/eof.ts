@@ -11,7 +11,7 @@ export const eof: GrammarNode = {
       if (context.faultToleranceMode(eof, context).includes('skip-input')) {
         return success({text, grammar: eof, children: [], recoverableError: true});
       }
-      return error({got: text, expected: [''], grammar: eof});
+      return error({got: text, expected: [''], grammar: eof, offset: 0});
     }
   },
 };

@@ -36,8 +36,8 @@ export function success<T extends string>(param: ParserSuccess<T>) {
   return param;
 }
 
-export function error<T extends string>(param: Omit<ParserError<T>, 'offset'>) {
-  return {...param, offset: 0};
+export function error<T extends string>(param: ParserError<T>) {
+  return param;
 }
 
 export function isParserError<T extends string>(result: ParserResult<T>): result is ParserError<T> {

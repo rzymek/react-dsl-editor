@@ -13,6 +13,14 @@ const ws = optional(requiredWS);
 // const newLine = named('newline',sequence(ws, alternative(pattern(/\n/), eof)));
 const newLine = alternative(pattern(/\n/), eof);
 const comment = pattern(/#[^#\n]*\n/);
+export const displayConfig = sequence(
+  term('display:'), newLine,
+  alternative(
+    sequence(
+      requiredWS, term('total:'), ws, term('h:m'), newLine,
+    ),
+  ),
+);
 const grammar = repeat(
   alternative(
     newLine,
@@ -23,17 +31,7 @@ const grammar = repeat(
           requiredWS, named('project', pattern(/[a-z0-9:.]+/)), newLine,
         )),
     ),
-    sequence(
-      term('display:'), newLine,
-      alternative(
-        sequence(
-          requiredWS, term('total:'), ws, named('display.total', alternative(
-            term('h:m'),
-            term('h.m'),
-          )), newLine,
-        ),
-      ),
-    ),
+    displayConfig,
     comment,
   ),
 );

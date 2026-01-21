@@ -75,7 +75,7 @@ export class DSLParser<T extends string> {
     if (isParserError(parserResult)) {
       const modes: ParserContext['faultToleranceMode'][] = [
         (_grammarNode, context) =>
-          context.depth / maxDepth > 0.75 ? [] : ['skip-input', 'partial-match'],
+          context.depth / maxDepth > 0.75 ? [] : ['skip-input', 'skip-parser', 'partial-match'],
         () => ['partial-match'],
         // () => ['skip-input'],
         // () => ['skip-parser'],

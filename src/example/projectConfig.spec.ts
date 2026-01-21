@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { projectDsl } from './projectsDsl';
+import {displayConfig, projectDsl} from './projectsDsl';
 import dedent from 'string-dedent';
 import { visit } from '../parser/visit';
 import { DSLParser } from '../parser';
@@ -34,4 +34,23 @@ describe('projectConfigDsl', () => {
     expect.soft(terminals.map(it=>it.text).join('')).toEqual(input);
     expect.soft(terminals.map(it=>it.text).join('')).toEqual(input);
   });
+
+  it('display',()=>{
+    const src = dedent`
+      display:
+        total: 
+      projects:
+    `
+    const dsl = new DSLParser(displayConfig).parse(src)
+    expect.soft(dsl.errors[0]).toEqual({
+      message: "h:m or h.m expected",
+      expected: [
+        "h:m",
+        "h.m"
+      ],
+      start: 0,
+      end: 3,
+      depth: 1
+    });
+  })
 });
