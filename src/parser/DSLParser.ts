@@ -1,8 +1,16 @@
-import { asException, GrammarNode, isParserError, isParserSuccess, ParserError, ParserSuccess } from './types';
+import {
+  asException,
+  GrammarNode,
+  isParserError,
+  isParserSuccess,
+  ParserContext,
+  ParserError, ParserResult,
+  ParserSuccess,
+} from './types';
 import { CSTNode } from './CSTNode';
 import { sequence } from './grammar/core/sequence';
 import { eof } from './grammar/core/eof';
-import { isEmpty } from 'remeda';
+import { isEmpty, map, pipe } from 'remeda';
 
 function withOffset<T extends string>(parserResult: ParserSuccess<T>, offset = 0): CSTNode<T> {
   let childOffset = offset;
@@ -35,6 +43,7 @@ function flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
 
 export interface DSLError {
   message: string,
+  expected?: string[],
   start: number,
   end: number,
   depth: number,
@@ -54,7 +63,7 @@ function getErrors<T extends string>(node: CSTNode<T>, depth = 1): DSLError[] {
     const error: DSLError = {
       start: node.offset,
       end: Math.max(node.end, node.offset + 1),
-      message: node.grammar.type,
+      message: `${node.grammar.type} ${node.text}`,
       depth,
     };
     return [
@@ -64,6 +73,17 @@ function getErrors<T extends string>(node: CSTNode<T>, depth = 1): DSLError[] {
   } else {
     return childErrors;
   }
+}
+
+function topError(parserResult: ParserResult<string>):DSLError[]{
+  if(isParserSuccess(parserResult)) return [];
+  return [{
+    message: parserResult.expected.join(' or ') + ' expected',
+    expected: parserResult.expected,
+    start: parserResult.offset,
+    end: parserResult.offset + Math.max(...parserResult.expected.map(it=>it.length)),
+    depth: 1,
+  }]
 }
 
 export class DSLParser<T extends string> {
@@ -84,14 +104,20 @@ export class DSLParser<T extends string> {
     });
     let faultTolerantResult = parserResult;
     if (isParserError(parserResult)) {
-      faultTolerantResult = this.grammar.parse(input, {
-        depth: 0,
-        faultToleranceMode(_grammar, context) {
-          const depthPercentage = context.depth / maxDepth;
-          return depthPercentage > 0.75 ? 'none' : 'skip-input';
-          // console.log('faultToleranceMode', grammar.type, JSON.stringify(grammar.meta, (key, value) => key === 'regex' ? value.toString() : value), context.depth, mode, depthPercentage);
-        },
-      });
+      const modes: ParserContext['faultToleranceMode'][] = [
+        (_grammarNode, context) => context.depth / maxDepth > 0.75 ? 'none' : 'skip-input',
+        () => 'skip-input',
+        () => 'skip-parser',
+      ];
+      for (const mode of modes) {
+        faultTolerantResult = this.grammar.parse(input, {
+          depth: 0,
+          faultToleranceMode: mode,
+        });
+        if (isParserSuccess(faultTolerantResult)) {
+          break;
+        }
+      }
     }
     if (isParserError(faultTolerantResult)) {
       throw asException(parserResult as ParserError<T>);
@@ -105,7 +131,10 @@ export class DSLParser<T extends string> {
       terminals,
       result: faultTolerantResult,
       strictResult: isParserSuccess(parserResult) ? parserResult : undefined,
-      errors: getErrors(cst),
+      errors: [
+        ...topError(parserResult),
+        ...getErrors(cst)
+      ],
     };
   }
 }

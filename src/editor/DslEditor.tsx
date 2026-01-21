@@ -12,7 +12,6 @@ import { ErrorHighlighter, SyntaxColorsProvider, SyntaxHighlighter } from './Syn
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
-import { SuggestionsView } from './SuggestionsView';
 import { shortcutName } from './shortcutName';
 import { useSyncScroll } from './useSyncScroll';
 import { GrammarNode } from '../parser/types';
@@ -28,8 +27,8 @@ function SuggestionsMenu({
                            selectedIndex,
                            onHover,
                          }: {
-  suggestions: string[],
-  onSelect: (suggestion: string) => void,
+  suggestions: SuggestionsResult[],
+  onSelect: (suggestion: SuggestionsResult) => void,
   style: CSSProperties,
   selectedIndex: number,
   onHover: (index: number) => void,
@@ -55,7 +54,7 @@ function SuggestionsMenu({
              padding: '4px 8px',
              backgroundColor: selectedIndex === idx ? '#094771' : 'transparent',
            }}>
-        {suggestion}
+        {suggestion.suggestion}
       </div>)}
   </div>;
 }
@@ -101,15 +100,15 @@ export function DslEditor<T extends string>(
     const cursorStart = textarea.current?.selectionStart ?? 0;
     const suggestions = getSuggestions(cst, cursorStart, clientSuggestions);
     setSuggestions(suggestions);
+    return suggestions;
   }, [clientSuggestions]);
 
-  const updateSuggestions = useCallback(() => {
+  const handleCursor = useCallback(() => {
     if (!parserResult) {
       return;
     }
-    updateSuggestionsForSyntax(parserResult.cst);
     setCursorText(textarea.current?.value?.substring(0, textarea.current?.selectionStart ?? 0) ?? '');
-  }, [parserResult, updateSuggestionsForSyntax]);
+  }, [parserResult]);
 
   useEffect(() => {
     parser.current = new DSLParser(grammar);
@@ -129,9 +128,9 @@ export function DslEditor<T extends string>(
   const getCursorCoordinates = useCallback(() =>
     cursor.current?.getCursorPosition?.() ?? {top: 0, left: 0}, []);
 
-  const handleSuggestionSelect = useCallback((suggestion: string) => {
+  const handleSuggestionSelect = useCallback((suggestion: SuggestionsResult) => {
     if (!textarea.current) return;
-    console.log(suggestion);
+    console.log({suggestion});
     // const {selectionStart, selectionEnd} = textarea.current;
     // const {prefix} = suggestions;
     // const newCode = code.substring(0, selectionStart - prefix.length) + suggestion + code.substring(selectionEnd);
@@ -143,7 +142,7 @@ export function DslEditor<T extends string>(
     //   }
     // }, 0);
     // setSuggestionMenu(s => ({...s, visible: false}));
-  }, [code, onChange, suggestions]);
+  }, []);
 
   const suggestionMenuKeys = useMemo(() => ({
     ArrowDown() {
@@ -153,7 +152,7 @@ export function DslEditor<T extends string>(
       setSuggestionIndex(prevIndex => (prevIndex - 1 + suggestions.length) % suggestions.length);
     },
     Enter() {
-      if (suggestions[suggestionIndex]) handleSuggestionSelect(suggestions[suggestionIndex].suggestion);
+      if (suggestions[suggestionIndex]) handleSuggestionSelect(suggestions[suggestionIndex]);
     },
     Escape() {
       setSuggestionMenu(s => ({...s, visible: false}));
@@ -162,11 +161,17 @@ export function DslEditor<T extends string>(
 
   const textAreaKeys = useMemo(() => ({
     CtrlSpace() {
+      if (!parserResult?.cst) return;
+      const suggestions = updateSuggestionsForSyntax(parserResult?.cst);
+      console.log('CtrlSpace',suggestions);
+      if (isEmpty(suggestions)) {
+        return;
+      }
       const {top, left} = getCursorCoordinates();
       setSuggestionIndex(0);
       setSuggestionMenu({visible: true, top, left});
     },
-  }), [getCursorCoordinates]);
+  }), [getCursorCoordinates, parserResult?.cst, updateSuggestionsForSyntax]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const keymap: Record<string, () => void> = suggestionMenu.visible ? suggestionMenuKeys : textAreaKeys;
@@ -199,20 +204,21 @@ export function DslEditor<T extends string>(
           resize: 'none',
         }}
         value={code}
-        onSelect={updateSuggestions}
+        onSelect={handleCursor}
         onChange={handleChange}
         onScroll={useSyncScroll(highlighter, errorHighlighter)}
         onKeyDown={handleKeyDown}
         {...textareaProps}
       />
-      {parserResult && <SyntaxHighlighter cstRoot={parserResult.cst} ref={highlighter} wrap={wrap} syntaxColors={syntaxColors}/>}
+      {parserResult &&
+          <SyntaxHighlighter cstRoot={parserResult.cst} ref={highlighter} wrap={wrap} syntaxColors={syntaxColors}/>}
       {!isEmpty(parserResult?.errors ?? []) &&
           <ErrorHighlighter ref={errorHighlighter} errors={parserResult?.errors ?? []}
                             wrap={wrap}>{code}</ErrorHighlighter>}
       <CursorPosition ref={cursor} text={cursorText} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.length > 0 &&
           <SuggestionsMenu
-              suggestions={suggestions.map(it => it.suggestion)}
+              suggestions={suggestions}
               onSelect={handleSuggestionSelect}
               style={{top: suggestionMenu.top, left: suggestionMenu.left}}
               selectedIndex={suggestionIndex}
@@ -221,6 +227,6 @@ export function DslEditor<T extends string>(
       }
     </div>
     {JSON.stringify(parserResult?.errors ?? [])}
-    <SuggestionsView suggestions={suggestions.map(it => it.suggestion)} onSelect={handleSuggestionSelect}/>
+    {/*<SuggestionsView suggestions={suggestions.map(it => it.suggestion)} onSelect={handleSuggestionSelect}/>*/}
   </div>;
 }

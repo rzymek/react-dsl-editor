@@ -1,5 +1,4 @@
 import { GrammarNode, isParserError, ParserSuccess, success } from '../../types';
-import { defaultTo, map, only, pipe, take } from 'remeda';
 import { recoverableError } from './recoverableErrorNode';
 
 export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarNode<T> {
@@ -7,19 +6,21 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
     children: nodes,
     type: 'sequence' as T,
     suggestions() {
-      return pipe(
-        nodes,
-        map(it => it.suggestions()),
-        take(1),
-        only(),
-        defaultTo([]),
-      );
+      const result: string[] = [];
+      for (const node of nodes) {
+        const s = node.suggestions();
+        result.push(...s.filter(it => it !== ''));
+        if (!s.includes('')) {
+          break;
+        }
+      }
+      return result;
     },
     parse(text, _context) {
       const context = {
         ..._context,
         depth: _context.depth + 1,
-      }
+      };
 
       let offset = 0;
       const results: ParserSuccess<T>[] = [];

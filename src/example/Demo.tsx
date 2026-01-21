@@ -5,20 +5,22 @@ import dedent from 'string-dedent';
 import { CSTNode } from '../parser/CSTNode';
 import { DSL } from '../parser';
 import { timesheet } from './timesheet';
+import { projectDsl } from './projectsDsl';
 
-const {grammar} = timesheet();
+// const {grammar} = timesheet();
 // const {grammar, suggest} = funcDemo();
-// const grammar = projectDsl;
+const grammar = projectDsl;
 
 function suggestions(node: CSTNode<string>): string[] {
-  return [node.grammar.meta?.name as string ?? '?'];
+  return [];//[node.grammar.meta?.name as string ?? '?'];
 }
 
 function Demo() {
   const [code, setCode] = useState(dedent`
-      1 10:00-a-11:00
-      2 10:00-a-11:00
-      3 10:00-a-11:00x
+    projects:
+      pro1
+    display:
+      total: h.m
       
     `);
   const [output, setOutput] = useState<DSL<string>>();

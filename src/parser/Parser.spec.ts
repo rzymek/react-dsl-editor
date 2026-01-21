@@ -22,6 +22,16 @@ describe('Parser', () => {
     // then
     expect(asText(result)).toEqual(src);
   });
+  it('fun f1{1+1} f', () => {
+    // given
+    const parser = new DSLParser(funcParser);
+    // when
+    const src = 'fun f1{1+1} f';
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+    expect(result.errors).toEqual([])
+  });
   it('should report unexpected trailing input as error (projectDsl)', () => {
     // given
     const parser = new DSLParser(projectDsl);

@@ -35,8 +35,8 @@ export function ErrorHighlighter({ref, wrap, errors, children}: {
   const errorIntervals = disjointIntervals(errors);
   if (errorIntervals.length === 0) return <></>;
   return <ReadOnlyTextarea ref={ref} wrap={wrap} data-id="ErrorHighlighter" style={{color: 'transparent'}}>{
-    decorateIntervals(errorIntervals, text, (text, error) =>
-      <span key={`error-${error.start}`} style={squiggly} title={error.message}>{text}</span>,
+    decorateIntervals(errorIntervals, text, (text, error, index) =>
+      <span key={`error-${index}`} style={squiggly} title={error.message}>{text}</span>,
     )}</ReadOnlyTextarea>;
 }
 
