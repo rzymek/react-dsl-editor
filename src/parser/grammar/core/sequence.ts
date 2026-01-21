@@ -1,4 +1,3 @@
-import {isEmpty} from 'remeda';
 import {GrammarNode, isParserError, ParserSuccess, success} from '../../types';
 import {recoverableError} from './recoverableErrorNode';
 

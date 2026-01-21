@@ -11,7 +11,7 @@ export interface SuggestionsResult {
 export function getSuggestions<T extends string>(
   syntax: CSTNode<T>, cursorStart: number, clientSuggestions: (cstNode: CSTNode<T>) => (string[] | undefined) = () => undefined,
 ): SuggestionsResult[] {
-  console.log('getSuggestions',cursorStart);
+  // console.log('getSuggestions',cursorStart);
   const cstPath = cstPathAt(syntax, cursorStart);
   const nodeSuggestions = pipe(
     cstPath,
@@ -29,7 +29,7 @@ export function getSuggestions<T extends string>(
       // return [];
     }),
   );
-  console.log({nodeSuggestions});
+  // console.log({nodeSuggestions});
   return pipe(
     nodeSuggestions,
     flatMap(it => {

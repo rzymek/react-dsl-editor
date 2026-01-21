@@ -1,7 +1,7 @@
 import {getSuggestions} from './getSuggestions';
 import {describe, expect, it, vi} from 'vitest';
 import {funcParser} from '../example/funcParser';
-import {CSTOf, GrammarNode, NodeTypes} from '../parser/types';
+import {CSTOf, GrammarNode} from '../parser/types';
 import {DSLParser} from '../parser';
 import {projectDsl} from "../example/projectsDsl";
 

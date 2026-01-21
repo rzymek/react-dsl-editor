@@ -84,10 +84,10 @@ export class DSLParser<T extends string> {
       faultTolerantResult = pipe(
         modes,
         map(mode => {
-          console.log('=== fault tolerance: ', mode(this.grammar, {
-            depth: 0,
-            faultToleranceMode: mode,
-          }))
+          // console.log('=== fault tolerance: ', mode(this.grammar, {
+          //   depth: 0,
+          //   faultToleranceMode: mode,
+          // }))
           return this.grammar.parse(input, {
             depth: 0,
             faultToleranceMode: mode,
@@ -96,7 +96,7 @@ export class DSLParser<T extends string> {
         filter(isParserSuccess),
         firstBy(result => {
           const weight = isParserSuccess(result) ? totalErrorsLength(result) : Infinity;
-          console.log({weight})
+          // console.log({weight})
           return weight;
         })
       ) ?? parserResult;

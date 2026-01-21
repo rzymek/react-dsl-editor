@@ -31,7 +31,7 @@ export function pattern(regex: RegExp) {
       const re = new RegExp(regex, 'yu');
       re.lastIndex = 0;
       const match = re.exec(text);
-      console.log(regex, JSON.stringify({match, text}))
+      // console.log(regex, JSON.stringify({match, text}))
       if (match) {
         return success({
           text: match[0],
@@ -40,7 +40,7 @@ export function pattern(regex: RegExp) {
         });
       } else {
         const mode = context.faultToleranceMode(grammar, context);
-        console.log(mode, regex, JSON.stringify(text));
+        // console.log(mode, regex, JSON.stringify(text));
         if (mode.includes('fuzzy-match')) {
           const fuzzyMatch = pipe(
             suggestions(),

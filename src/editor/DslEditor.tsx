@@ -162,7 +162,7 @@ export function DslEditor<T extends string>(
     CtrlSpace() {
       if (!parserResult?.cst) return;
       const suggestions = updateSuggestionsForSyntax(parserResult?.cst);
-      console.log('CtrlSpace',suggestions);
+      // console.log('CtrlSpace',suggestions);
       if (isEmpty(suggestions)) {
         return;
       }
@@ -225,7 +225,7 @@ export function DslEditor<T extends string>(
           />
       }
     </div>
-    {JSON.stringify(parserResult?.errors ?? [])}
+    {/*{JSON.stringify(parserResult?.errors ?? [])}*/}
     {/*<SuggestionsView suggestions={suggestions.map(it => it.suggestion)} onSelect={handleSuggestionSelect}/>*/}
   </div>;
 }

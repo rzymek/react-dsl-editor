@@ -1,15 +1,15 @@
-import { sequence } from './sequence';
-import { describe, expect, it } from 'vitest';
-import { term } from '../composite/term';
+import {sequence} from './sequence';
+import {describe, expect, it} from 'vitest';
+import {term} from '../composite/term';
 import {
   asException,
   isParserError,
   isParserSuccess,
-  NodeTypes, ParserContext,
+  NodeTypes,
+  ParserContext,
   ParserError,
   ParserSuccess,
 } from '../../types';
-import { identity } from 'remeda';
 
 const context: ParserContext = {
   depth: 0,
