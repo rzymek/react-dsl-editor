@@ -1,9 +1,10 @@
-import { getSuggestions } from './getSuggestions';
-import { describe, expect, it, vi } from 'vitest';
-import { funcParser } from '../example/funcParser';
-import { CSTOf, GrammarNode, NodeTypes } from '../parser/types';
-import { DSLParser } from '../parser';
+import {getSuggestions} from './getSuggestions';
+import {describe, expect, it, vi} from 'vitest';
+import {funcParser} from '../example/funcParser';
+import {CSTOf, GrammarNode, NodeTypes} from '../parser/types';
+import {DSLParser} from '../parser';
 import {projectDsl} from "../example/projectsDsl";
+
 const parser = new DSLParser(funcParser);
 
 function funcSyntax(code: string) {
@@ -136,6 +137,15 @@ projects:
         // then
         expect(suggestions).toEqual(expect.arrayContaining([
           '+', '0',
+        ]));
+      });
+      it('display:\n total: |h:m', () => {
+        const {cst, cursorPositon} = parseTestName(projectDsl);
+        // when
+        const suggestions = getSuggestions(cst, cursorPositon, () => undefined);
+        // then
+        expect(suggestions.map(it=>it.suggestion)).toEqual(expect.arrayContaining([
+          "h:m","h.m"
         ]));
       });
     });

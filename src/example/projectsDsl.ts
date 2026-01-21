@@ -17,7 +17,7 @@ export const displayConfig = sequence(
   term('display:'), newLine,
   alternative(
     sequence(
-      requiredWS, term('total:'), ws, term('h:m'), newLine,
+      requiredWS, term('total:'), ws, alternative(term('h:m'),term('h.m')), newLine,
     ),
   ),
 );

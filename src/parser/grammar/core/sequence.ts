@@ -30,21 +30,22 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         const rest = text.substring(offset);
         const result = node.parse(rest, context);
         if (isParserError(result)) {
-          const faultToleranceMode = context.faultToleranceMode(grammar, context);
-          if (faultToleranceMode.includes('skip-parser')) {
-            results.push(recoverableError('error:missing-input', ''));
-            continue;
-          } else if (faultToleranceMode.includes('skip-input')) {
-            const recovery = recoverableError<T>('error:unexpected-input', rest);
-            results.push(recovery);
-            offset += recovery.text.length;
-            if (offset >= text.length) {
-              return {...result, offset: result.offset + offset};
+          const error = {...result, offset: result.offset + offset}
+            const faultToleranceMode = context.faultToleranceMode(grammar, context);
+            if (faultToleranceMode.includes('skip-parser')) {
+              results.push(recoverableError(node.type, ''));
+              continue;
+            } else if (faultToleranceMode.includes('skip-input')) {
+              const recovery = recoverableError<T>(node.type, rest);
+              results.push(recovery);
+              offset += recovery.text.length;
+              if (offset >= text.length) {
+                return error;
+              }
+              i--;
+              continue;
             }
-            i--;
-            continue;
-          }
-          return {...result, offset: result.offset + offset};
+            return error;
         }
         offset += result.text.length;
         results.push(result);

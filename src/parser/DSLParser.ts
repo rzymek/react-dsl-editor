@@ -74,9 +74,9 @@ export class DSLParser<T extends string> {
     let faultTolerantResult = parserResult;
     if (isParserError(parserResult)) {
       const modes: ParserContext['faultToleranceMode'][] = [
-        (_grammarNode, context) =>
-          context.depth / maxDepth > 0.75 ? [] : ['skip-input', 'skip-parser', 'partial-match'],
-        () => ['partial-match'],
+        // (_grammarNode, context) =>
+        //   context.depth / maxDepth > 0.75 ? [] : ['skip-input', 'skip-parser', 'partial-match'],
+        () => ['partial-match', 'skip-parser','skip-input','fuzzy-match'],
         // () => ['skip-input'],
         // () => ['skip-parser'],
         // () => ['skip-parser', 'skip-input', 'fuzzy-match', 'partial-match'],
@@ -84,7 +84,7 @@ export class DSLParser<T extends string> {
       faultTolerantResult = pipe(
         modes,
         map(mode => {
-          console.log('=== fault tollerance: ', mode(this.grammar, {
+          console.log('=== fault tolerance: ', mode(this.grammar, {
             depth: 0,
             faultToleranceMode: mode,
           }))
