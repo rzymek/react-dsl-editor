@@ -3,7 +3,7 @@ import {pattern} from '../parser/grammar/core/pattern';
 import {sequence} from '../parser/grammar/core/sequence';
 import {alternative} from '../parser/grammar/core/alternative';
 import {term} from '../parser/grammar/composite/term';
-import {eof} from '../parser/grammar/core/eof';
+import {eof} from '../parser/grammar/composite/eof';
 import {repeat} from '../parser/grammar/core/repeat';
 import {named} from '../parser/grammar/core/named';
 
@@ -13,14 +13,10 @@ const ws = optional(requiredWS);
 // const newLine = named('newline',sequence(ws, alternative(pattern(/\n/), eof)));
 const newLine = alternative(pattern(/\n/), eof);
 const comment = pattern(/#[^#\n]*\n/);
-const displayTotal = named("display.total",alternative(term('h:m'),term('h.m')));
+const displayTotal = named("display.total", alternative(term('h:m'), term('h.m')));
 export const displayConfig = sequence(
   term('display:'), newLine,
-  alternative(
-    sequence(
-      requiredWS, term('total:'), ws, displayTotal, newLine,
-    ),
-  ),
+  requiredWS, term('total:'), ws, displayTotal, newLine,
 );
 const grammar = repeat(
   alternative(
@@ -37,4 +33,4 @@ const grammar = repeat(
   ),
 );
 
-export const projectDsl = sequence(grammar, eof);
+export const projectDsl = grammar;

@@ -90,7 +90,6 @@ export function DslEditor<T extends string>(
   const [suggestionIndex, setSuggestionIndex] = useState(0);
   const [cursorText, setCursorText] = useState('');
 
-  const parser = useRef<DSLParser<T>>(null);
   const textarea = useRef<HTMLTextAreaElement>(null);
   const cursor = useRef<CursorPositionHandle>(null);
   const highlighter = useRef<HTMLPreElement>(null);
@@ -111,19 +110,13 @@ export function DslEditor<T extends string>(
   }, [parserResult]);
 
   useEffect(() => {
-    parser.current = new DSLParser(grammar);
-  }, [grammar]);
-
-  useEffect(() => {
-    if (!parser.current) {
-      return;
-    }
-    const result = parser.current.parse(code);
+    const result = new DSLParser(grammar).parse(code);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setParserResult(result);
     onParsed?.(result);
     updateSuggestionsForSyntax(result.cst);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
-  }, [code, onParsed, updateSuggestionsForSyntax]);
+  }, [code, onParsed, grammar, updateSuggestionsForSyntax]);
 
   const getCursorCoordinates = useCallback(() =>
     cursor.current?.getCursorPosition?.() ?? {top: 0, left: 0}, []);

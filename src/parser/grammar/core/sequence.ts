@@ -1,5 +1,4 @@
-import {GrammarNode, isParserError, ParserSuccess, success} from '../../types';
-import {recoverableError} from './recoverableErrorNode';
+import {error, GrammarNode, isParserError, ParserContext, ParserSuccess, success} from '../../types';
 
 export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
@@ -17,9 +16,9 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
       return result;
     },
     parse(text, _context) {
-      const context = {
+      const context:ParserContext<T> = {
         ..._context,
-        depth: _context.depth + 1,
+        path: [..._context.path, grammar],
       };
 
       let offset = 0;
@@ -29,22 +28,10 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         const rest = text.substring(offset);
         const result = node.parse(rest, context);
         if (isParserError(result)) {
-          const error = {...result, offset: result.offset + offset}
-            const faultToleranceMode = context.faultToleranceMode(grammar, context);
-            if (faultToleranceMode.includes('skip-parser')) {
-              results.push(recoverableError(node.type, ''));
-              continue;
-            } else if (faultToleranceMode.includes('skip-input')) {
-              const recovery = recoverableError<T>(node.type, rest);
-              results.push(recovery);
-              offset += recovery.text.length;
-              if (offset >= text.length) {
-                return error;
-              }
-              i--;
-              continue;
-            }
-            return error;
+          return error({
+            ...result,
+            offset: result.offset + offset,
+          });
         }
         offset += result.text.length;
         results.push(result);

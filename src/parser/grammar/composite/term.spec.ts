@@ -1,11 +1,7 @@
 import {describe, expect, it} from 'vitest';
 import {term} from './term';
-import {asException, isParserError, isParserSuccess, ParserContext} from '../../types';
-
-const context: ParserContext = {
-  depth: 0,
-  faultToleranceMode:()=>[]
-};
+import {asException, isParserError, isParserSuccess} from '../../types';
+import {strictInitialContext} from "../core/strictInitialContext";
 
 describe('term', () => {
   it('suggestions', () => {
@@ -15,7 +11,7 @@ describe('term', () => {
   it('should parse term', () => {
     const terminal = 'abc';
     const parser = term(terminal).parse;
-    const result = parser(terminal, context);
+    const result = parser(terminal, strictInitialContext);
     if (isParserError(result)) {
       throw asException(result);
     }
@@ -25,7 +21,7 @@ describe('term', () => {
 
   it('should ignore extra', () => {
     const parser = term('abc').parse;
-    const result = parser('abcdef', context);
+    const result = parser('abcdef', strictInitialContext);
     if (isParserError(result)) {
       throw asException(result);
     }
@@ -36,7 +32,7 @@ describe('term', () => {
   it('should reject not matching', () => {
     const grammar = term('abc');
     const parser = grammar.parse;
-    const result = parser('def', context);
+    const result = parser('def', strictInitialContext);
 
     expect(isParserError(result)).toBe(true);
     if (isParserSuccess(result)) {

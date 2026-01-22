@@ -1,5 +1,6 @@
 import {
   asException,
+  error,
   GrammarNode,
   isParserError,
   isParserSuccess,
@@ -7,13 +8,14 @@ import {
   ParserError,
   ParserResult,
   ParserSuccess,
+  success,
 } from './types';
 import {CSTNode} from './CSTNode';
-import {filter, firstBy, isEmpty, map, pipe} from 'remeda';
-import {eof, sequence} from "./grammar/core";
-import {totalErrorsLength} from "./totalErrorsLength";
+import {isEmpty} from 'remeda';
+import {sequence} from "./grammar/core";
 import {getErrors} from "./getErrors";
 import {withOffset} from "./withOffset";
+import {eof} from "./grammar/composite/eof";
 
 function _flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
   if (result.children && !isEmpty(result.children)) {
@@ -59,47 +61,77 @@ export class DSLParser<T extends string> {
   private readonly grammar: GrammarNode<T>;
 
   constructor(grammar: GrammarNode<T>) {
-    this.grammar = sequence(grammar, eof);
+    this.grammar = sequence(grammar, eof, trailingInput);
+  }
+
+  private _parseStrict(input: string) {
+    let deepestErrorPath: GrammarNode<T>[] = [];
+    const parserResult = this.grammar.parse(input, {
+      path: [],
+      handleTerminalError(text: string, context: ParserContext<T>, grammar: GrammarNode<T>) {
+        const path = [...context.path, grammar];
+        if (deepestErrorPath.length < path.length) {
+          deepestErrorPath = path;
+        }
+        return error({
+          grammar,
+          offset: 0,
+          expected: grammar.suggestions(),
+          got: text,
+          path,
+        })
+      }
+    });
+    return {
+      deepestErrorPath,
+      parserResult
+    }
+  }
+
+  public parseStrict(input: string):ParserSuccess<T>|undefined {
+    const {parserResult} = this._parseStrict(input)
+    if(isParserError(parserResult)) {
+      return undefined;
+    }
+    return parserResult;
   }
 
   public parse(input: string): DSL<T> {
-    let maxDepth = 0;
-    const parserResult = this.grammar.parse(input, {
-      depth: 1,
-      faultToleranceMode: (_, context) => {
-        maxDepth = Math.max(maxDepth, context.depth);
-        return [];
-      },
-    });
+    const {parserResult, deepestErrorPath} = this._parseStrict(input);
     let faultTolerantResult = parserResult;
-    if (isParserError(parserResult)) {
-      const modes: ParserContext['faultToleranceMode'][] = [
-        // (_grammarNode, context) =>
-        //   context.depth / maxDepth > 0.75 ? [] : ['skip-input', 'skip-parser', 'partial-match'],
-        () => ['partial-match', 'skip-parser','skip-input','fuzzy-match'],
-        // () => ['skip-input'],
-        // () => ['skip-parser'],
-        // () => ['skip-parser', 'skip-input', 'fuzzy-match', 'partial-match'],
-      ];
-      faultTolerantResult = pipe(
-        modes,
-        map(mode => {
-          // console.log('=== fault tolerance: ', mode(this.grammar, {
-          //   depth: 0,
-          //   faultToleranceMode: mode,
-          // }))
-          return this.grammar.parse(input, {
-            depth: 0,
-            faultToleranceMode: mode,
-          });
-        }),
-        filter(isParserSuccess),
-        firstBy(result => {
-          const weight = isParserSuccess(result) ? totalErrorsLength(result) : Infinity;
-          // console.log({weight})
-          return weight;
-        })
-      ) ?? parserResult;
+    const fixPaths: string[] = [pathToString(deepestErrorPath)];
+    let limit = 20;
+    while (limit-- > 0 && (isParserError(faultTolerantResult))) {
+      let deepestErrorPath2: GrammarNode<T>[] = [];
+      // console.log(limit, isParserError(faultTolerantResult) ? asException(faultTolerantResult).message : 'empty');
+      faultTolerantResult = this.grammar.parse(input, {
+        path: [],
+        handleTerminalError(text: string, context: ParserContext<T>, grammar: GrammarNode<T>) {
+          const strPath = pathToString([...context.path, grammar])
+          if (fixPaths.includes(strPath)) {
+            return success({
+              text: text[0] ?? '',
+              grammar,
+              children: [],
+              recoverableError: true,
+            })
+          } else {
+            const path = [...context.path, grammar];
+            if (deepestErrorPath2.length < path.length) {
+              deepestErrorPath2 = path;
+            }
+            return error({
+              grammar: grammar as GrammarNode<T>,
+              offset: 0,
+              expected: grammar.suggestions(),
+              got: text,
+              path: context.path,
+            })
+          }
+        }
+      });
+
+      fixPaths.push(pathToString(deepestErrorPath2));
     }
     if (isParserError(faultTolerantResult)) {
       throw asException(parserResult as ParserError<T>);
@@ -121,3 +153,15 @@ export class DSLParser<T extends string> {
   }
 }
 
+function pathToString(v: GrammarNode<string>[]) {
+  return v.map(it =>
+    `${it.type}${it.meta?.regex?.toString() ?? ''}`
+  ).join('/')
+}
+
+const trailingInput: GrammarNode = {
+  children: [],
+  parse: text => success({children: [], grammar: trailingInput, text}),
+  type: 'trailing-input' as never,
+  suggestions: () => [],
+}

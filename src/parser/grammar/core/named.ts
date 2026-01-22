@@ -8,7 +8,7 @@ export function named<T extends string, K extends string>(name: T, child: Gramma
       return child.suggestions()
     },
     children: [child],
-    parse(text: string, context: ParserContext) {
+    parse(text: string, context: ParserContext<K>) {
       const parse = child.parse(text, context);
       if (isParserError(parse)) {
         return parse;
@@ -23,6 +23,6 @@ export function named<T extends string, K extends string>(name: T, child: Gramma
   return grammar;
 }
 
-export function nodeName<T extends string>(node: { grammar:GrammarNode<T> }): T | undefined {
+export function nodeName<T extends string>(node: { grammar: GrammarNode<T> }): T | undefined {
   return node.grammar.meta?.name as T;
 }

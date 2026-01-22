@@ -58,7 +58,7 @@ describe('suggestions', () => {
   }
 
   describe('suggestionsFromErrors', () => {
-    describe.skip('should return all ast node types at position', () => {
+    describe('should return all ast node types at position', () => {
       it('fun f1{1+1} f|', () => {
         // given
         const {cst, cursorPositon} = parseTestName(funcParser);
@@ -144,9 +144,9 @@ projects:
         // when
         const suggestions = getSuggestions(cst, cursorPositon, () => undefined);
         // then
-        expect(suggestions.map(it=>it.suggestion)).toEqual(expect.arrayContaining([
-          "h:m","h.m"
-        ]));
+        expect(suggestions.map(it => it.suggestion)).toEqual([
+          "h:m", "h.m"
+        ]);
       });
     });
   });

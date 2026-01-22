@@ -1,9 +1,10 @@
-import { range } from 'remeda';
-import { pattern } from '../parser/grammar/core/pattern';
-import { repeat } from '../parser/grammar/core/repeat';
-import { sequence } from '../parser/grammar/core/sequence';
-import { term } from '../parser/grammar/composite/term';
-import { eof, GrammarNode, named } from '../parser';
+import {range} from 'remeda';
+import {pattern} from '../parser/grammar/core/pattern';
+import {repeat} from '../parser/grammar/core/repeat';
+import {sequence} from '../parser/grammar/core/sequence';
+import {term} from '../parser/grammar/composite/term';
+import {GrammarNode, named} from '../parser';
+import { eof } from "../parser/grammar/composite/eof";
 
 export function timesheet() {
   const hour = pattern(/[0-9]{1,2}:[0-9]{2}/);

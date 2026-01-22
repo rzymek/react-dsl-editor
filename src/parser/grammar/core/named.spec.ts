@@ -1,17 +1,15 @@
-import { named } from './named';
-import { describe, expect, it } from 'vitest';
-import { anyString } from 'any-toolkit-vitest';
-import { pattern } from './pattern';
-import { asException, isParserError, ParserContext } from '../../types';
-
-const context: ParserContext = {
-};
+import {named} from './named';
+import {describe, expect, it} from 'vitest';
+import {anyString} from 'any-toolkit-vitest';
+import {pattern} from './pattern';
+import {asException, isParserError} from '../../types';
+import {strictInitialContext} from "./strictInitialContext";
 
 describe('named', () => {
   it('should', () => {
     const name = anyString();
     const grammar = named(name, pattern(/abc/));
-    const result = grammar.parse('abc', context);
+    const result = grammar.parse('abc', strictInitialContext);
     if (isParserError(result)) {
       throw asException(result);
     }

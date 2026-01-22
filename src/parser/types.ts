@@ -3,15 +3,15 @@ import { CSTNode } from './CSTNode';
 
 export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'fuzzy-match' | 'partial-match';
 
-export interface ParserContext {
-  depth: number;
-  faultToleranceMode: (grammarNode: GrammarNode<string>, context: ParserContext) => FaultToleranceMode[];
+export interface ParserContext<T extends string> {
+  path: GrammarNode<T>[],
+  handleTerminalError(text: string, context: ParserContext<T>, grammar: GrammarNode<T>): ParserResult<T>;
 }
 
 export interface GrammarNode<T extends string = never> {
   type: T;
   suggestions(): string[];
-  parse(text: string, context: ParserContext): ParserResult<T>;
+  parse(text: string, context: ParserContext<T>): ParserResult<T>;
   children: GrammarNode<T>[];
   meta?: Record<string, unknown>;
 }
@@ -28,6 +28,7 @@ export interface ParserError<T extends string = never> {
   got: string;
   expected: string[],
   offset: number;
+  path: GrammarNode<T>[]
 }
 
 export type ParserResult<T extends string = never> = ParserSuccess<T> | ParserError<T>;

@@ -5,11 +5,11 @@ export function optional<T extends string>(child: GrammarNode<T>) {
     type: 'optional' as T,
     suggestions: () => ['', ...child.suggestions()],
     children: [child],
-    parse(text: string, _context: ParserContext) {
-      const context = {
+    parse(text: string, _context: ParserContext<T>) {
+      const context:ParserContext<T> = {
         ..._context,
-        depth: _context.depth + 1,
-      }
+        path: [..._context.path, grammar],
+      };
       const result = child.parse(text, context);
       if (isParserError(result)) {
         return success({text: '', grammar, children: []});

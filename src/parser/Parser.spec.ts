@@ -4,7 +4,6 @@ import {funcParser} from '../example/funcParser';
 import {projectDsl} from '../example/projectsDsl';
 import dedent from 'string-dedent';
 import {timesheet} from '../example/timesheet';
-import {writeFile} from 'node:fs/promises';
 import {named, optional, pattern, repeat, sequence} from './grammar/core';
 import {term} from './grammar/composite';
 
@@ -49,11 +48,25 @@ describe('Parser', () => {
     const parser = new DSLParser(projectDsl);
     // when
     const src = dedent`
+      display:
+        total: h.
       projects:
         proj1
         proj2
-      display:
-        total: h.
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+    // expect(result.errors).toEqual([]);
+  });
+  it('empty grammar', () => {
+    // given
+    const parser = new DSLParser(sequence());
+    // when
+    const src = dedent`
+      projects:
+        proj1
+        proj2
     `;
     const result = parser.parse(src);
     // then
@@ -83,7 +96,6 @@ describe('Parser', () => {
       
     `;
     const result = parser.parse(src);
-    await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');
     // then
     expect(asText(result)).toEqual(src);
   });
@@ -97,7 +109,6 @@ describe('Parser', () => {
       3 00:05-c-00:06
     `;
     const result = parser.parse(src);
-    await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');
     // then
     expect(asText(result)).toEqual(src);
   });
@@ -120,7 +131,6 @@ describe('Parser', () => {
       10:00-a-11:00x
     `;
     const result = parser.parse(src);
-    await writeFile('timesheet.json', JSON.stringify(result.cst, null, 2), 'utf-8');
 
     // then
     expect(asText(result)).toEqual(src);
