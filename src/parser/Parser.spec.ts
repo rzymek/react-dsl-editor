@@ -4,8 +4,8 @@ import {funcParser} from '../example/funcParser';
 import {projectDsl} from '../example/projectsDsl';
 import dedent from 'string-dedent';
 import {timesheet} from '../example/timesheet';
-import {named, nodeName, optional, pattern, repeat, sequence} from './grammar/core';
-import {term} from './grammar/composite';
+import {named, nodeName, pattern, repeat, sequence} from './grammar/core';
+import {optional, term} from './grammar/composite';
 import {visitPredicate} from "./visit";
 import {ParserSuccess} from "./types";
 
@@ -108,6 +108,25 @@ describe('Parser', () => {
       it => `${nodeName(it)}: ${it.text}`)
       .join('\n')
   }
+  it('project config: ok3', () => {
+    // given
+    const parser = new DSLParser(projectDsl);
+    // when
+    const src = dedent`
+      projects:
+        proj1
+      display:
+        total: h:m
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+    expect(result.errors).toEqual([]);
+    expect(projectSettingsValues(result.result)).toEqual(dedent`
+      project: proj1
+      display.total: h:m
+    `)
+  });
 
   it('project config: ok2', () => {
     // given

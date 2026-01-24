@@ -1,5 +1,14 @@
-import {filter, firstBy, pipe} from "remeda";
 import {error, GrammarNode, isParserError, ParserContext, ParserError, ParserSuccess, success} from '../../types';
+import {pickFromErrorLabels} from "./pickFromErrorLabels";
+import {getCommonPrefix} from "../../getCommonPrefix";
+
+function isTotalFailureErrorLabel(result: ParserSuccess<string>) {
+  if(!result.errorLabel) {
+    return false;
+  }
+  const prefix = getCommonPrefix(result.text, result.errorLabel.got)
+  return prefix.length >= result.text.length/2;
+}
 
 export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1000): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
@@ -17,7 +26,7 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
       for (; i < max && offset < text.length; i++) {
         const currentText = text.substring(offset);
         const result = child.parse(currentText, context);
-        if (isParserError(result)) {
+        if (isParserError(result) || isTotalFailureErrorLabel(result)) {
           if (i >= min) {
             return success({
               grammar,
@@ -25,7 +34,8 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
               text: text.substring(0, offset),
             });
           } else {
-            const error: ParserError<T> = {...result, offset};
+            const err = isParserError(result) ? result : result.errorLabel!
+            const error: ParserError<T> =  {...err, offset};
             return error;
           }
         }
@@ -43,10 +53,7 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
           offset,
           path: context.path
         })
-        : pipe(children,
-          filter(it => it.errorLabel !== undefined),
-          firstBy(it => it.text.length)
-        )?.errorLabel
+        : pickFromErrorLabels(children)?.errorLabel
       return success({
         grammar,
         children,

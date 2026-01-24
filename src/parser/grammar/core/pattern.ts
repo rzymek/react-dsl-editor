@@ -1,6 +1,7 @@
 import RandExp from 'randexp';
 import {map, pipe, range, unique} from 'remeda';
 import {error, GrammarNode, ParserResult, success} from '../../types';
+import {indexOf} from "./indexOf";
 
 export function pattern(regex: RegExp) {
   const rangexp = new RandExp(regex);
@@ -30,7 +31,7 @@ export function pattern(regex: RegExp) {
       } else {
         return error({
           path: context.path,
-          got: text,
+          got: text.substring(0, indexOf(text,'\n')),
           expected: grammar.suggestions(),
           offset: 0,
           grammar,

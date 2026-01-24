@@ -1,4 +1,4 @@
 import { pattern } from '../core/pattern';
-import { optional } from '../core/optional';
+import {optional} from "./optional";
 
 export const ws = optional(pattern(/\s+/))

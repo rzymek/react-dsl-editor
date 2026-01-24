@@ -1,5 +1,5 @@
 import {GrammarNode} from '../../types';
-import {repeat} from "./repeat";
+import {repeat} from "../core/repeat";
 
 export function optional<T extends string>(child: GrammarNode<T>) {
   return repeat(child,0,1)

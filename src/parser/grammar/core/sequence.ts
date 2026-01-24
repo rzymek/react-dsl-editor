@@ -1,11 +1,7 @@
-import {filter, firstBy, pipe} from "remeda";
 import {error, GrammarNode, isParserError, ParserContext, ParserSuccess, success} from '../../types';
 import {newline} from "../composite";
-
-function indexOf(text: string, needle: string, offset: number,) {
-  const idx = text.indexOf(needle, offset);
-  return (idx >= 0 ? idx : text.length);
-}
+import {indexOf} from "./indexOf";
+import {pickFromErrorLabels} from "./pickFromErrorLabels";
 
 function findIndex(nodes: GrammarNode<string>[], start: number, predicate: (it: GrammarNode<string>) => boolean) {
   for (let i = start; i < nodes.length; i++) {
@@ -71,10 +67,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         grammar: grammar,
         text: text.substring(0, offset),
         children: results,
-        errorLabel: pipe(results,
-          filter(it => it.errorLabel !== undefined),
-          firstBy(it => it.text.length)
-        )?.errorLabel
+        errorLabel: pickFromErrorLabels(results)?.errorLabel
       });
     },
   };
