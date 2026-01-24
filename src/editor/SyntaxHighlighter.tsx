@@ -1,10 +1,10 @@
-import { CSSProperties, Ref } from 'react';
-import { ReadOnlyTextarea } from './ReadOnlyTextarea';
-import { isEmpty } from 'remeda';
-import { CSTNode } from '../parser/CSTNode';
-import { DSLError } from '../parser';
-import { disjointIntervals } from './disjointIntervals';
-import { decorateIntervals } from './DecorateIntervals';
+import {CSSProperties, Ref} from 'react';
+import {ReadOnlyTextarea} from './ReadOnlyTextarea';
+import {isEmpty} from 'remeda';
+import {CSTNode} from '../parser/CSTNode';
+import {DSLError} from '../parser';
+import {disjointIntervals} from './disjointIntervals';
+import {decorateIntervals} from './DecorateIntervals';
 
 const squiggly: CSSProperties = {
   textDecorationLine: 'underline',
@@ -42,6 +42,9 @@ export function ErrorHighlighter({ref, wrap, errors, children}: {
 
 function StyledNode(props: { node: CSTNode<string>, styleFor: SyntaxColorsProvider }) {
   const style = props.styleFor(props.node);
+  if (isEmpty(props.node.children ?? []) && isEmpty(props.node.text)) {
+    return null;
+  }
   return <span style={style}
                data-node={props.node.grammar.type}
                data-node-error={props.node.recoverableError}
