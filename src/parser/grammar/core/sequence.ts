@@ -1,4 +1,20 @@
+import {filter, firstBy, pipe} from "remeda";
 import {error, GrammarNode, isParserError, ParserContext, ParserSuccess, success} from '../../types';
+import {newline} from "../composite";
+
+function indexOf(text: string, needle: string, offset: number,) {
+  const idx = text.indexOf(needle, offset);
+  return (idx >= 0 ? idx : text.length);
+}
+
+function findIndex(nodes: GrammarNode<string>[], start: number, predicate: (it: GrammarNode<string>) => boolean) {
+  for (let i = start; i < nodes.length; i++) {
+    if (predicate(nodes[i])) {
+      return i;
+    }
+  }
+  return -1;
+}
 
 export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
@@ -16,7 +32,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
       return result;
     },
     parse(text, _context) {
-      const context:ParserContext<T> = {
+      const context: ParserContext<T> = {
         ..._context,
         path: [..._context.path, grammar],
       };
@@ -28,10 +44,25 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         const rest = text.substring(offset);
         const result = node.parse(rest, context);
         if (isParserError(result)) {
-          return error({
+          const err = error({
             ...result,
             offset: result.offset + offset,
           });
+          const newlineGrammarIndex = findIndex(nodes, i, it => it.type === newline.type);
+          if (newlineGrammarIndex >= 0) {
+            const newlineTextIndex = indexOf(text, '\n', offset);
+            const text1 = text.substring(offset, newlineGrammarIndex === i ? newlineTextIndex + 1 : newlineTextIndex);
+            results.push({
+              text: text1,
+              grammar: result.grammar,
+              children: [],
+              errorLabel: err
+            })
+            offset += text1.length;
+            i = newlineGrammarIndex - 1;
+            continue;
+          }
+          return err;
         }
         offset += result.text.length;
         results.push(result);
@@ -40,6 +71,10 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         grammar: grammar,
         text: text.substring(0, offset),
         children: results,
+        errorLabel: pipe(results,
+          filter(it => it.errorLabel !== undefined),
+          firstBy(it => it.text.length)
+        )?.errorLabel
       });
     },
   };

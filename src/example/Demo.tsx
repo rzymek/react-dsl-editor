@@ -2,7 +2,7 @@ import {DslEditor} from '../editor/DslEditor';
 import './Demo.css';
 import {useState} from 'react';
 import dedent from 'string-dedent';
-import {CSTOf, DSL, nodeName} from '../parser';
+import {CSTOf, DSL, nodeName, visitPredicate} from '../parser';
 import {projectDsl} from './projectsDsl';
 
 // const {grammar} = timesheet();
@@ -10,8 +10,8 @@ import {projectDsl} from './projectsDsl';
 const grammar = projectDsl;
 
 function suggestions(node: CSTOf<typeof projectDsl>): string[] {
-  if(nodeName(node) === 'project') {
-    return ['proj1',"proj2"]
+  if (nodeName(node) === 'project') {
+    return ['proj1', "proj2"]
   }
   return [];
 }
@@ -30,7 +30,7 @@ function Demo() {
     <label><input type="checkbox" checked={wrap} onChange={e => setWrap(e.currentTarget.checked)}/>wrap</label>
 
     <div style={{
-      minHeight: '100vh', display: 'grid', gridTemplateColumns: '1fr',
+      minHeight: '100vh', display: 'grid', gridTemplateRows: '1fr 1fr',
       backgroundColor: !output ? '#ffebeb' : undefined
     }}>
       <DslEditor
@@ -40,6 +40,11 @@ function Demo() {
         grammar={grammar}
         suggestions={suggestions}
         onParsed={setOutput}/>
+      <pre>
+        {output?.result && visitPredicate(output.result,
+          it => !!nodeName(it),
+          it => `${nodeName(it)}: ${it.text}`).join('\n')}
+      </pre>
     </div>
   </div>;
 }

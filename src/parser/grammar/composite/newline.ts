@@ -1,5 +1,4 @@
-import {alternative, pattern} from "../core";
-import {eof} from "./eof";
+import {pattern} from "../core";
 
-export const newline = alternative(pattern(/\n/), eof);
+export const newline = pattern(/\n+|$/);
 newline.type='newline' as never;

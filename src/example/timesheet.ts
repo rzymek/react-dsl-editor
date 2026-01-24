@@ -3,8 +3,8 @@ import {pattern} from '../parser/grammar/core/pattern';
 import {repeat} from '../parser/grammar/core/repeat';
 import {sequence} from '../parser/grammar/core/sequence';
 import {term} from '../parser/grammar/composite/term';
-import {GrammarNode, named} from '../parser';
-import { eof } from "../parser/grammar/composite/eof";
+import {GrammarNode, named, newline} from '../parser';
+import {eof} from "../parser/grammar/composite/eof";
 
 export function timesheet() {
   const hour = pattern(/[0-9]{1,2}:[0-9]{2}/);
@@ -21,14 +21,11 @@ export function timesheet() {
       startSegment,
       named('end', hour),
     ), 1),
-    pattern(/\n+/),
+    newline,
   );
-  line.meta = {debugName:'line'}
-  startSegment.meta = {debugName:'startSegment'}
-  const grammar = sequence(
-    repeat(
-      named('line', line)),
-    eof);
+  line.meta = {debugName: 'line'}
+  startSegment.meta = {debugName: 'startSegment'}
+  const grammar = repeat(named('line', line));
 
   function suggest(type: string) {
     if (type === 'month') {

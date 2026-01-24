@@ -4,8 +4,10 @@ import {funcParser} from '../example/funcParser';
 import {projectDsl} from '../example/projectsDsl';
 import dedent from 'string-dedent';
 import {timesheet} from '../example/timesheet';
-import {named, optional, pattern, repeat, sequence} from './grammar/core';
+import {named, nodeName, optional, pattern, repeat, sequence} from './grammar/core';
 import {term} from './grammar/composite';
+import {visitPredicate} from "./visit";
+import {ParserSuccess} from "./types";
 
 function asText(result: DSL<string>): string {
   return result.terminals.map(it => it.text).join('');
@@ -30,6 +32,22 @@ describe('Parser', () => {
     // then
     expect(asText(result)).toEqual(src);
   });
+  it('abca',()=>{
+    // given
+    const parser = new DSLParser(repeat(term('abc')));
+    // when
+    const src = dedent`
+      abcx
+      
+       
+      
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+    expect(result.errors).toEqual([]);
+
+  });
   it('should report unexpected trailing input as error (projectDsl)', () => {
     // given
     const parser = new DSLParser(projectDsl);
@@ -43,7 +61,7 @@ describe('Parser', () => {
     // then
     expect(asText(result)).toEqual(src);
   });
-  it('project config', () => {
+  it('project config: h.', () => {
     // given
     const parser = new DSLParser(projectDsl);
     // when
@@ -57,7 +75,60 @@ describe('Parser', () => {
     const result = parser.parse(src);
     // then
     expect(asText(result)).toEqual(src);
-    // expect(result.errors).toEqual([]);
+    expect(result.errors).toEqual([]);
+    expect(projectSettingsValues(result.result)).toEqual(dedent`
+      project: proj1
+      project: proj2
+    `)
+  });
+  it('project config: ok1', () => {
+    // given
+    const parser = new DSLParser(projectDsl);
+    // when
+    const src = dedent`
+      display:
+        total: h:m
+      projects:
+        proj1
+        proj2
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+    expect(result.errors).toEqual([]);
+    expect(projectSettingsValues(result.result)).toEqual(dedent`
+      display.total: h:m
+      project: proj1
+      project: proj2
+    `)
+  });
+
+  function projectSettingsValues(output: ParserSuccess<string>) {
+    return visitPredicate(output, it => !!nodeName(it),
+      it => `${nodeName(it)}: ${it.text}`)
+      .join('\n')
+  }
+
+  it('project config: ok2', () => {
+    // given
+    const parser = new DSLParser(projectDsl);
+    // when
+    const src = dedent`
+      projects:
+        proj1
+        proj2
+      display:
+        total: h:m
+    `;
+    const result = parser.parse(src);
+    // then
+    expect(asText(result)).toEqual(src);
+    expect(result.errors).toEqual([]);
+    expect(projectSettingsValues(result.result)).toEqual(dedent`
+      project: proj1
+      project: proj2
+      display.total: h:m
+    `)
   });
   it('empty grammar', () => {
     // given

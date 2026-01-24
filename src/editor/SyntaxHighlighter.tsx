@@ -48,7 +48,12 @@ function StyledNode(props: { node: CSTNode<string>, styleFor: SyntaxColorsProvid
   return <span style={style}
                data-node={props.node.grammar.type}
                data-node-error={props.node.recoverableError}
-               data-node-meta={props.node.grammar.meta ? JSON.stringify(props.node.grammar.meta) : undefined}
+               data-node-meta={props.node.grammar.meta ? JSON.stringify(props.node.grammar.meta, function(key,value){
+                 if(value instanceof RegExp) {
+                   return value.toString()
+                 }
+                 return value;
+               }) : undefined}
   >{
     isEmpty(props.node.children ?? [])
       ? props.node.text

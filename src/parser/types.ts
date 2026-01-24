@@ -1,5 +1,6 @@
 import { ParsingError } from './ParsingError';
 import { CSTNode } from './CSTNode';
+import {pathToString} from "./pathToString";
 
 export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'fuzzy-match' | 'partial-match';
 
@@ -20,7 +21,7 @@ export interface ParserSuccess<T extends string = never> {
   text: string;
   grammar: GrammarNode<T>,
   children: ParserSuccess<T>[],
-  recoverableError?: boolean
+  errorLabel?:ParserError<T>
 }
 
 export interface ParserError<T extends string = never> {
@@ -50,7 +51,9 @@ export function isParserSuccess<T extends string>(result: ParserResult<T>): resu
 }
 
 export function asException<T extends string>(error: ParserError<T>) {
-  return new ParsingError(`[${error.grammar.type}]: Expected ${error.expected.map(it => `'${it}'`).join(' | ')}, but got '${error.got}'`);
+  return new ParsingError(`[${error.grammar.type}]: Expected ${error.expected.map(it => JSON.stringify(it)).join(' | ')}, but got '${error.got}' (${
+    pathToString([...error.path, error.grammar])
+  })`);
 }
 
 type _NodeTypes<T> = T extends GrammarNode<infer U> ? U : never;

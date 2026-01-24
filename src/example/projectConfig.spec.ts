@@ -24,6 +24,7 @@ describe('projectConfigDsl', () => {
     expect.soft(cstPathAt(cst, cursor).map(it => `${it.grammar.type} ${it.grammar.meta?.name ?? ''}`.trim())).toEqual([
       'sequence',
       'sequence',
+      'sequence',
       'repeat',
       'alternative',
       'sequence',

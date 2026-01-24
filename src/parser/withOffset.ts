@@ -13,6 +13,6 @@ export function withOffset<T extends string>(parserResult: ParserSuccess<T>, off
       return withOffset(it, childOffset);
     }),
     grammar: parserResult.grammar,
-    recoverableError: parserResult.recoverableError ?? false,
+    recoverableError: !!parserResult.errorLabel
   } satisfies CSTNode<T>;
 }

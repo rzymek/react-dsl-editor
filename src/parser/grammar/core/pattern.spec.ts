@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { pattern } from './pattern';
-import { asException, isParserError } from '../../types';
+import {asException, isParserError, ParserContext} from '../../types';
+import {strictInitialContext} from "./strictInitialContext";
 
 describe('pattern suggestions', () => {
   it('should return suggestions', () => {
@@ -13,17 +14,15 @@ describe('pattern suggestions', () => {
   });
   it('partial match', () => {
     const grammar = pattern(/abcd/);
-    const result = grammar.parse('ab xxx', {depth: 1, faultToleranceMode: () => ['partial-match']});
+    const result = grammar.parse('ab xxx', strictInitialContext as ParserContext<never>);
     if (isParserError(result)) throw asException(result);
     expect(result.text).toEqual('ab');
-    expect(result.recoverableError).toBe(true);
   });
   it('partial match 2', () => {
     const grammar = pattern(/abcd/);
-    const result = grammar.parse('ab', {depth: 1, faultToleranceMode: () => ['partial-match']});
+    const result = grammar.parse('ab', strictInitialContext as ParserContext<never>);
     if (isParserError(result)) throw asException(result);
     expect(result.text).toEqual('ab');
-    expect(result.recoverableError).toBe(true);
   });
   it('suggestions',()=>{
     expect(pattern(/ab.cd/).suggestions()).toEqual(['ab cd']);

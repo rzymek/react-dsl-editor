@@ -1,13 +1,11 @@
-import { describe, expect, it } from 'vitest';
-import { sequence } from './sequence';
-import { repeat } from './repeat';
-import { term } from '../composite/term';
-import { isParserError, isParserSuccess, NodeTypes, ParserContext, ParserError } from '../../types';
+import {describe, expect, it} from 'vitest';
+import {sequence} from './sequence';
+import {repeat} from './repeat';
+import {term} from '../composite/term';
+import {isParserError, isParserSuccess, NodeTypes, ParserContext, ParserError} from '../../types';
+import {strictInitialContext} from "./strictInitialContext";
 
-const context: ParserContext = {
-  depth: 0,
-  faultToleranceMode:()=>[]
-};
+const context  = strictInitialContext as ParserContext<never>;
 
 describe('repeat', () => {
   it('defaults', () => {

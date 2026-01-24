@@ -1,6 +1,6 @@
 import RandExp from 'randexp';
 import {map, pipe, range, unique} from 'remeda';
-import {GrammarNode, ParserResult, success} from '../../types';
+import {error, GrammarNode, ParserResult, success} from '../../types';
 
 export function pattern(regex: RegExp) {
   const rangexp = new RandExp(regex);
@@ -28,13 +28,13 @@ export function pattern(regex: RegExp) {
           children: [],
         });
       } else {
-        return context.handleTerminalError(text, context, grammar)
-        // return error({
-        //   path: context.path,,
-        //   got: text,
-        //   expected: grammar.suggestions(),
-        //   offset: 0,
-        // });
+        return error({
+          path: context.path,
+          got: text,
+          expected: grammar.suggestions(),
+          offset: 0,
+          grammar,
+        });
       }
     },
   };

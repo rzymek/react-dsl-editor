@@ -1,4 +1,5 @@
-import {GrammarNode, isParserError, ParserContext, ParserError, ParserSuccess, success} from '../../types';
+import {filter, firstBy, pipe} from "remeda";
+import {error, GrammarNode, isParserError, ParserContext, ParserError, ParserSuccess, success} from '../../types';
 
 export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1000): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
@@ -6,7 +7,7 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
     children: [child],
     suggestions: () => child.suggestions(),
     parse(text: string, _context: ParserContext<T>) {
-      const context:ParserContext<T> = {
+      const context: ParserContext<T> = {
         ..._context,
         path: [..._context.path, grammar],
       };
@@ -17,7 +18,6 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
         const currentText = text.substring(offset);
         const result = child.parse(currentText, context);
         if (isParserError(result)) {
-          const error:ParserError<T> = {...result, offset};
           if (i >= min) {
             return success({
               grammar,
@@ -25,16 +25,33 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
               text: text.substring(0, offset),
             });
           } else {
+            const error: ParserError<T> = {...result, offset};
             return error;
           }
+        }
+        if (result.errorLabel && i > min) {
+          break;
         }
         offset += result.text.length;
         children.push(result);
       }
+      const errorLabel = i < min
+        ? error({
+          expected: child.suggestions(),
+          got: text,
+          grammar,
+          offset,
+          path: context.path
+        })
+        : pipe(children,
+          filter(it => it.errorLabel !== undefined),
+          firstBy(it => it.text.length)
+        )?.errorLabel
       return success({
         grammar,
         children,
         text: text.substring(0, offset),
+        errorLabel
       });
     },
   };
