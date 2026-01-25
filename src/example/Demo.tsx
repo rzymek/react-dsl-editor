@@ -19,7 +19,7 @@ function suggestions(node: CSTOf<typeof grammar>): string[] {
   return [];
 }
 
-// @ts-ignore
+
 const projectCode = dedent`
   display:
     total: 
@@ -31,7 +31,7 @@ const projectCode = dedent`
 const timesheetCode = dedent`
   1 10:00-p1-11:30-p2
 `
-const initialCode = timesheetCode;
+const initialCode = timesheetCode ?? projectCode;
 
 function Demo() {
   const [code, setCode] = useState(initialCode);

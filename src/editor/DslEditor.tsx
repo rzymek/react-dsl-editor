@@ -191,7 +191,6 @@ export function DslEditor<T extends string>(
           ...textStyle,
           color: 'transparent',
           background: 'transparent',
-          caretColor: 'black',
           border: 'none',
           resize: 'none',
         }}
