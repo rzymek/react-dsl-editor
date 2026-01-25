@@ -3,27 +3,38 @@ import './Demo.css';
 import {useState} from 'react';
 import dedent from 'string-dedent';
 import {CSTOf, DSL, nodeName, visitPredicate} from '../parser';
-import {projectDsl} from './projectsDsl';
+import {timesheetGrammar} from "./timesheet";
 
-// const {grammar} = timesheet();
 // const {grammar, suggest} = funcDemo();
-const grammar = projectDsl;
+// const grammar = projectDsl;
+const grammar = timesheetGrammar;
 
-function suggestions(node: CSTOf<typeof projectDsl>): string[] {
-  if (nodeName(node) === 'project') {
+function suggestions(node: CSTOf<typeof grammar>): string[] {
+  // if (nodeName(node) === 'project') {
+  //   return ['proj1', "proj2"]
+  // }
+  if (nodeName(node) === 'description') {
     return ['proj1', "proj2"]
   }
   return [];
 }
 
+// @ts-ignore
+const projectCode = dedent`
+  display:
+    total: 
+  projects:
+    pro1
+    
+`;
+
+const timesheetCode = dedent`
+  1 10:00-p1-11:30-p2
+`
+const initialCode = timesheetCode;
+
 function Demo() {
-  const [code, setCode] = useState(dedent`
-    display:
-      total: 
-    projects:
-      pro1
-      
-    `);
+  const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState<DSL<string>>();
   const [wrap, setWrap] = useState(false);
   return <div>
