@@ -3,11 +3,11 @@ import {pickFromErrorLabels} from "./pickFromErrorLabels";
 import {getCommonPrefix} from "../../getCommonPrefix";
 
 function isTotalFailureErrorLabel(result: ParserSuccess<string>) {
-  if(!result.errorLabel) {
+  if (!result.errorLabel) {
     return false;
   }
   const prefix = getCommonPrefix(result.text, result.errorLabel.got)
-  return prefix.length >= result.text.length/2;
+  return prefix.length >= result.text.length / 2;
 }
 
 export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1000): GrammarNode<T> {
@@ -35,7 +35,7 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
             });
           } else {
             const err = isParserError(result) ? result : result.errorLabel!
-            const error: ParserError<T> =  {...err, offset};
+            const error: ParserError<T> = {...err, offset};
             return error;
           }
         }

@@ -32,7 +32,7 @@ export function pattern(regex: RegExp) {
         return error({
           path: context.path,
           got: text.substring(0, indexOf(text,'\n')),
-          expected: grammar.suggestions(),
+          expected: [regex.toString()],
           offset: 0,
           grammar,
         });

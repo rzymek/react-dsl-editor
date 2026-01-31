@@ -10,14 +10,15 @@ import {
   success,
 } from './types';
 import {CSTNode} from './CSTNode';
-import {isEmpty} from 'remeda';
+import {flatMap, isEmpty, pipe} from 'remeda';
 import {repeat, sequence} from "./grammar/core";
 import {withOffset} from "./withOffset";
 import {newline} from "./grammar/composite/newline";
+import {pathToString} from "./pathToString";
 
 function _flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
   if (result.children && !isEmpty(result.children)) {
-    return result.children.flatMap(it => flatCST(it));
+    return pipe(result.children, flatMap(it => flatCST(it)));
   } else {
     return [result];
   }
@@ -44,13 +45,13 @@ export interface DSL<T extends string> {
   errors: DSLError[];
 }
 
-function topError(parserResult: ParserResult<string>&{message?:string}|undefined): DSLError[] {
+function topError(parserResult: ParserResult<string> & { message?: string } | undefined): DSLError[] {
   if (!parserResult || isParserSuccess(parserResult)) return [];
   return [{
-    message: parserResult.expected.map(it=>JSON.stringify(it)).join(' or ') + ` expected, but got ${JSON.stringify(parserResult.got)}`,
+    message: parserResult.expected.map(it => JSON.stringify(it)).join(' or ') + ` expected, but got ${JSON.stringify(parserResult.got)} (${pathToString(parserResult.path)})`,
     expected: parserResult.expected,
     start: parserResult.offset,
-    end: parserResult.offset + parserResult.got.length,
+    end: parserResult.offset + Math.max(1, parserResult.got.length),
     depth: 1,
   }]
 }
@@ -59,7 +60,7 @@ export class DSLParser<T extends string> {
   private readonly grammar: GrammarNode<T>;
 
   constructor(grammar: GrammarNode<T>) {
-    this.grammar = sequence(grammar, newline, repeat(newline));
+    this.grammar = sequence(grammar, repeat(newline, 0));
   }
 
   private _parseStrict(input: string) {
@@ -86,9 +87,9 @@ export class DSLParser<T extends string> {
     }
   }
 
-  public parseStrict(input: string):ParserSuccess<T>|undefined {
+  public parseStrict(input: string): ParserSuccess<T> | undefined {
     const {parserResult} = this._parseStrict(input)
-    if(isParserError(parserResult)) {
+    if (isParserError(parserResult)) {
       return undefined;
     }
     return parserResult;

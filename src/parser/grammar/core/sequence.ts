@@ -3,9 +3,13 @@ import {newline} from "../composite";
 import {indexOf} from "./indexOf";
 import {pickFromErrorLabels} from "./pickFromErrorLabels";
 
+function deepPredicate(node: GrammarNode<string>, predicate: (it: GrammarNode<string>) => boolean) {
+  return predicate(node) || node.children.some(predicate);
+}
+
 function findIndex(nodes: GrammarNode<string>[], start: number, predicate: (it: GrammarNode<string>) => boolean) {
   for (let i = start; i < nodes.length; i++) {
-    if (predicate(nodes[i])) {
+    if (deepPredicate(nodes[i], predicate)) {
       return i;
     }
   }

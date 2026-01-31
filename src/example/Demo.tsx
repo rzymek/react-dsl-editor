@@ -5,7 +5,6 @@ import dedent from 'string-dedent';
 import {CSTOf, DSL, nodeName, visitPredicate} from '../parser';
 import {projectDsl} from "./projectsDsl";
 
-// const {grammar, suggest} = funcDemo();
 const grammar = projectDsl;
 // const grammar = timesheetGrammar;
 
@@ -22,7 +21,7 @@ function suggestions(node: CSTOf<typeof grammar>): string[] {
 
 const projectCode = dedent`
   display:
-    total: 
+    total: h.m
   projects:
     pro1
     
@@ -33,7 +32,8 @@ const timesheetCode = dedent`
 `
 const initialCode =
   // timesheetCode ?? projectCode
-  projectCode ?? timesheetCode;
+  projectCode ?? timesheetCode
+;
 
 function Demo() {
   const [code, setCode] = useState(initialCode);

@@ -1,9 +1,10 @@
-import { describe, expect, it } from 'vitest';
+import {describe, expect, it, vi} from 'vitest';
 import {displayConfig, projectDsl} from './projectsDsl';
 import dedent from 'string-dedent';
 import { visit } from '../parser/visit';
-import { DSLParser } from '../parser';
+import {DSLParser, nodeName} from '../parser';
 import { cstPathAt } from './cstPathAt';
+import {getSuggestions} from "../editor/getSuggestions";
 
 describe('projectConfigDsl', () => {
   it('e2e', () => {
@@ -19,22 +20,17 @@ describe('projectConfigDsl', () => {
     const input = valid.replace('|', '');
     const cursor = valid.indexOf('|');
     const {result, cst, terminals} = new DSLParser(projectDsl).parse(input);
+    const askedForSuggestionsOn:{}[] = [];
+    getSuggestions(cst, cursor, node => {
+      askedForSuggestionsOn.push({name:nodeName(node), text: node.text})
+      return undefined
+    });
     expect.soft(visit(result, ['project'])).toEqual(['p1', 'p2']);
     expect.soft(visit(result, ['display.total'])).toEqual(['h.m']);
-    expect.soft(cstPathAt(cst, cursor).map(it => `${it.grammar.type} ${it.grammar.meta?.name ?? ''}`.trim())).toEqual([
-      'sequence',
-      'sequence',
-      'sequence',
-      'repeat',
-      'alternative',
-      'sequence',
-      'repeat',
-      'sequence',
-      'named project',
-      "pattern",
-    ]);
     expect.soft(terminals.map(it=>it.text).join('')).toEqual(input);
     expect.soft(terminals.map(it=>it.text).join('')).toEqual(input);
+    expect.soft(askedForSuggestionsOn).toEqual([{name:'project',text:'p2'}])
+    expect.soft(result.errorLabel).toBeUndefined();
   });
 
   it('display',()=>{
