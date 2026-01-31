@@ -3,7 +3,6 @@ import './Demo.css';
 import {useState} from 'react';
 import dedent from 'string-dedent';
 import {CSTOf, DSL, nodeName, visitPredicate} from '../parser';
-import {timesheetGrammar} from "./timesheet";
 import {projectDsl} from "./projectsDsl";
 
 // const {grammar, suggest} = funcDemo();

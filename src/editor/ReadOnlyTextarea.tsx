@@ -1,5 +1,5 @@
-import { CSSProperties, forwardRef, PropsWithChildren } from 'react';
-import { textStyle } from './textStyle';
+import {CSSProperties, forwardRef, PropsWithChildren} from 'react';
+import {textStyle} from './textStyle';
 
 export const ReadOnlyTextarea = forwardRef<HTMLPreElement, PropsWithChildren<{
   wrap: boolean,

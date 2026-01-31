@@ -1,6 +1,6 @@
 import {
   type ChangeEvent,
-  CSSProperties,
+  CSSProperties, HTMLAttributes,
   TextareaHTMLAttributes,
   useCallback,
   useEffect,
@@ -8,7 +8,7 @@ import {
   useRef,
   useState,
 } from 'react';
-import { ErrorHighlighter, SyntaxColorsProvider, SyntaxHighlighter } from './SyntaxHighlighter';
+import { SyntaxColorsProvider, SyntaxHighlighter } from './SyntaxHighlighter';
 import { getSuggestions, type SuggestionsResult } from './getSuggestions';
 import { textStyle } from './textStyle';
 import { CursorPosition, CursorPositionHandle } from './CursorPosition';
@@ -19,6 +19,7 @@ import { CSTNode } from '../parser/CSTNode';
 import { DSL, DSLParser } from '../parser/DSLParser';
 import { isEmpty } from 'remeda';
 import { defaultSyntaxColors } from './defaultStyleFor';
+import {ErrorHighlighter} from "./ErrorHighlighter";
 
 function SuggestionsMenu({
                            suggestions,
@@ -66,6 +67,7 @@ export function DslEditor<T extends string>(
     onParsed,
     grammar,
     wrap = false,
+    tooltipProps = {style: {backgroundColor:'darkGray'}},
     suggestions: clientSuggestions,
     className = DslEditor.name,
     syntaxColors = defaultSyntaxColors('light'),
@@ -77,6 +79,7 @@ export function DslEditor<T extends string>(
     grammar: GrammarNode<T>,
     wrap?: boolean,
     className?: string,
+    tooltipProps?: HTMLAttributes<HTMLElement>,
     suggestions?: (node: CSTNode<T>) => string[] | undefined,
     syntaxColors?: SyntaxColorsProvider,
   } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap' | 'onChange'>) {
@@ -199,6 +202,7 @@ export function DslEditor<T extends string>(
           <SyntaxHighlighter cstRoot={parserResult.cst} ref={highlighter} wrap={wrap} syntaxColors={syntaxColors}/>}
       {!isEmpty(parserResult?.errors ?? []) &&
           <ErrorHighlighter ref={errorHighlighter} errors={parserResult?.errors ?? []}
+                            tooltipProps={tooltipProps}
                             wrap={wrap}>{code}</ErrorHighlighter>}
       <CursorPosition ref={cursor} text={cursorText} wrap={wrap}/>
       {suggestionMenu.visible && suggestions.length > 0 &&

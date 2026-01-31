@@ -14,8 +14,6 @@ import {isEmpty} from 'remeda';
 import {repeat, sequence} from "./grammar/core";
 import {withOffset} from "./withOffset";
 import {newline} from "./grammar/composite/newline";
-import {pathToString} from "./pathToString";
-import {getErrors} from "./getErrors";
 
 function _flatCST<T extends string>(result: CSTNode<T>): CSTNode<T>[] {
   if (result.children && !isEmpty(result.children)) {
@@ -46,10 +44,10 @@ export interface DSL<T extends string> {
   errors: DSLError[];
 }
 
-function topError(parserResult: ParserResult<string>|undefined): DSLError[] {
+function topError(parserResult: ParserResult<string>&{message?:string}|undefined): DSLError[] {
   if (!parserResult || isParserSuccess(parserResult)) return [];
   return [{
-    message: parserResult.expected.join(' or ') + ` expected (${pathToString(parserResult.path)})`,
+    message: parserResult.expected.map(it=>JSON.stringify(it)).join(' or ') + ` expected, but got ${JSON.stringify(parserResult.got)}`,
     expected: parserResult.expected,
     start: parserResult.offset,
     end: parserResult.offset + parserResult.got.length,
