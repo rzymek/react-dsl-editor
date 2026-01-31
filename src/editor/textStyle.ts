@@ -1,6 +1,10 @@
 import { CSSProperties } from 'react';
 
 export const textStyle: CSSProperties = {
+  background: 'transparent',
+  border: 'none',
+  resize: 'none',
+
   position: 'absolute',
   inset: 0,
   overflow: 'auto',

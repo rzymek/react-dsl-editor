@@ -4,18 +4,19 @@ import {useState} from 'react';
 import dedent from 'string-dedent';
 import {CSTOf, DSL, nodeName, visitPredicate} from '../parser';
 import {timesheetGrammar} from "./timesheet";
+import {projectDsl} from "./projectsDsl";
 
 // const {grammar, suggest} = funcDemo();
-// const grammar = projectDsl;
-const grammar = timesheetGrammar;
+const grammar = projectDsl;
+// const grammar = timesheetGrammar;
 
 function suggestions(node: CSTOf<typeof grammar>): string[] {
-  // if (nodeName(node) === 'project') {
-  //   return ['proj1', "proj2"]
-  // }
-  if (nodeName(node) === 'description') {
+  if (nodeName(node) === 'project') {
     return ['proj1', "proj2"]
   }
+  // if (nodeName(node) === 'description') {
+  //   return ['proj1', "proj2"]
+  // }
   return [];
 }
 
@@ -31,7 +32,9 @@ const projectCode = dedent`
 const timesheetCode = dedent`
   1 10:00-p1-11:30-p2
 `
-const initialCode = timesheetCode ?? projectCode;
+const initialCode =
+  // timesheetCode ?? projectCode
+  projectCode ?? timesheetCode;
 
 function Demo() {
   const [code, setCode] = useState(initialCode);
@@ -55,6 +58,7 @@ function Demo() {
         {output?.result && visitPredicate(output.result,
           it => !!nodeName(it),
           it => `${nodeName(it)}: ${it.text}`).join('\n')}
+        {JSON.stringify(output?.errors,null,2)}
       </pre>
     </div>
   </div>;

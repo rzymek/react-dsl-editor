@@ -187,13 +187,7 @@ export function DslEditor<T extends string>(
         ref={textarea}
         spellCheck={false}
         wrap={wrap ? 'soft' : 'off'}
-        style={{
-          ...textStyle,
-          color: 'transparent',
-          background: 'transparent',
-          border: 'none',
-          resize: 'none',
-        }}
+        style={textStyle}
         value={code}
         onSelect={handleCursor}
         onChange={handleChange}

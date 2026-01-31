@@ -3,11 +3,11 @@ import {DSL, DSLParser} from './DSLParser';
 import {funcParser} from '../example/funcParser';
 import {projectDsl} from '../example/projectsDsl';
 import dedent from 'string-dedent';
-import {timesheet} from '../example/timesheet';
 import {named, nodeName, pattern, repeat, sequence} from './grammar/core';
 import {optional, term} from './grammar/composite';
 import {visitPredicate} from "./visit";
 import {ParserSuccess} from "./types";
+import {timesheetGrammar} from "../example/timesheet";
 
 function asText(result: DSL<string>): string {
   return result.terminals.map(it => it.text).join('');
@@ -178,7 +178,7 @@ describe('Parser', () => {
   });
   it('bar', async () => {
     // given
-    const parser = new DSLParser(timesheet().grammar);
+    const parser = new DSLParser(timesheetGrammar);
     // when
     const src = dedent`
       1 11:00-a-11:00
@@ -191,7 +191,7 @@ describe('Parser', () => {
   });
   it('2', async () => {
     // given
-    const parser = new DSLParser(timesheet().grammar);
+    const parser = new DSLParser(timesheetGrammar);
     // when
     const src = dedent`
       1 00:01-a-00:02
