@@ -11,7 +11,7 @@ import {
 } from './types';
 import {CSTNode} from './CSTNode';
 import {flatMap, isEmpty, pipe} from 'remeda';
-import {repeat, sequence} from "./grammar/core";
+import {nodeName, repeat, sequence} from "./grammar/core";
 import {withOffset} from "./withOffset";
 import {newline} from "./grammar/composite/newline";
 import {pathToString} from "./pathToString";
@@ -34,7 +34,6 @@ export interface DSLError {
   expected?: string[],
   start: number,
   end: number,
-  depth: number,
 }
 
 export interface DSL<T extends string> {
@@ -52,8 +51,20 @@ function topError(parserResult: ParserResult<string> & { message?: string } | un
     expected: parserResult.expected,
     start: parserResult.offset,
     end: parserResult.offset + Math.max(1, parserResult.got.length),
-    depth: 1,
   }]
+}
+
+export interface ValidationError<T extends string> {
+  node: CSTNode<T>,
+  message: string,
+}
+
+function validationErrors(errors: ValidationError<string>[]): DSLError[] {
+  return errors.map(e => ({
+    start: e.node.offset,
+    end: e.node.end,
+    message: e.message
+  }))
 }
 
 export class DSLParser<T extends string> {
@@ -109,9 +120,30 @@ export class DSLParser<T extends string> {
       strictResult: isParserSuccess(parserResult) ? parserResult : undefined,
       errors: [
         ...topError(parserResult),
-        ...topError(parserResult.errorLabel)
+        ...topError(parserResult.errorLabel),
+        ...validationErrors(this.validateCST(cst))
       ],
     };
+  }
+
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  protected validate(node: T, text: string): string | undefined {
+    return undefined;
+  }
+
+  private validateCST(cst: CSTNode<T>): ValidationError<T>[] {
+    const errors = pipe(
+      cst.children ?? [],
+      flatMap(c => this.validateCST(c)),
+    )
+    const name = nodeName(cst);
+    if(name) {
+      const validationError = this.validate(name, cst.text);
+      if (validationError) {
+        errors.push({node: cst, message: validationError})
+      }
+    }
+    return errors;
   }
 }
 

@@ -57,7 +57,7 @@ export function asException<T extends string>(error: ParserError<T>) {
 }
 
 type _NodeTypes<T> = T extends GrammarNode<infer U> ? U : never;
-export type NodeTypes<T> = _NodeTypes<T> | 'error';
+export type NodeTypes<T> = _NodeTypes<T>;
 export type CSTOf<T> = CSTNode<_NodeTypes<T>>;
 
 /*

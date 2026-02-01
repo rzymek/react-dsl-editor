@@ -2,19 +2,19 @@ import {DslEditor} from '../editor/DslEditor';
 import './Demo.css';
 import {useState} from 'react';
 import dedent from 'string-dedent';
-import {CSTOf, DSL, nodeName, visitPredicate} from '../parser';
-import {timesheetGrammar} from "./timesheet";
+import {CSTOf, DSL, nodeName, NodeTypes, visitPredicate} from '../parser';
+import {projectDsl} from "./projectsDsl";
 
-// const grammar = projectDsl;
-const grammar = timesheetGrammar;
+const grammar = projectDsl;
+// const grammar = rulesDsl;
 
 function suggestions(node: CSTOf<typeof grammar>): string[] {
-  // if (nodeName(node) === 'project') {
-  //   return ['proj1', "proj2"]
-  // }
-  if (nodeName(node) === 'description') {
+  if (nodeName(node) === 'project') {
     return ['proj1', "proj2"]
   }
+  // if (nodeName(node) === 'description') {
+  //   return ['proj1', "proj2"]
+  // }
   return [];
 }
 
@@ -30,15 +30,36 @@ const projectCode = dedent`
 const timesheetCode = dedent`
   1 10:00-p1-11:30-p2
 `
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const rule = dedent`
+RULE "High-Value Customer Discount"
+PRIORITY 75
+ON create_transaction
+WHEN
+  transaction.amount > 500
+  user.location in [US, EU]
+THEN
+  discount = 15%
+`
 const initialCode =
-  timesheetCode ?? projectCode
-  // projectCode ?? timesheetCode
+  // timesheetCode ?? projectCode ?? rule
+  projectCode ?? timesheetCode
 ;
+
+function validate(nodeName: NodeTypes<typeof grammar>, text: string):string|undefined {
+  if(nodeName === 'project') {
+    if(text.includes('a')) {
+      return `projects can't contain 'a'`
+    }
+  }
+}
 
 function Demo() {
   const [code, setCode] = useState(initialCode);
   const [output, setOutput] = useState<DSL<string>>();
   const [wrap, setWrap] = useState(false);
+
   return <div>
     <label><input type="checkbox" checked={wrap} onChange={e => setWrap(e.currentTarget.checked)}/>wrap</label>
 
@@ -51,6 +72,7 @@ function Demo() {
         code={code}
         onChange={setCode}
         grammar={grammar}
+        validate={validate}
         suggestions={suggestions}
         onParsed={setOutput}/>
       <pre>
@@ -64,3 +86,13 @@ function Demo() {
 }
 
 export default Demo;
+/*
+RULE "High-Value Customer Discount"
+PRIORITY 75
+ON on_transaction_create
+WHEN
+  transaction_amount > "500"
+  user_location in "US, EU"
+THEN
+  discount=15%
+*/

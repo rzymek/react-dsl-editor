@@ -6,8 +6,7 @@ import {indexOf} from "./indexOf";
 export function pattern(regex: RegExp) {
   const rangexp = new RandExp(regex);
   rangexp.randInt = (min) => min;
-
-  // rangexp.defaultRange.subtract(-Infinity, +Infinity);
+  rangexp.defaultRange.subtract(-Infinity, +Infinity);
 
   function suggestions() {
     return pipe(range(0, 10), map(() => rangexp.gen()), unique());

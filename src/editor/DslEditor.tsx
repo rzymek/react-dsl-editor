@@ -1,6 +1,7 @@
 import {
   type ChangeEvent,
-  CSSProperties, HTMLAttributes,
+  CSSProperties,
+  HTMLAttributes,
   TextareaHTMLAttributes,
   useCallback,
   useEffect,
@@ -8,17 +9,17 @@ import {
   useRef,
   useState,
 } from 'react';
-import { SyntaxColorsProvider, SyntaxHighlighter } from './SyntaxHighlighter';
-import { getSuggestions, type SuggestionsResult } from './getSuggestions';
-import { textStyle } from './textStyle';
-import { CursorPosition, CursorPositionHandle } from './CursorPosition';
-import { shortcutName } from './shortcutName';
-import { useSyncScroll } from './useSyncScroll';
-import { GrammarNode } from '../parser/types';
-import { CSTNode } from '../parser/CSTNode';
-import { DSL, DSLParser } from '../parser/DSLParser';
-import { isEmpty } from 'remeda';
-import { defaultSyntaxColors } from './defaultStyleFor';
+import {SyntaxColorsProvider, SyntaxHighlighter} from './SyntaxHighlighter';
+import {getSuggestions, type SuggestionsResult} from './getSuggestions';
+import {textStyle} from './textStyle';
+import {CursorPosition, CursorPositionHandle} from './CursorPosition';
+import {shortcutName} from './shortcutName';
+import {useSyncScroll} from './useSyncScroll';
+import {GrammarNode} from '../parser/types';
+import {CSTNode} from '../parser/CSTNode';
+import {DSL, DSLParser} from '../parser/DSLParser';
+import {isEmpty} from 'remeda';
+import {defaultSyntaxColors} from './defaultStyleFor';
 import {ErrorHighlighter} from "./ErrorHighlighter";
 
 function SuggestionsMenu({
@@ -67,8 +68,9 @@ export function DslEditor<T extends string>(
     onParsed,
     grammar,
     wrap = false,
-    tooltipProps = {style: {backgroundColor:'darkGray'}},
+    tooltipProps = {style: {backgroundColor: 'darkGray'}},
     suggestions: clientSuggestions,
+    validate,
     className = DslEditor.name,
     syntaxColors = defaultSyntaxColors('light'),
     ...textareaProps
@@ -80,6 +82,7 @@ export function DslEditor<T extends string>(
     wrap?: boolean,
     className?: string,
     tooltipProps?: HTMLAttributes<HTMLElement>,
+    validate?: (node: T, text: string)=>string|undefined,
     suggestions?: (node: CSTNode<T>) => string[] | undefined,
     syntaxColors?: SyntaxColorsProvider,
   } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap' | 'onChange'>) {
@@ -113,13 +116,20 @@ export function DslEditor<T extends string>(
   }, [parserResult]);
 
   useEffect(() => {
-    const result = new DSLParser(grammar).parse(code);
-    // eslint-disable-next-line react-hooks/set-state-in-effect
+    const dslParser = validate ? new class ValidatingParser extends DSLParser<T> {
+      constructor() {
+        super(grammar);
+      }
+      protected validate(node: T, text: string): string | undefined {
+        return validate(node, text);
+      }
+    } : new DSLParser(grammar);
+    const result = dslParser.parse(code);
     setParserResult(result);
     onParsed?.(result);
     updateSuggestionsForSyntax(result.cst);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
-  }, [code, onParsed, grammar, updateSuggestionsForSyntax]);
+  }, [code, onParsed, grammar, updateSuggestionsForSyntax, validate]);
 
   const getCursorCoordinates = useCallback(() =>
     cursor.current?.getCursorPosition?.() ?? {top: 0, left: 0}, []);

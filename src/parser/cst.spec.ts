@@ -1,10 +1,9 @@
-import { describe, expect, it } from 'vitest';
-import { funcParser } from '../example/funcParser';
-import { timesheet } from '../example/timesheet';
-import { CSTNode } from './CSTNode';
-import { GrammarNode } from './types';
-import { DSLParser } from './DSLParser';
-
+import {describe, expect, it} from 'vitest';
+import {funcParser} from '../example/funcParser';
+import {timesheetGrammar} from '../example/timesheet';
+import {CSTNode} from './CSTNode';
+import {GrammarNode} from './types';
+import {DSLParser} from './DSLParser';
 function testName() {
   return expect.getState().currentTestName!.replace(/^.*> /g, '');
 }
@@ -66,23 +65,23 @@ describe('func syntax', () => {
 
 describe('timesheet syntax', () => {
   it('x', () => {
-    const syntax = parseTestNameUsing(timesheet().grammar);
+    const syntax = parseTestNameUsing(timesheetGrammar);
     const input = testName();
     expectSyntaxTextToEqual(syntax.terminals, input);
   });
   it('01.02.2024 11:11-', () => {
-    const syntax = parseTestNameUsing(timesheet().grammar);
+    const syntax = parseTestNameUsing(timesheetGrammar);
     const input = testName();
     expectSyntaxTextToEqual(syntax.terminals, input);
   });
   it('01.02', () => {
-    const syntax = parseTestNameUsing(timesheet().grammar);
+    const syntax = parseTestNameUsing(timesheetGrammar);
     const input = testName();
     expectSyntaxTextToEqual(syntax.terminals, input);
   });
   describe('parse as much as possible', () => {
     it('01.02.2024 11:11-project1-12:00-project2-12:0', () => {
-      const syntax = parseTestNameUsing(timesheet().grammar);
+      const syntax = parseTestNameUsing(timesheetGrammar);
       const input = testName();
       expectSyntaxTextToEqual(syntax.terminals, input);
       expect(syntax.cst.end).toEqual(input.length);

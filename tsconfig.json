@@ -1,21 +1,16 @@
 {
   "compilerOptions": {
-    "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "useDefineForClassFields": true,
     "lib": [
       "ES2024",
       "DOM",
-//      "DOM.Iterable",
-//      "es2016",
-//      "ES2015.Iterable"
     ],
     "module": "ESNext",
     "types": ["vite/client"],
     "skipLibCheck": true,
+    "useDefineForClassFields": true,
 
     /* Bundler mode */
     "moduleResolution": "bundler",
-    "moduleDetection": "force",
     "jsx": "react-jsx",
     "declaration": true,
     "declarationMap": true,
@@ -23,8 +18,6 @@
 
     /* Linting */
     "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
     "noFallthroughCasesInSwitch": true,
     "noUncheckedSideEffectImports": true
   },

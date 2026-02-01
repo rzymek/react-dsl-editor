@@ -8,7 +8,6 @@ export function getErrors<T extends string>(node: CSTNode<T>, depth = 1): DSLErr
       start: node.offset,
       end: Math.max(node.end, node.offset + 1),
       message: `${node.grammar.type} ${node.text}`,
-      depth,
     };
     return [
       error,
