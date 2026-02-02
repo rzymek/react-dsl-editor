@@ -9,7 +9,12 @@ export function pattern(regex: RegExp) {
   rangexp.defaultRange.subtract(-Infinity, +Infinity);
 
   function suggestions() {
-    return pipe(range(0, 10), map(() => rangexp.gen()), unique());
+    return pipe(
+      range(0, 10),
+      map(() => rangexp.gen()),
+      unique(),
+      map(it => ({node: grammar, text: it}))
+    );
   }
 
   const grammar: GrammarNode = {
@@ -30,7 +35,7 @@ export function pattern(regex: RegExp) {
       } else {
         return error({
           path: context.path,
-          got: text.substring(0, indexOf(text,'\n')),
+          got: text.substring(0, indexOf(text, '\n')),
           expected: [regex.toString()],
           offset: 0,
           grammar,

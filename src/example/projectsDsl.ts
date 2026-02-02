@@ -14,8 +14,7 @@ const comment = pattern(/#[^#\n]*\n/);
 const displayTotal = named("display.total", alternative(term('h:m'), term('h.m')));
 
 export const displayConfig = sequence(
-  term('display:'), newline,
-  indent, term('total:'), ws, displayTotal, newline,
+  term('time:'), ws, displayTotal, newline,
 );
 displayConfig.meta = {dbg:'displayConfig'};
 

@@ -1,11 +1,9 @@
 import {
   type ChangeEvent,
-  CSSProperties,
   HTMLAttributes,
   TextareaHTMLAttributes,
   useCallback,
   useEffect,
-  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -22,48 +20,10 @@ import {DSL, DSLParser} from '../parser/DSLParser';
 import {isEmpty} from 'remeda';
 import {defaultSyntaxColors} from './defaultStyleFor';
 import {ErrorHighlighter} from "./ErrorHighlighter";
+import {SuggestionsMenu} from "./SuggestionsMenu";
 
 function getCursorCoordinates(cursor: CursorPositionHandle | null) {
   return cursor?.getCursorPosition?.() ?? {top: 0, left: 0};
-}
-
-function SuggestionsMenu({
-                           suggestions,
-                           onSelect,
-                           style,
-                           selectedIndex,
-                           onHover,
-                         }: {
-  suggestions: SuggestionsResult[],
-  onSelect: (suggestion: SuggestionsResult) => void,
-  style: CSSProperties,
-  selectedIndex: number,
-  onHover: (index: number) => void,
-}) {
-  return <div style={{
-    position: 'absolute',
-    ...style,
-    background: '#252526',
-    border: '1px solid #454545',
-    boxShadow: '0 2px 8px rgba(0,0,0,0.3)',
-    color: '#cccccc',
-    fontFamily: 'monospace',
-    fontSize: '0.9em',
-    minWidth: 200,
-    zIndex: 100,
-  }}>
-    {suggestions.map((suggestion, idx) =>
-      <div key={idx}
-           onClick={() => onSelect(suggestion)}
-           onMouseOver={() => onHover(idx)}
-           style={{
-             cursor: 'pointer',
-             padding: '4px 8px',
-             backgroundColor: selectedIndex === idx ? '#094771' : 'transparent',
-           }}>
-        {suggestion.suggestion}
-      </div>)}
-  </div>;
 }
 
 export function DslEditor<T extends string>(
@@ -139,11 +99,22 @@ export function DslEditor<T extends string>(
   }, [code, onParsed, grammar, updateSuggestionsForSyntax, validate]);
 
   const handleSuggestionSelect = useCallback((suggestion: SuggestionsResult) => {
-    if (!textarea.current) return;
+    if (!textarea.current || !parserResult?.cst) return;
     const {selectionStart, selectionEnd} = textarea.current;
     const {prefix} = suggestion;
-    const newCode = code.substring(0, selectionStart - prefix.length) + suggestion.suggestion + code.substring(selectionEnd);
-    onChange(newCode);
+    if(selectionStart === selectionEnd) {
+      const newCode =
+        code.substring(0, suggestion.node.offset)
+        + suggestion.suggestion
+        + code.substring(suggestion.node.end);
+      onChange(newCode);
+    }else {
+      const newCode =
+        code.substring(0, selectionStart - prefix.length)
+        + suggestion.suggestion
+        + code.substring(selectionEnd);
+      onChange(newCode);
+    }
     setTimeout(() => {
       if (textarea.current) {
         textarea.current.focus();
@@ -151,7 +122,7 @@ export function DslEditor<T extends string>(
       }
     }, 0);
     setSuggestionMenu(s => ({...s, visible: false}));
-  }, [code, onChange]);
+  }, [code, onChange, parserResult?.cst]);
 
   const suggestionMenuKeys = useMemo(() => ({
     ArrowDown() {

@@ -86,7 +86,7 @@ export class DSLParser<T extends string> {
         return error({
           grammar,
           offset: 0,
-          expected: grammar.suggestions(),
+          expected: grammar.suggestions().map(it => it.text),
           got: text,
           path,
         })
@@ -137,7 +137,7 @@ export class DSLParser<T extends string> {
       flatMap(c => this.validateCST(c)),
     )
     const name = nodeName(cst);
-    if(name) {
+    if (name) {
       const validationError = this.validate(name, cst.text);
       if (validationError) {
         errors.push({node: cst, message: validationError})

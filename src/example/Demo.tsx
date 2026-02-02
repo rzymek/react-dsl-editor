@@ -20,8 +20,7 @@ function suggestions(node: CSTOf<typeof grammar>): string[] {
 
 
 const projectCode = dedent`
-  display:
-    total: h.m
+  time: h.m
   projects:
     pro1
     

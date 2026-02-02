@@ -5,7 +5,7 @@ export const strictInitialContext: ParserContext<string> = {
     return error({
       grammar,
       offset: 0,
-      expected: grammar.suggestions(),
+      expected: grammar.suggestions().map(it=>it.text),
       got: text,
       path: context.path,
     })

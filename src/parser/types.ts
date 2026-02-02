@@ -1,5 +1,5 @@
-import { ParsingError } from './ParsingError';
-import { CSTNode } from './CSTNode';
+import {ParsingError} from './ParsingError';
+import {CSTNode} from './CSTNode';
 import {pathToString} from "./pathToString";
 
 export type FaultToleranceMode = 'skip-parser' | 'skip-input' | 'fuzzy-match' | 'partial-match';
@@ -11,7 +11,7 @@ export interface ParserContext<T extends string> {
 
 export interface GrammarNode<T extends string = never> {
   type: T;
-  suggestions(): string[];
+  suggestions(): { text: string, node: GrammarNode<T> }[];
   parse(text: string, context: ParserContext<T>): ParserResult<T>;
   children: GrammarNode<T>[];
   meta?: Record<string, unknown>;
@@ -21,7 +21,7 @@ export interface ParserSuccess<T extends string = never> {
   text: string;
   grammar: GrammarNode<T>,
   children: ParserSuccess<T>[],
-  errorLabel?:ParserError<T>
+  errorLabel?: ParserError<T>
 }
 
 export interface ParserError<T extends string = never> {

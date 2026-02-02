@@ -21,13 +21,13 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
     children: nodes,
     type: 'sequence' as T,
     suggestions() {
-      const result: string[] = [];
+      const result: { text: string, node: GrammarNode<T> }[] = [];
       for (const node of nodes) {
         const s = node.suggestions();
-        result.push(...s.filter(it => it !== ''));
-        if (!s.includes('')) {
-          break;
-        }
+        result.push(...s.filter(it => it.text !== ''));
+        // if (!s.some(it => it.text.includes(''))) {
+        //   break;
+        // }
       }
       return result;
     },
@@ -51,14 +51,14 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
           const newlineGrammarIndex = findIndex(nodes, i, it => it.type === newline.type);
           if (newlineGrammarIndex >= 0) {
             const newlineTextIndex = indexOf(text, '\n', offset);
-            const text1 = text.substring(offset, newlineGrammarIndex === i ? newlineTextIndex + 1 : newlineTextIndex);
+            const textTillEOL = text.substring(offset, newlineGrammarIndex === i ? newlineTextIndex + 1 : newlineTextIndex);
             results.push({
-              text: text1,
+              text: textTillEOL,
               grammar: result.grammar,
               children: [],
               errorLabel: err
             })
-            offset += text1.length;
+            offset += textTillEOL.length;
             i = newlineGrammarIndex - 1;
             continue;
           }
@@ -68,7 +68,7 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
         results.push(result);
       }
       return success({
-        grammar: grammar,
+        grammar,
         text: text.substring(0, offset),
         children: results,
         errorLabel: pickFromErrorLabels(results)?.errorLabel

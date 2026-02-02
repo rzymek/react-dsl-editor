@@ -47,7 +47,7 @@ export function repeat<T extends string>(child: GrammarNode<T>, min = 1, max = 1
       }
       const errorLabel = i < min
         ? error({
-          expected: child.suggestions(),
+          expected: child.suggestions().map(it=>it.text),
           got: text,
           grammar,
           offset,
