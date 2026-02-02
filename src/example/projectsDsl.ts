@@ -9,29 +9,27 @@ import {ws} from "../parser/grammar/composite/ws";
 
 const indent = pattern(/[ \t]+/);
 
-// const newLine = named('newline',sequence(ws, alternative(pattern(/\n/), eof)));
 const comment = pattern(/#[^#\n]*\n/);
 const displayTotal = named("display.total", alternative(term('h:m'), term('h.m')));
 
 export const displayConfig = sequence(
   term('time:'), ws, displayTotal, newline,
 );
-displayConfig.meta = {dbg:'displayConfig'};
-
 const projectsConfig = sequence(
   term('projects:'), newline,
   repeat(
-    sequence(
-      indent, named('project', pattern(/[a-z0-9]+/i)), newline,
-    )),
+    alternative(
+      sequence(indent, named('project', pattern(/[a-z0-9]+/i)), newline),
+      comment,
+    ),
+  ),
 );
 const grammar = repeat(
   alternative(
-    newline,
-    projectsConfig,
     displayConfig,
+    projectsConfig,
     comment,
-  ),
-);
+  )
+)
 
 export const projectDsl = grammar;
