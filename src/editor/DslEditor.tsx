@@ -5,6 +5,7 @@ import {
   TextareaHTMLAttributes,
   useCallback,
   useEffect,
+  useLayoutEffect,
   useMemo,
   useRef,
   useState,
@@ -21,6 +22,10 @@ import {DSL, DSLParser} from '../parser/DSLParser';
 import {isEmpty} from 'remeda';
 import {defaultSyntaxColors} from './defaultStyleFor';
 import {ErrorHighlighter} from "./ErrorHighlighter";
+
+function getCursorCoordinates(cursor: CursorPositionHandle | null) {
+  return cursor?.getCursorPosition?.() ?? {top: 0, left: 0};
+}
 
 function SuggestionsMenu({
                            suggestions,
@@ -82,15 +87,16 @@ export function DslEditor<T extends string>(
     wrap?: boolean,
     className?: string,
     tooltipProps?: HTMLAttributes<HTMLElement>,
-    validate?: (node: T, text: string)=>string|undefined,
+    validate?: (node: T, text: string) => string | undefined,
     suggestions?: (node: CSTNode<T>) => string[] | undefined,
     syntaxColors?: SyntaxColorsProvider,
   } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap' | 'onChange'>) {
   const [suggestions, setSuggestions] = useState<SuggestionsResult[]>([]);
   const [parserResult, setParserResult] = useState<DSL<T>>();
-  const [suggestionMenu, setSuggestionMenu] = useState<{ top: number, left: number, visible: boolean }>({
+  const [suggestionMenu, setSuggestionMenu] = useState({
     top: 0,
     left: 0,
+    cursorPosition: false,
     visible: false,
   });
   const [suggestionIndex, setSuggestionIndex] = useState(0);
@@ -120,6 +126,7 @@ export function DslEditor<T extends string>(
       constructor() {
         super(grammar);
       }
+
       protected validate(node: T, text: string): string | undefined {
         return validate(node, text);
       }
@@ -130,9 +137,6 @@ export function DslEditor<T extends string>(
     updateSuggestionsForSyntax(result.cst);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
   }, [code, onParsed, grammar, updateSuggestionsForSyntax, validate]);
-
-  const getCursorCoordinates = useCallback(() =>
-    cursor.current?.getCursorPosition?.() ?? {top: 0, left: 0}, []);
 
   const handleSuggestionSelect = useCallback((suggestion: SuggestionsResult) => {
     if (!textarea.current) return;
@@ -168,15 +172,20 @@ export function DslEditor<T extends string>(
     CtrlSpace() {
       if (!parserResult?.cst) return;
       const suggestions = updateSuggestionsForSyntax(parserResult?.cst);
-      // console.log('CtrlSpace',suggestions);
       if (isEmpty(suggestions)) {
         return;
       }
-      const {top, left} = getCursorCoordinates();
-      setSuggestionIndex(0);
-      setSuggestionMenu({visible: true, top, left});
+      setSuggestionMenu({cursorPosition: true, visible: false, top: 0, left: 0});
     },
-  }), [getCursorCoordinates, parserResult?.cst, updateSuggestionsForSyntax]);
+  }), [parserResult?.cst, updateSuggestionsForSyntax]);
+
+  useEffect(() => {
+    if (suggestionMenu.cursorPosition) {
+      const {top, left} = getCursorCoordinates(cursor.current);
+      setSuggestionIndex(0);
+      setSuggestionMenu({cursorPosition: false, visible: true, top, left});
+    }
+  }, [suggestionMenu.cursorPosition]);
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent<HTMLTextAreaElement>) => {
     const keymap: Record<string, () => void> = suggestionMenu.visible ? suggestionMenuKeys : textAreaKeys;
@@ -214,15 +223,15 @@ export function DslEditor<T extends string>(
           <ErrorHighlighter ref={errorHighlighter} errors={parserResult?.errors ?? []}
                             tooltipProps={tooltipProps}
                             wrap={wrap}>{code}</ErrorHighlighter>}
-      <CursorPosition ref={cursor} text={cursorText} wrap={wrap}/>
-      {suggestionMenu.visible && suggestions.length > 0 &&
-          <SuggestionsMenu
-              suggestions={suggestions}
-              onSelect={handleSuggestionSelect}
-              style={{top: suggestionMenu.top, left: suggestionMenu.left}}
-              selectedIndex={suggestionIndex}
-              onHover={setSuggestionIndex}
-          />
+
+      {suggestionMenu.cursorPosition && <CursorPosition ref={cursor} text={cursorText} wrap={wrap}/>}
+      {suggestionMenu.visible && <SuggestionsMenu
+          suggestions={suggestions}
+          onSelect={handleSuggestionSelect}
+          style={{top: suggestionMenu.top, left: suggestionMenu.left}}
+          selectedIndex={suggestionIndex}
+          onHover={setSuggestionIndex}
+      />
       }
     </div>
     {/*{JSON.stringify(parserResult?.errors ?? [])}*/}
