@@ -35,7 +35,7 @@ export function SuggestionsMenu({
              padding: '4px 8px',
              backgroundColor: selectedIndex === idx ? '#094771' : 'transparent',
            }}>
-        {suggestion.suggestion} ({suggestion.node.offset} - {suggestion.node.end}, {JSON.stringify(suggestion.node.grammar.type)})
+        {suggestion.suggestion}
       </div>)}
   </div>;
 }
