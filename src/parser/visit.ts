@@ -28,3 +28,24 @@ export function visitPredicate<T extends string, V = string>(
     ...parserResult.children?.flatMap(child => visitPredicate(child, filter, extractor)) ?? [],
   );
 }
+
+export function extractAll<T extends string>(parserResult: ParserSuccess<T>, type: T): string[] {
+  return visit(parserResult, [type]);
+}
+
+export function extractFirst<T extends string>(result: ParserSuccess<T>, name: T): string | undefined {
+  if (isParserError(result)) {
+    return undefined;
+  }
+  if (nodeName(result) === name) {
+    return result.text;
+  } else if (result.children?.length > 0) {
+    for (const child of result.children) {
+      const v = extractFirst(child, name)
+      if (v) {
+        return v;
+      }
+    }
+  }
+  return undefined;
+}
