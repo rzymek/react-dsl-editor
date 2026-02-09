@@ -6,6 +6,7 @@ import {repeat} from '../parser/grammar/core/repeat';
 import {named} from '../parser/grammar/core/named';
 import {newline} from "../parser/grammar/composite/newline";
 import {ws} from "../parser/grammar/composite/ws";
+import {anyOrder} from "../parser/grammar/core/anyOrder";
 
 const indent = pattern(/[ \t]+/);
 
@@ -25,10 +26,9 @@ const projectsConfig = sequence(
   ),
 );
 const grammar = repeat(
-  alternative(
+  anyOrder(
     displayConfig,
     projectsConfig,
-    comment,
   )
 )
 

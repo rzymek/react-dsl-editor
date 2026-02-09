@@ -1,3 +1,4 @@
+import {first, map, pipe } from "remeda";
 import {error, GrammarNode, isParserError, ParserContext, ParserSuccess, success} from '../../types';
 import {newline} from "../composite";
 import {indexOf} from "./indexOf";
@@ -21,15 +22,11 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
     children: nodes,
     type: 'sequence' as T,
     suggestions() {
-      const result: { text: string, node: GrammarNode<T> }[] = [];
-      for (const node of nodes) {
-        const s = node.suggestions();
-        result.push(...s.filter(it => it.text !== ''));
-        // if (!s.some(it => it.text.includes(''))) {
-        //   break;
-        // }
-      }
-      return result;
+      return pipe(
+        nodes,
+        map(it=>it.suggestions()),
+        first(),
+      ) ?? [];
     },
     parse(text, _context) {
       const context: ParserContext<T> = {
