@@ -1,6 +1,7 @@
 import {firstBy, map, pipe} from "remeda";
 import {GrammarNode, isParserError, isParserSuccess, ParserContext, ParserSuccess, success} from '../../types';
 import {pickFromErrorLabels} from "./pickFromErrorLabels";
+import {withErrorLabelOffset} from "./withErrorLabelOffset";
 
 export function anyOrder<T extends string>(...nodes: GrammarNode<T>[]): GrammarNode<T> {
   const grammar: GrammarNode<T> = {
@@ -32,7 +33,7 @@ export function anyOrder<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
           break;
         }
         set.delete(bestMatch.node);
-        results.push(bestMatch.result);
+        results.push(withErrorLabelOffset(bestMatch.result, offset));
         offset += bestMatch.result.text.length;
       }
       return success({

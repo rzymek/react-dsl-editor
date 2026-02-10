@@ -1,4 +1,4 @@
-import {first, map, pipe } from "remeda";
+import {first, map, pipe} from "remeda";
 import {error, GrammarNode, isParserError, ParserContext, ParserSuccess, success} from '../../types';
 import {newline} from "../composite";
 import {indexOf} from "./indexOf";
