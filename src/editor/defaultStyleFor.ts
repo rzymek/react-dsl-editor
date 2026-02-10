@@ -20,11 +20,11 @@ const themes = {
     '#FF5555',
     '#5555FF',
     '#FF55FF',
-    '#FF5555',
+    '#FFAA55',
     '#55FF55',
-    '#5555FF',
+    '#55AAFF',
     '#FFFF55',
-    '#FF55FF',
+    '#AAFF55',
     '#55FFFF',
     '#AAAAAA',
     '#CC99FF',
@@ -54,8 +54,7 @@ function getColorAssigment(value: unknown, colors: string[]): string {
 }
 
 function defaultStyleFor(node: CSTNode<string>, colors: string[]): CSSProperties | undefined {
-  const {name, regex} = node.grammar.meta ?? {};
-  const value = name ?? regex;
+  const value = node.grammar.meta?.regex;
   if (!value) {
     return undefined;
   }
