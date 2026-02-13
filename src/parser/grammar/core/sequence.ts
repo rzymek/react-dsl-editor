@@ -74,4 +74,3 @@ export function sequence<T extends string>(...nodes: GrammarNode<T>[]): GrammarN
   };
   return grammar;
 }
-
