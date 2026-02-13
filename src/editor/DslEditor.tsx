@@ -21,6 +21,7 @@ import {isEmpty} from 'remeda';
 import {defaultSyntaxColors} from './defaultStyleFor';
 import {ErrorHighlighter} from "./ErrorHighlighter";
 import {SuggestionsMenu} from "./SuggestionsMenu";
+import {useDSLParser} from "./useDSLParser";
 
 function getCursorCoordinates(cursor: CursorPositionHandle | null) {
   return cursor?.getCursorPosition?.() ?? {top: 0, left: 0};
@@ -66,6 +67,7 @@ export function DslEditor<T extends string>(
   const cursor = useRef<CursorPositionHandle>(null);
   const highlighter = useRef<HTMLPreElement>(null);
   const errorHighlighter = useRef<HTMLPreElement>(null);
+  const dslParser = useDSLParser({grammar,validate});
 
   const updateSuggestionsForSyntax = useCallback((cst: CSTNode<T>) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
@@ -82,21 +84,13 @@ export function DslEditor<T extends string>(
   }, [parserResult]);
 
   useEffect(() => {
-    const dslParser = validate ? new class ValidatingParser extends DSLParser<T> {
-      constructor() {
-        super(grammar);
-      }
-
-      protected validate(node: T, text: string): string | undefined {
-        return validate(node, text);
-      }
-    } : new DSLParser(grammar);
     const result = dslParser.parse(code);
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setParserResult(result);
     onParsed?.(result);
     updateSuggestionsForSyntax(result.cst);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
-  }, [code, onParsed, grammar, updateSuggestionsForSyntax, validate]);
+  }, [code, onParsed,  updateSuggestionsForSyntax, dslParser]);
 
   const handleSuggestionSelect = useCallback((suggestion: SuggestionsResult) => {
     if (!textarea.current || !parserResult?.cst) return;

@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { funcParser } from './funcParser';
-import { cstPathAt } from './cstPathAt';
-import { DSLParser, GrammarNode } from '../parser';
+import { funcParser } from '../example/funcParser';
+import {GrammarNode} from "./types";
+import {DSLParser} from "./DSLParser";
+import {cstPathAt} from "./cstPathAt";
 
 function testName(): string {
   return expect.getState().currentTestName!.replace(/^.*[>] /g, '');

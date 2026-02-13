@@ -1,7 +1,7 @@
 import {flatMap, pipe, uniqueBy} from 'remeda';
-import {cstPathAt} from '../example/cstPathAt';
 import {CSTNode} from '../parser/CSTNode';
 import {nodeName} from "../parser";
+import {cstPathAt} from "../parser/cstPathAt";
 
 export interface SuggestionsResult {
   suggestion: string,
