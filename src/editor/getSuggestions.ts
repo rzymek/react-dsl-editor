@@ -1,6 +1,6 @@
 import {flatMap, pipe, uniqueBy} from 'remeda';
 import {CSTNode} from '../parser/CSTNode';
-import {nodeName} from "../parser";
+import {DSL, nodeName} from "../parser";
 import {cstPathAt} from "../parser/cstPathAt";
 
 export interface SuggestionsResult {
@@ -10,14 +10,14 @@ export interface SuggestionsResult {
 }
 
 export function getSuggestions<T extends string>(
-  syntax: CSTNode<T>, cursorStart: number, clientSuggestions: (cstNode: CSTNode<T>) => (string[] | undefined) = () => undefined,
+  dsl: DSL<T>, cursorStart: number, clientSuggestions: (cstNode: CSTNode<T>, dsl:DSL<T>) => (string[] | undefined) = () => undefined,
 ): SuggestionsResult[] {
-  const cstPath = cstPathAt(syntax, cursorStart);
+  const cstPath = cstPathAt(dsl.cst, cursorStart);
   const nodeSuggestions = pipe(
     cstPath,
     flatMap((node: CSTNode<T>) => {
       if (nodeName(node) !== undefined) {
-        const suggestions = clientSuggestions(node);
+        const suggestions = clientSuggestions(node, dsl);
         if (suggestions) {
           return suggestions.map(suggestion => ({node, suggestion}));
         }

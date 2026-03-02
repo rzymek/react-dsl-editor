@@ -16,7 +16,7 @@ import {shortcutName} from './shortcutName';
 import {useSyncScroll} from './useSyncScroll';
 import {GrammarNode} from '../parser/types';
 import {CSTNode} from '../parser/CSTNode';
-import {DSL, DSLParser} from '../parser/DSLParser';
+import {DSL} from '../parser/DSLParser';
 import {isEmpty} from 'remeda';
 import {defaultSyntaxColors} from './defaultStyleFor';
 import {ErrorHighlighter} from "./ErrorHighlighter";
@@ -49,7 +49,7 @@ export function DslEditor<T extends string>(
     className?: string,
     tooltipProps?: HTMLAttributes<HTMLElement>,
     validate?: (node: T, text: string) => string | undefined,
-    suggestions?: (node: CSTNode<T>) => string[] | undefined,
+    suggestions?: (node: CSTNode<T>, dsl:DSL<T>) => string[] | undefined,
     syntaxColors?: SyntaxColorsProvider,
   } & Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, 'wrap' | 'onChange'>) {
   const [suggestions, setSuggestions] = useState<SuggestionsResult[]>([]);
@@ -69,9 +69,9 @@ export function DslEditor<T extends string>(
   const errorHighlighter = useRef<HTMLPreElement>(null);
   const dslParser = useDSLParser({grammar,validate});
 
-  const updateSuggestionsForSyntax = useCallback((cst: CSTNode<T>) => {
+  const updateSuggestionsForSyntax = useCallback((dsl: DSL<T>) => {
     const cursorStart = textarea.current?.selectionStart ?? 0;
-    const suggestions = getSuggestions(cst, cursorStart, clientSuggestions);
+    const suggestions = getSuggestions(dsl, cursorStart, clientSuggestions);
     setSuggestions(suggestions);
     return suggestions;
   }, [clientSuggestions]);
@@ -88,7 +88,7 @@ export function DslEditor<T extends string>(
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setParserResult(result);
     onParsed?.(result);
-    updateSuggestionsForSyntax(result.cst);
+    updateSuggestionsForSyntax(result);
     setCursorText(code.substring(0, textarea.current?.selectionStart ?? 0));
   }, [code, onParsed,  updateSuggestionsForSyntax, dslParser]);
 
@@ -136,17 +136,18 @@ export function DslEditor<T extends string>(
   const textAreaKeys = useMemo(() => ({
     CtrlSpace() {
       if (!parserResult?.cst) return;
-      const suggestions = updateSuggestionsForSyntax(parserResult?.cst);
+      const suggestions = updateSuggestionsForSyntax(parserResult);
       if (isEmpty(suggestions)) {
         return;
       }
       setSuggestionMenu({cursorPosition: true, visible: false, top: 0, left: 0});
     },
-  }), [parserResult?.cst, updateSuggestionsForSyntax]);
+  }), [parserResult, updateSuggestionsForSyntax]);
 
   useEffect(() => {
     if (suggestionMenu.cursorPosition) {
       const {top, left} = getCursorCoordinates(cursor.current);
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSuggestionIndex(0);
       setSuggestionMenu({cursorPosition: false, visible: true, top, left});
     }
