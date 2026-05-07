@@ -27,7 +27,7 @@
     "build": "rimraf dist && vite build",
     "lint": "eslint",
     "test": "vitest",
-    "prepublishOnly": "CI=1 npm-run-all -p lint build"
+    "prepublishOnly": "CI=1 npm-run-all -p lint test build"
   },
   "dependencies": {
     "leven": "^4.1.0",

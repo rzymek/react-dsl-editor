@@ -1,6 +1,6 @@
-import { describe, expect, it } from 'vitest';
-import { pattern } from './pattern';
-import {asException, isParserError, ParserContext} from '../../types';
+import {describe, expect, it} from 'vitest';
+import {pattern} from './pattern';
+import {isParserError, ParserContext} from '../../types';
 import {strictInitialContext} from "./strictInitialContext";
 
 describe('pattern suggestions', () => {
