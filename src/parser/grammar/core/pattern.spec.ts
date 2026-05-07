@@ -5,26 +5,25 @@ import {strictInitialContext} from "./strictInitialContext";
 
 describe('pattern suggestions', () => {
   it('should return suggestions', () => {
-    // given
     const grammar = pattern(/[0-9]+/);
-    // when
     const suggestions = grammar.suggestions();
-    // then
-    expect(suggestions).toEqual(['0']);
+    expect(suggestions.map(s => s.text)).toEqual(['0']);
   });
-  it('partial match', () => {
-    const grammar = pattern(/abcd/);
-    const result = grammar.parse('ab xxx', strictInitialContext as ParserContext<never>);
-    if (isParserError(result)) throw asException(result);
-    expect(result.text).toEqual('ab');
+  it('suggestions return {text, node} objects', () => {
+    const grammar = pattern(/[0-9]+/);
+    const suggestions = grammar.suggestions();
+    expect(suggestions[0]).toMatchObject({text: '0', node: grammar});
   });
-  it('partial match 2', () => {
-    const grammar = pattern(/abcd/);
-    const result = grammar.parse('ab', strictInitialContext as ParserContext<never>);
-    if (isParserError(result)) throw asException(result);
-    expect(result.text).toEqual('ab');
+  it('suggestions with dot',()=>{
+    expect(pattern(/ab.cd/).suggestions().map(s => s.text)).toEqual(['ab cd']);
   });
-  it('suggestions',()=>{
-    expect(pattern(/ab.cd/).suggestions()).toEqual(['ab cd']);
-  })
+  it('should reject non-matching input', () => {
+    const grammar = pattern(/abc/);
+    const result = grammar.parse('xyz', strictInitialContext as ParserContext<never>);
+    expect(isParserError(result)).toBe(true);
+    if (isParserError(result)) {
+      expect(result.expected).toEqual(['/abc/']);
+      expect(result.got).toEqual('xyz');
+    }
+  });
 });

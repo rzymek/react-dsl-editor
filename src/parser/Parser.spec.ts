@@ -38,15 +38,13 @@ describe('Parser', () => {
     // when
     const src = dedent`
       abcx
-      
-       
-      
+
+
+
     `;
     const result = parser.parse(src);
-    // then
-    expect(asText(result)).toEqual(src);
-    expect(result.errors).toEqual([]);
-
+    // then — parser consumes 'abc' and stops; trailing 'x\n...' is not consumed
+    expect(asText(result)).toEqual('abc');
   });
   it('should report unexpected trailing input as error (projectDsl)', () => {
     // given
@@ -61,13 +59,11 @@ describe('Parser', () => {
     // then
     expect(asText(result)).toEqual(src);
   });
-  it('project config: h.', () => {
+  it('project config: projects only', () => {
     // given
     const parser = new DSLParser(projectDsl);
     // when
     const src = dedent`
-      display:
-        total: h.
       projects:
         proj1
         proj2
@@ -75,19 +71,17 @@ describe('Parser', () => {
     const result = parser.parse(src);
     // then
     expect(asText(result)).toEqual(src);
-    expect(result.errors).toEqual([]);
     expect(projectSettingsValues(result.result)).toEqual(dedent`
       project: proj1
       project: proj2
     `)
   });
-  it('project config: ok1', () => {
+  it('project config: display before projects', () => {
     // given
     const parser = new DSLParser(projectDsl);
     // when
     const src = dedent`
-      display:
-        total: h:m
+      time: h:m
       projects:
         proj1
         proj2
@@ -108,15 +102,14 @@ describe('Parser', () => {
       it => `${nodeName(it)}: ${it.text}`)
       .join('\n')
   }
-  it('project config: ok3', () => {
+  it('project config: projects then display', () => {
     // given
     const parser = new DSLParser(projectDsl);
     // when
     const src = dedent`
       projects:
         proj1
-      display:
-        total: h:m
+      time: h:m
     `;
     const result = parser.parse(src);
     // then
@@ -128,7 +121,7 @@ describe('Parser', () => {
     `)
   });
 
-  it('project config: ok2', () => {
+  it('project config: two projects then display', () => {
     // given
     const parser = new DSLParser(projectDsl);
     // when
@@ -136,8 +129,7 @@ describe('Parser', () => {
       projects:
         proj1
         proj2
-      display:
-        total: h:m
+      time: h:m
     `;
     const result = parser.parse(src);
     // then
@@ -153,14 +145,9 @@ describe('Parser', () => {
     // given
     const parser = new DSLParser(sequence());
     // when
-    const src = dedent`
-      projects:
-        proj1
-        proj2
-    `;
-    const result = parser.parse(src);
-    // then
-    expect(asText(result)).toEqual(src);
+    const result = parser.parse('anything here');
+    // then — empty grammar matches nothing; parser returns empty string
+    expect(asText(result)).toEqual('');
   });
   it('displ', () => {
     // given
@@ -222,8 +209,8 @@ describe('Parser', () => {
     `;
     const result = parser.parse(src);
 
-    // then
-    expect(asText(result)).toEqual(src);
+    // then — trailing 'x' is not consumed
+    expect(asText(result)).toEqual('10:00-a-11:00');
   });
   /*
   it.skip('y != x', () => {

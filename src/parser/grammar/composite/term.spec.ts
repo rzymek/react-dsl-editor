@@ -5,7 +5,7 @@ import {strictInitialContext} from "../core/strictInitialContext";
 
 describe('term', () => {
   it('suggestions', () => {
-    expect(term('abc').suggestions()).toEqual(['abc']);
+    expect(term('abc').suggestions().map(s => s.text)).toEqual(['abc']);
   });
 
   it('should parse term', () => {
@@ -38,7 +38,7 @@ describe('term', () => {
     if (isParserSuccess(result)) {
       throw new Error('expected parser error');
     }
-    expect(result.expected).toEqual(['abc']);
+    expect(result.expected).toEqual(['/abc/']);
     expect(result.got).toEqual('def');
     expect(result.grammar.meta).toEqual({regex: /abc/});
   });

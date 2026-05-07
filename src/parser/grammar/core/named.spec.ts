@@ -14,7 +14,7 @@ describe('named', () => {
       throw asException(result);
     }
     expect(result.grammar.meta?.name).toEqual(name);
-    expect(result.grammar.suggestions()).toEqual(['abc']);
+    expect(result.grammar.suggestions().map(s => s.text)).toEqual(['abc']);
     expect(result.text).toEqual('abc');
   });
 });

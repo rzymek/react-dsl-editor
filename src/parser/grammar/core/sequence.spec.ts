@@ -30,10 +30,11 @@ describe('sequence', () => {
     const result = grammar.parse('abd', context);
     if (isParserSuccess(result)) throw new Error('Expected failure');
     expect(result).toEqual({
-      expected: ['c'],
+      expected: ['/c/'],
       got: 'd',
       grammar: expect.anything(),
       offset: 2,
+      path: expect.anything(),
     } satisfies ParserError<NodeTypes<typeof grammar>>);
   });
 

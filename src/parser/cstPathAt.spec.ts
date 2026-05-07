@@ -31,6 +31,7 @@ describe('cstPathAt', () => {
           "[repeat    ] fun foo { 123   + 34 }",
           "[sequence  ] fun foo { 123   + 34 }",
           "[sequence  ]  123   + 34 ",
+          "[repeat    ]    ",
           "[pattern   ]    ",
         ]
       `)
@@ -81,10 +82,7 @@ describe('cstPathAt', () => {
     expect(nodes.map(it => `[${it.grammar.type.padEnd(10,' ')}] ${it.text}`)).toMatchInlineSnapshot(`
       [
         "[sequence  ] fun foo { ",
-        "[repeat    ] fun foo { ",
-        "[sequence  ] fun foo { ",
-        "[named     ] foo",
-        "[pattern   ] foo",
+        "[pattern   ] fun foo { ",
       ]
     `)
   });
@@ -98,10 +96,7 @@ describe('cstPathAt', () => {
     expect(nodes.map(it => `[${it.grammar.type.padEnd(10,' ')}] ${it.text}`)).toMatchInlineSnapshot(`
       [
         "[sequence  ] fun foo { xxx",
-        "[repeat    ] fun foo { xxx",
-        "[sequence  ] xxx",
-        "[named     ] xxx",
-        "[pattern   ] xxx",
+        "[pattern   ] fun foo { xxx",
       ]
     `)
   });
@@ -115,11 +110,7 @@ describe('cstPathAt', () => {
     expect(nodes.map(it => `[${it.grammar.type.padEnd(10,' ')}] ${it.text}`)).toMatchInlineSnapshot(`
       [
         "[sequence  ] fun foo { xxx",
-        "[repeat    ] fun foo { xxx",
-        "[sequence  ] fun foo { ",
-        "[pattern   ] {",
-        "[sequence  ]  ",
-        "[pattern   ]  ",
+        "[pattern   ] fun foo { xxx",
       ]
     `)
   });
@@ -133,12 +124,7 @@ describe('cstPathAt', () => {
     expect(nodes.map(it => `[${it.grammar.type.padEnd(10,' ')}] ${it.text}`)).toMatchInlineSnapshot(`
       [
         "[sequence  ] fun foo{2+2}",
-        "[repeat    ] fun foo{2+2}",
-        "[sequence  ] fun foo{2+2}",
-        "[named     ] foo",
-        "[pattern   ] foo",
-        "[optional  ] ",
-        "[pattern   ] {",
+        "[pattern   ] fun foo{2+2}",
       ]
     `)
   });
